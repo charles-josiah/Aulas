@@ -1,0 +1,8 @@
+TYPE="ethernet"
+BOOTPROTO="none"
+DEVICE=enp4s0f0
+NAME=enp4s0f0
+ONBOOT="yes"
+MASTER=bond0
+NM_CONTROLLED=NO
+SLAVE=yes

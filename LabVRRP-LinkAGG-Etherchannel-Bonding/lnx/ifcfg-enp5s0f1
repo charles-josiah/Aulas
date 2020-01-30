@@ -1,0 +1,8 @@
+TYPE="ethernet"
+BOOTPROTO="none"
+DEVICE=enp5s0f1
+NAME=enp5s0f1
+ONBOOT="yes"
+MASTER=bond0
+NM_CONTROLLED=NO
+SLAVE=yes
