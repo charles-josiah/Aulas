@@ -8,7 +8,7 @@ Objetivos é testar e aplicar os conceitos de VRRP/HSRP, Link Aggregation/Etherc
 
 <p align="center">
 Topologia Proposta<br>
-<img src="https://github.com/charles-josiah/SENAI_LAB01_LabVRRP-LinkAGG-Etherchannel-Bonding/blob/master/SENAI-SD-Lab01.png">
+<img src="https://github.com/charles-josiah/Aulas/blob/master/LabVRRP-LinkAGG-Etherchannel-Bonding/SENAI-SD-Lab01.png">
 </p>
 
 Sugestões são bem vindas...
