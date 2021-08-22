@@ -68,11 +68,8 @@ To activate the new configuration, you need to run:
 ● apache2.service - The Apache HTTP Server
 
      Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
-
      Active: active (running) since Thu 2021-04-08 23:12:22 UTC; 5min ago
-
        Docs: https://httpd.apache.org/docs/2.4/
-
     Process: 8837 ExecReload=/usr/sbin/apachectl graceful (code=exited, status=0/SUCCESS)
 
    Main PID: 1598 (apache2)
@@ -93,12 +90,14 @@ Apr 08 23:17:18 ip-172-31-52-173 systemd[1]: Reloaded The Apache HTTP Server.
 
 ````
 
-
 **Passo 2 — Criando o certificado SSL**
 
 Podemos criar a chave SSL e os arquivos de certificado com o comando openssl:
 
-* sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+````
+ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+
+ ````
 
 Opções utilizadas pelo openssl
 
@@ -116,8 +115,8 @@ Opções utilizadas pelo openssl
 
 * -out: isso diz ao OpenSSL onde colocar o certificado que estamos criando.
 
-root@ip-172-31-52-173:/var/www/html# 
-
+Execução:
+````
 root@ip-172-31-52-173:/var/www/html# sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
 
 Generating a RSA private key
@@ -127,7 +126,6 @@ Generating a RSA private key
 writing new private key to '/etc/ssl/private/apache-selfsigned.key'
 -----
 You are about to be asked to enter information that will be incorporated
-
 into your certificate request.
 
 What you are about to enter is what is called a Distinguished Name or a DN.
@@ -147,7 +145,10 @@ Email Address []:brocolis@xyz.security.team
 root@ip-172-31-52-173:/var/www/html# 
 root@ip-172-31-52-173:/var/www/html# 
 
+````
+
 obs.: o FQDN precisa ser obrigatoriamente o endereço do site disponível no servidor.
+
 
 ## **Passo 3 — Configurando o Apache para usar SSL**
 
@@ -159,6 +160,7 @@ Para nosso exemplo, criaremos um novo arquivo de configuração mínima. Abra um
 
 Cole nele a seguinte configuração mínima do VirtualHost:
 
+````
 root@ip-172-31-52-173:/etc/apache2/sites-enabled# cat 000-default-ssl.conf
 
 <VirtualHost *:443>
@@ -169,9 +171,9 @@ root@ip-172-31-52-173:/etc/apache2/sites-enabled# cat 000-default-ssl.conf
    SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
 </VirtualHost>
 
- 
+````
 
-Certifique-se de atualizar a linha ServerName para o que você pretende endereçar ao seu servidor. Isso pode ser um nome de host, nome de domínio completo, ou um endereço IP. Verifique se o que você escolhe corresponde ao Common Name e FQDN que você escolheu ao criar o certificado.
+** Certifique-se de atualizar a linha ServerName para o que você pretende endereçar ao seu servidor. Isso pode ser um nome de host, nome de domínio completo, ou um endereço IP. Verifique se o que você escolhe corresponde ao Common Name e FQDN que você escolheu ao criar o certificado. ** 
 
 As linhas restantes especificam um diretório DocumentRoot a partir do qual serão apresentados os arquivos e as opções SSL necessárias para apontar o Apache para nosso certificado e chave recém-criados.
 
