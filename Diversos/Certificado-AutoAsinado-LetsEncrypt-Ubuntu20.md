@@ -1,4 +1,4 @@
-# Como criar um certificado SSL auto-assinado e letsEncrypt para o Apache no Ubuntu 20.04
+# Como criar um certificado SSL auto-assinado e LetsEncrypt para o Apache no Ubuntu 20.04
 
 <hr>
 Author: Charles Josiah
@@ -220,26 +220,22 @@ Agora, carregue seu site em um navegador, garantindo usar https:// no início e 
 
 Obs.: por estarmos utilizando um certificado auto-assinado a comunicação ocorre criptografada porem, o browser não reconhece a entidade certificado. Apresentanda o certificado de forma "quebrada".
 
+<hr>
 # Agora implementando um certificado letsencrypt.org….
 
 Para um correto funcionamento do certificado precisamos queo nome do site completo (FQDN) esta acessível na internet, pois um teste de validação da let 's encrypt, tentará acesso ao nosso servidor utilizando este nome. Caso não encontre, ele não emitirá o certificado.
 
 ## **Passo 1 - Instalando o Certbot**
 
-* sudo apt install certbot
-
-**root@ip-172-31-52-173:~#   apt -y install certbot **
+````
+sudo apt -y install certbot
 
 Reading package lists... Done
-
 Building dependency tree       
-
 Reading state information... Done
-
 The following additional packages will be installed:
 
   python3-acme python3-certbot python3-configargparse python3-future python3-icu python3-josepy python3-mock python3-parsedatetime python3-pbr
-
   python3-requests-toolbelt python3-rfc3339 python3-tz python3-zope.component python3-zope.event python3-zope.hookable
 
 Suggested packages:
@@ -253,184 +249,98 @@ The following NEW packages will be installed:
   python3-requests-toolbelt python3-rfc3339 python3-tz python3-zope.component python3-zope.event python3-zope.hookable
 
 0 upgraded, 16 newly installed, 0 to remove and 27 not upgraded.
-
 Need to get 1152 kB of archives.
-
 After this operation, 6066 kB of additional disk space will be used.
-
 Get:1 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/universe amd64 python3-josepy all 1.2.0-2 [28.1 kB]
-
 Get:2 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/main amd64 python3-pbr all 5.4.5-0ubuntu1 [64.0 kB]
-
 Get:3 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/universe amd64 python3-mock all 3.0.5-1build1 [25.6 kB]
-
 Get:4 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/universe amd64 python3-requests-toolbelt all 0.8.0-1.1 [35.2 kB]
-
 Get:5 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/main amd64 python3-tz all 2019.3-1 [24.4 kB]
-
 Get:6 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/main amd64 python3-rfc3339 all 1.1-2 [6808 B]
-
 Get:7 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/universe amd64 python3-acme all 1.1.0-1 [29.6 kB]
-
 Get:8 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/universe amd64 python3-configargparse all 0.13.0-2 [22.6 kB]
-
 Get:9 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/main amd64 python3-future all 0.18.2-2 [336 kB]
-
 Get:10 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/universe amd64 python3-parsedatetime all 2.4-5 [32.6 kB]
-
 Get:11 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/universe amd64 python3-zope.hookable amd64 5.0.0-1build1 [11.2 kB]
-
 Get:12 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/universe amd64 python3-zope.event all 4.4-2build1 [7704 B]
-
 Get:13 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/universe amd64 python3-zope.component all 4.3.0-3 [38.3 kB]
-
 Get:14 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal-updates/universe amd64 python3-certbot all 0.40.0-1ubuntu0.1 [223 kB]
-
 Get:15 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal/main amd64 python3-icu amd64 2.4.2-0ubuntu3 [250 kB]
-
 Get:16 http://us-east-1.ec2.archive.ubuntu.com/ubuntu focal-updates/universe amd64 certbot all 0.40.0-1ubuntu0.1 [17.9 kB]
 
 Fetched 1152 kB in 0s (7284 kB/s)
 
 Selecting previously unselected package python3-josepy.
-
 (Reading database ... 93109 files and directories currently installed.)
-
 Preparing to unpack .../00-python3-josepy_1.2.0-2_all.deb ...
-
 Unpacking python3-josepy (1.2.0-2) ...
-
 Selecting previously unselected package python3-pbr.
-
 Preparing to unpack .../01-python3-pbr_5.4.5-0ubuntu1_all.deb ...
-
 Unpacking python3-pbr (5.4.5-0ubuntu1) ...
-
 Selecting previously unselected package python3-mock.
-
 Preparing to unpack .../02-python3-mock_3.0.5-1build1_all.deb ...
-
 Unpacking python3-mock (3.0.5-1build1) ...
-
 Selecting previously unselected package python3-requests-toolbelt.
-
 Preparing to unpack .../03-python3-requests-toolbelt_0.8.0-1.1_all.deb ...
-
 Unpacking python3-requests-toolbelt (0.8.0-1.1) ...
-
 Selecting previously unselected package python3-tz.
-
 Preparing to unpack .../04-python3-tz_2019.3-1_all.deb ...
-
 Unpacking python3-tz (2019.3-1) ...
-
 Selecting previously unselected package python3-rfc3339.
-
 Preparing to unpack .../05-python3-rfc3339_1.1-2_all.deb ...
-
 Unpacking python3-rfc3339 (1.1-2) ...
-
 Selecting previously unselected package python3-acme.
-
 Preparing to unpack .../06-python3-acme_1.1.0-1_all.deb ...
-
 Unpacking python3-acme (1.1.0-1) ...
-
 Selecting previously unselected package python3-configargparse.
-
 Preparing to unpack .../07-python3-configargparse_0.13.0-2_all.deb ...
-
 Unpacking python3-configargparse (0.13.0-2) ...
-
 Selecting previously unselected package python3-future.
-
 Preparing to unpack .../08-python3-future_0.18.2-2_all.deb ...
-
 Unpacking python3-future (0.18.2-2) ...
-
 Selecting previously unselected package python3-parsedatetime.
-
 Preparing to unpack .../09-python3-parsedatetime_2.4-5_all.deb ...
-
 Unpacking python3-parsedatetime (2.4-5) ...
-
 Selecting previously unselected package python3-zope.hookable.
-
 Preparing to unpack .../10-python3-zope.hookable_5.0.0-1build1_amd64.deb ...
-
 Unpacking python3-zope.hookable (5.0.0-1build1) ...
-
 Selecting previously unselected package python3-zope.event.
-
 Preparing to unpack .../11-python3-zope.event_4.4-2build1_all.deb ...
-
 Unpacking python3-zope.event (4.4-2build1) ...
-
 Selecting previously unselected package python3-zope.component.
-
 Preparing to unpack .../12-python3-zope.component_4.3.0-3_all.deb ...
-
 Unpacking python3-zope.component (4.3.0-3) ...
-
 Selecting previously unselected package python3-certbot.
-
 Preparing to unpack .../13-python3-certbot_0.40.0-1ubuntu0.1_all.deb ...
-
 Unpacking python3-certbot (0.40.0-1ubuntu0.1) ...
-
 Selecting previously unselected package python3-icu.
-
 Preparing to unpack .../14-python3-icu_2.4.2-0ubuntu3_amd64.deb ...
-
 Unpacking python3-icu (2.4.2-0ubuntu3) ...
-
 Selecting previously unselected package certbot.
-
 Preparing to unpack .../15-certbot_0.40.0-1ubuntu0.1_all.deb ...
-
 Unpacking certbot (0.40.0-1ubuntu0.1) ...
-
 Setting up python3-configargparse (0.13.0-2) ...
-
 Setting up python3-requests-toolbelt (0.8.0-1.1) ...
-
 Setting up python3-icu (2.4.2-0ubuntu3) ...
-
 Setting up python3-zope.event (4.4-2build1) ...
-
 Setting up python3-pbr (5.4.5-0ubuntu1) ...
-
 update-alternatives: using /usr/bin/python3-pbr to provide /usr/bin/pbr (pbr) in auto mode
-
 Setting up python3-tz (2019.3-1) ...
-
 Setting up python3-mock (3.0.5-1build1) ...
-
 Setting up python3-zope.hookable (5.0.0-1build1) ...
-
 Setting up python3-josepy (1.2.0-2) ...
-
 Setting up python3-future (0.18.2-2) ...
-
 update-alternatives: using /usr/bin/python3-futurize to provide /usr/bin/futurize (futurize) in auto mode
-
 update-alternatives: using /usr/bin/python3-pasteurize to provide /usr/bin/pasteurize (pasteurize) in auto mode
-
 Setting up python3-rfc3339 (1.1-2) ...
-
 Setting up python3-parsedatetime (2.4-5) ...
-
 Setting up python3-zope.component (4.3.0-3) ...
-
 Setting up python3-acme (1.1.0-1) ...
-
 Setting up python3-certbot (0.40.0-1ubuntu0.1) ...
-
 Setting up certbot (0.40.0-1ubuntu0.1) ...
-
 Created symlink /etc/systemd/system/timers.target.wants/certbot.timer → /lib/systemd/system/certbot.timer.
-
 Processing triggers for man-db (2.9.1-1) ...
+````
 
 ## **Passo 2 - Configurando o nosso Certbot**
 
@@ -438,24 +348,19 @@ O Certbot vai oferecer várias maneiras de obter certificados SSL através de pl
 
 No comando do certboot temos que informar obrigatoriamente a opção -d para dizer qual é o nosso site/servidor/FQDN
 
-root@ip-172-31-52-173:~# **certbot certonly --webroot -w /var/www/html -d brocolis.faznada.xyz**
+````
+certbot certonly --webroot -w /var/www/html -d brocolis.faznada.xyz
 
 Saving debug log to /var/log/letsencrypt/letsencrypt.log
-
 Plugins selected: Authenticator webroot, Installer None
-
 Enter email address (used for urgent renewal and security notices) (Enter 'c' to
-
-cancel): brocolis@faznada.xyz
+cancel): (#brocolis@faznada.xyz)
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Please read the Terms of Service at
-
 https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf. You must
-
 agree in order to register with the ACME server at
-
 https://acme-v02.api.letsencrypt.org/directory
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -465,11 +370,8 @@ https://acme-v02.api.letsencrypt.org/directory
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Would you be willing to share your email address with the Electronic Frontier
-
 Foundation, a founding partner of the Let's Encrypt project and the non-profit
-
 organization that develops Certbot? We'd like to send you email about our work
-
 encrypting the web, EFF news, campaigns, and ways to support digital freedom.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -477,48 +379,35 @@ encrypting the web, EFF news, campaigns, and ways to support digital freedom.
 (Y)es/(N)o: Y
 
 Obtaining a new certificate
-
 Performing the following challenges:
 
 http-01 challenge for brocolis.faznada.xyz
-
 Using the webroot path /var/www/html for all unmatched domains.
-
 Waiting for verification...
-
 Cleaning up challenges
-
 Saving debug log to /var/log/letsencrypt/letsencrypt.log
-
 Plugins selected: Authenticator webroot, Installer None
-
 Obtaining a new certificate
 
 IMPORTANT NOTES:
 
  - Congratulations! Your certificate and chain have been saved at:
-
-**   /etc/letsencrypt/live/brocolis.faznada.xyz/fullchain.pem**
-
+**  (#/etc/letsencrypt/live/brocolis.faznada.xyz/fullchain.pem)
    Your key file has been saved at:
-
-**   /etc/letsencrypt/live/brocolis.faznada.xyz/privkey.pem**
-
+**  (#/etc/letsencrypt/live/brocolis.faznada.xyz/privkey.pem)
    Your cert will expire on 2021-07-07. To obtain a new or tweaked
-
    version of this certificate in the future, simply run certbot
-
    again. To non-interactively renew *all* of your certificates, run
 
    "certbot renew"
 
  - If you like Certbot, please consider supporting our work by:
-
    Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
-
    Donating to EFF:                    https://eff.org/donate-le
 
 root@ip-172-31-52-173:~# 
+
+````
 
 Obs.: No final da execução do certbot, ele informou qual é a localização dos nossos arquivos  de certificados.
 
