@@ -57,9 +57,7 @@ Enabling module ssl.
 See /usr/share/doc/apache2/README.Debian.gz on how to configure SSL and create self-signed certificates.
 ````
 
-To activate the new configuration, you need to run:
-
-  systemctl restart apache2
+Para ativar a nova configuração: 
 
 ````
  systemctl restart apache2
@@ -115,7 +113,7 @@ Opções utilizadas pelo openssl
 
 * -out: isso diz ao OpenSSL onde colocar o certificado que estamos criando.
 
-Execução:
+***Vamos criar nosso certificado:***
 ````
 root@ip-172-31-52-173:/var/www/html# sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
 
@@ -173,7 +171,7 @@ root@ip-172-31-52-173:/etc/apache2/sites-enabled# cat 000-default-ssl.conf
 
 ````
 
-** Certifique-se de atualizar a linha ServerName para o que você pretende endereçar ao seu servidor. Isso pode ser um nome de host, nome de domínio completo, ou um endereço IP. Verifique se o que você escolhe corresponde ao Common Name e FQDN que você escolheu ao criar o certificado. ** 
+**Certifique-se de atualizar a linha ServerName para o que você pretende endereçar ao seu servidor. Isso pode ser um nome de host, nome de domínio completo, ou um endereço IP. Verifique se o que você escolhe corresponde ao Common Name e FQDN que você escolheu ao criar o certificado.** 
 
 As linhas restantes especificam um diretório DocumentRoot a partir do qual serão apresentados os arquivos e as opções SSL necessárias para apontar o Apache para nosso certificado e chave recém-criados.
 
