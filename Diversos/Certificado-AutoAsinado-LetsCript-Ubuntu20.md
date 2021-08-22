@@ -154,12 +154,14 @@ Agora que temos nosso certificado auto-assinado e a chave disponíveis, precisam
 
 Para nosso exemplo, criaremos um novo arquivo de configuração mínima. Abra um novo arquivo no diretório /etc/apache2/sites-available:
 
-* sudo vi /etc/apache2/sites-available/000-default-ssl.conf
+````
+ sudo vi /etc/apache2/sites-available/000-default-ssl.conf
+````
 
-Cole nele a seguinte configuração mínima do VirtualHost:
+Cole nele e edite as seguinte configuração mínima do VirtualHost:
 
 ````
-root@ip-172-31-52-173:/etc/apache2/sites-enabled# cat 000-default-ssl.conf
+root@ip-172-31-52-173:/etc/apache2/sites-enabled# vi 000-default-ssl.conf
 
 <VirtualHost *:443>
    ServerName brocolis.faznada.xyz
@@ -171,45 +173,33 @@ root@ip-172-31-52-173:/etc/apache2/sites-enabled# cat 000-default-ssl.conf
 
 ````
 
-**Certifique-se de atualizar a linha ServerName para o que você pretende endereçar ao seu servidor. Isso pode ser um nome de host, nome de domínio completo, ou um endereço IP. Verifique se o que você escolhe corresponde ao Common Name e FQDN que você escolheu ao criar o certificado.** 
+Certifique-se de atualizar a linha ServerName para o que você pretende endereçar ao seu servidor. Isso pode ser um nome de host, nome de domínio completo, ou um endereço IP. Verifique se o que você escolhe corresponde ao Common Name e FQDN que você escolheu ao criar o certificado.
 
-As linhas restantes especificam um diretório DocumentRoot a partir do qual serão apresentados os arquivos e as opções SSL necessárias para apontar o Apache para nosso certificado e chave recém-criados.
+As linhas restantes especificam um diretório DocumentRoot a partir do qual serão apresentados os arquivos e as opções SSL necessárias para apontar o Apache para nosso certificado e chave recém-criados.** 
 
  
-
 Em seguida, vamos testar à procura de erros de configuração e reiniciar o serviço para aplicar as devidas configurações.
 
- 
-* root@ip-172-31-52-173:~# cd /etc/apache2/sites-enabled/
-* root@ip-172-31-52-173:/etc/apache2/sites-enabled# ls
+ ````
+root@ip-172-31-52-173:~# cd /etc/apache2/sites-enabled/
+root@ip-172-31-52-173:/etc/apache2/sites-enabled# ls
 000-default-ssl.conf  000-default.conf
-
-* root@ip-172-31-52-173:/etc/apache2/sites-enabled# vi 000-default-ssl.conf 
-
-* root@ip-172-31-52-173:/etc/apache2/sites-enabled# vi 000-default-ssl.conf 
-
-* root@ip-172-31-52-173:/etc/apache2/sites-enabled# apache2ctl configtest
-
+root@ip-172-31-52-173:/etc/apache2/sites-enabled# vi 000-default-ssl.conf 
+root@ip-172-31-52-173:/etc/apache2/sites-enabled# vi 000-default-ssl.conf 
+root@ip-172-31-52-173:/etc/apache2/sites-enabled# apache2ctl configtest
 **Syntax OK**
 
-* root@ip-172-31-52-173:/etc/apache2/sites-enabled# systemctl restart apache2.service 
+root@ip-172-31-52-173:/etc/apache2/sites-enabled# systemctl restart apache2.service 
 
 ● apache2.service - The Apache HTTP Server
 
      Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
-
      Active: active (running) since Thu 2021-04-08 23:36:41 UTC; 5s ago
-
        Docs: https://httpd.apache.org/docs/2.4/
-
     Process: 12403 ExecStart=/usr/sbin/apachectl start (code=exited, status=0/SUCCESS)
-
    Main PID: 12417 (apache2)
-
       Tasks: 6 (limit: 1160)
-
      Memory: 16.9M
-
      CGroup: /system.slice/apache2.service
              ├─12417 /usr/sbin/apache2 -k start
              ├─12418 /usr/sbin/apache2 -k start
@@ -219,16 +209,14 @@ Em seguida, vamos testar à procura de erros de configuração e reiniciar o ser
              └─12422 /usr/sbin/apache2 -k start
 
 Apr 08 23:36:41 ip-172-31-52-173 systemd[1]: Starting The Apache HTTP Server...
+````
+ 
+Se tudo for bem-sucedido, você receberá um resultado que se parecerá com este abaixo.
 
  
-
-Se tudo for bem-sucedido, você receberá um resultado que se parecerá com este:
-
- 
-
 Agora, carregue seu site em um navegador, garantindo usar https:// no início e tudo deve dar certo.
 
-![image alt text](image_0.png)
+![image alt text](/Aulas/Diversos/imagens/image_0.png)
 
 Obs.: por estarmos utilizando um certificado auto-assinado a comunicação ocorre criptografada porem, o browser não reconhece a entidade certificado. Apresentanda o certificado de forma "quebrada".
 
