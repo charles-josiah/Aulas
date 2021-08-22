@@ -216,7 +216,7 @@ Se tudo for bem-sucedido, você receberá um resultado que se parecerá com este
  
 Agora, carregue seu site em um navegador, garantindo usar https:// no início e tudo deve dar certo.
 
-![image alt text](/Aulas/Diversos/imagens/image_0.png)
+![image alt text](/imagens/image_0.png)
 
 Obs.: por estarmos utilizando um certificado auto-assinado a comunicação ocorre criptografada porem, o browser não reconhece a entidade certificado. Apresentanda o certificado de forma "quebrada".
 
