@@ -61,8 +61,9 @@ To activate the new configuration, you need to run:
 
   systemctl restart apache2
 
-* systemctl restart apache2
-* systemctl status apache2
+````
+ systemctl restart apache2
+ systemctl status apache2
 
 ● apache2.service - The Apache HTTP Server
 
@@ -86,12 +87,12 @@ To activate the new configuration, you need to run:
              └─8879 /usr/sbin/apache2 -k start
 
 Apr 08 23:12:21 ip-172-31-52-173 systemd[1]: Starting The Apache HTTP Server...
-
 Apr 08 23:12:22 ip-172-31-52-173 systemd[1]: Started The Apache HTTP Server.
-
 Apr 08 23:17:18 ip-172-31-52-173 systemd[1]: Reloading The Apache HTTP Server.
-
 Apr 08 23:17:18 ip-172-31-52-173 systemd[1]: Reloaded The Apache HTTP Server.
+
+````
+
 
 **Passo 2 — Criando o certificado SSL**
 
