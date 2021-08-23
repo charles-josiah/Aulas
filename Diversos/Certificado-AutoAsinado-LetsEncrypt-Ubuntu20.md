@@ -354,7 +354,7 @@ certbot certonly --webroot -w /var/www/html -d brocolis.faznada.xyz
 Saving debug log to /var/log/letsencrypt/letsencrypt.log
 Plugins selected: Authenticator webroot, Installer None
 Enter email address (used for urgent renewal and security notices) (Enter 'c' to
-cancel): (#brocolis@faznada.xyz)
+cancel): "brocolis@faznada.xyz"
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -392,9 +392,9 @@ Obtaining a new certificate
 IMPORTANT NOTES:
 
  - Congratulations! Your certificate and chain have been saved at:
-**  (#/etc/letsencrypt/live/brocolis.faznada.xyz/fullchain.pem)
+     "/etc/letsencrypt/live/brocolis.faznada.xyz/fullchain.pem)"
    Your key file has been saved at:
-**  (#/etc/letsencrypt/live/brocolis.faznada.xyz/privkey.pem)
+     "/etc/letsencrypt/live/brocolis.faznada.xyz/privkey.pem)"
    Your cert will expire on 2021-07-07. To obtain a new or tweaked
    version of this certificate in the future, simply run certbot
    again. To non-interactively renew *all* of your certificates, run
@@ -415,73 +415,54 @@ Obs.: No final da execução do certbot, ele informou qual é a localização do
 
 Para finalizar o processo, temos que atualizar a coniguração do nosso site HTTPS. Lembra, do 000-default-ssl.conf ? Então esse é o arquivo que temos que atualizar o certificado.
 
-root@ip-172-31-52-173:/etc/apache2/sites-enabled# cat 000-default-ssl.conf 
+
+````
+vi 000-default-ssl.conf 
 
 <VirtualHost *:443>
-
    ServerName brocolis.faznada.xyz
-
    DocumentRoot /var/www/html
-
    SSLEngine on
-
-   SSLCertificateFile **/etc/letsencrypt/live/brocolis.faznada.xyz/fullchain.pem**
-
-**   SSLCertificateKeyFile    /etc/letsencrypt/live/brocolis.faznada.xyz/privkey.pem**
-
+   SSLCertificateFile      /etc/letsencrypt/live/brocolis.faznada.xyz/fullchain.pem
+   SSLCertificateKeyFile  /etc/letsencrypt/live/brocolis.faznada.xyz/privkey.pem
 </VirtualHost>
 
 root@ip-172-31-52-173:/etc/apache2/sites-enabled# 
+````
 
 Os caminhos do certificado foram fornecidos na etapa anterior.
 
 Vamos reiniciar/reload o apache, e testar.
 
-root@ip-172-31-52-173:/etc/apache2/sites-enabled# **apache2ctl configtest **
 
+````
+root@ip-172-31-52-173:/etc/apache2/sites-enabled# pache2ctl configtest 
 **Syntax OK**
 
-root@ip-172-31-52-173:/etc/apache2/sites-enabled# 
+root@ip-172-31-52-173:/etc/apache2/sites-enabled# systemctl restart apache2.service
 
-root@ip-172-31-52-173:/etc/apache2/sites-enabled# 
-
-root@ip-172-31-52-173:/etc/apache2/sites-enabled# 
-
-root@ip-172-31-52-173:/etc/apache2/sites-enabled#** systemctl restart apache2.service** 
 
 ● apache2.service - The Apache HTTP Server
-
      Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
-
      Active: active (running) since Thu 2021-04-08 23:36:41 UTC; 5s ago
-
        Docs: https://httpd.apache.org/docs/2.4/
-
     Process: 12403 ExecStart=/usr/sbin/apachectl start (code=exited, status=0/SUCCESS)
 
    Main PID: 12417 (apache2)
-
       Tasks: 6 (limit: 1160)
-
      Memory: 16.9M
-
      CGroup: /system.slice/apache2.service
-
              ├─12417 /usr/sbin/apache2 -k start
-
              ├─12418 /usr/sbin/apache2 -k start
-
              ├─12419 /usr/sbin/apache2 -k start
-
              ├─12420 /usr/sbin/apache2 -k start
-
              ├─12421 /usr/sbin/apache2 -k start
-
              └─12422 /usr/sbin/apache2 -k start
 
 Apr 08 23:36:41 ip-172-31-52-173 systemd[1]: Starting The Apache HTTP Server...
+````
 
 Se tudo for bem-sucedido, você receberá um resultado que se parecerá com este:
 
-![image alt text](image_1.png)
+![image alt text](./imagens/image_1.png)
 
