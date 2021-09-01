@@ -344,7 +344,7 @@ Processing triggers for man-db (2.9.1-1) ...
 
 ## **Passo 2 - Configurando o nosso Certbot**
 
-O Certbot vai oferecer várias maneiras de obter certificados SSL através de plug-ins.  Lembrando que neste momento não podemos ter nenhum servidor web ou serviço consumindo a porta 80 do nosso servidor, pois a Let 's Encrypt fará um teste de comunicação, como dito anteriormente, para o nosso servidor.
+O Certbot vai oferecer várias maneiras de obter certificados SSL através de plug-ins. Uma delas é utilizando o DNS ou usando o proprio servidor web para validação do certificado.
 
 No comando do certboot temos que informar obrigatoriamente a opção -d para dizer qual é o nosso site/servidor/FQDN
 
@@ -436,7 +436,7 @@ Vamos reiniciar/reload o apache, e testar.
 
 
 ````
-root@ip-172-31-52-173:/etc/apache2/sites-enabled# pache2ctl configtest 
+root@ip-172-31-52-173:/etc/apache2/sites-enabled# apache2ctl configtest 
 **Syntax OK**
 
 root@ip-172-31-52-173:/etc/apache2/sites-enabled# systemctl restart apache2.service
