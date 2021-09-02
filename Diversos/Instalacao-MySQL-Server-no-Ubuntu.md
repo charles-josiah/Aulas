@@ -67,12 +67,12 @@ mysql> INSERT INTO cadfun (CODFUN, NOME, DEPTO, FUNCAO, SALARIO)  VALUES (3, ‘
 mysql> INSERT INTO cadfun (CODFUN, NOME, DEPTO, FUNCAO, SALARIO) VALUES (10, ‘PAULO DA SILVA’, ‘2', ‘VENDEDOR’, 1530.00);
 
 ````
-Para validar podemos executar alguns comando via mysql, ou acessar novamente o phpmyadmin via browser, com o usuario e senha criado no passo anterior.
+Para validar podemos executar alguns comando via mysql, ou acessar novamente o phpmyadmin via browser, com o usuario e senha criado nos passos anteriores.
 
 Conforme imagens:
 ![image alt text](./imagens/phpmyadmin01.png)
 ![image alt text](./imagens/phpmyadmin02.png)
-![image alt text](./imagens/phpmuadmin03.png)
+![image alt text](./imagens/phpmyadmin03.png)
 
 # 3 - Alguns comandos para treinar...
 
