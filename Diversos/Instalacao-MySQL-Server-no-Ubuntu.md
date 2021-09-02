@@ -1,7 +1,7 @@
 ﻿# Instalação MySQL Server no Ubuntu
 
 <hr>
-Author: Charles Josiah
+Author: Charles Josiah <br>
 Email: charles.alandt(at)gmail.com
 <hr>
 
@@ -27,8 +27,24 @@ Antes de iniciar este tutorial, você precisará do seguinte:
 
 Instalado e rodando.... Vamos validar :D 
 ````
-#> systemctl status mysql-server
+#>  systemctl status mysql.service 
+
+● mysql.service - MySQL Community Server
+   Loaded: loaded (/lib/systemd/system/mysql.service; enabled; vendor preset: enabled)
+   Active: active (running) since Thu 2021-09-02 00:10:33 UTC; 14h ago
+  Process: 27473 ExecStart=/usr/sbin/mysqld --daemonize --pid-file=/run/mysqld/mysqld.pid (code=exited, status=0/SUCCESS)
+  Process: 27454 ExecStartPre=/usr/share/mysql/mysql-systemd-start pre (code=exited, status=0/SUCCESS)
+ Main PID: 27475 (mysqld)
+    Tasks: 31 (limit: 2314)
+   CGroup: /system.slice/mysql.service
+           └─27475 /usr/sbin/mysqld --daemonize --pid-file=/run/mysqld/mysqld.pid
+
+Sep 02 00:10:32 srvweb01 systemd[1]: Starting MySQL Community Server...
+Sep 02 00:10:33 srvweb01 systemd[1]: Started MySQL Community Server.
+
 ````
+Tudo verinho e status de running...
+Agora vamos colocar algumas informações dentro do nosso banco.
 
 # 2 - Inserir um usuario e um banco de dados de teste
 
@@ -125,3 +141,46 @@ mysql> INSERT INTO cadfun VALUES (20, 'AUDREY TOLEDO', '2', 'SUPERVISORA', 1700.
 mysql> INSERT INTO cadfun VALUES (22, 'SANDRA MANZANO', '2','ANALISTA', 2000.00, '2006-07-01');
 mysql> INSERT INTO cadfun VALUES (24, 'MARCIO CANUTO', '2', 'PROGRAMADOR', 1200.00, '2006-07-10');
 mysql> SELECT * FROM cadfun;
+
+
+# 4 - Integração basica usando PHP para exibir alguns dados no navegador...
+
+No diretorio htdoc do nosso servidor web, no meu caso, no /var/www/html
+
+```
+root@srvweb01:/var/www/html# vi consulta.php 
+<html>
+	<head>
+	<title>Extraindo dados de um  Banco de Dados</title>
+	</head>
+	<body>
+
+	<?php
+
+	ini_set('display_errors', 1);
+	ini_set('display_startup_errors', 1);
+	error_reporting(E_ALL);
+	// Conexão com o Banco de Dados - Atualizar conforme a sua instalação
+	$conn = mysqli_connect("127.0.0.1", "eu", "mamaemeama", "mydb");
+
+	if ($conn->connect_error) {
+	  die("Connection failed: " . $conn->connect_error);
+	}	echo "Connected successfully";
+
+	$strSQL = "select * from cadfun";
+
+	mysqli_query($conn, $strSQL) or die('Erro na tabela1'); 
+
+	$result = mysqli_query($conn, $strSQL);
+	$row = mysqli_fetch_array($result);
+
+	echo "<br>";
+	while ($row = mysqli_fetch_array($result)) {
+		 echo $row['CODFUN'].'-'.$row['NOME'].'-'.$row['DEPTO'].'-'.$row['FUNCAO'].'-'.$row['SALARIO']."<br>";
+        }
+	?>
+	</body>
+</html>
+```
+E feito isso, "bora" conferir no navegador se apresentou alguns dados....
+![image alt text](./imagens/phpmyadmin04.png)
