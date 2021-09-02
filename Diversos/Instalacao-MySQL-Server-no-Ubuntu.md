@@ -25,7 +25,8 @@ Antes de iniciar este tutorial, você precisará do seguinte:
 
 ````
 
-Instalado e rodando.... Vamos validar :D 
+Instalado e rodando.... Vamos validar :D
+
 ````
 #>  systemctl status mysql.service 
 
@@ -83,6 +84,7 @@ mysql> INSERT INTO cadfun (CODFUN, NOME, DEPTO, FUNCAO, SALARIO)  VALUES (3, ‘
 mysql> INSERT INTO cadfun (CODFUN, NOME, DEPTO, FUNCAO, SALARIO) VALUES (10, ‘PAULO DA SILVA’, ‘2', ‘VENDEDOR’, 1530.00);
 
 ````
+
 Para validar podemos executar alguns comando via mysql, ou acessar novamente o phpmyadmin via browser, com o usuario e senha criado nos passos anteriores.
 
 Conforme imagens:
@@ -92,8 +94,8 @@ Conforme imagens:
 
 # 3 - Alguns comandos para treinar...
 
-```
-#> mysql -u
+````
+#> mysql -u root
 mysql> use mydb
 mysql> INSERT INTO cadfun (CODFUN, NOME, DEPTO, FUNCAO, SALARIO)  VALUES (12, 'CARLOS ALBERTO', '3', 'VENDEDOR', 1530.00);
 mysql> INSERT INTO cadfun (CODFUN, NOME, DEPTO, SALARIO)  VALUES (44, 'JACIBA DA SILVA', '3', 1500.00);
@@ -141,13 +143,13 @@ mysql> INSERT INTO cadfun VALUES (20, 'AUDREY TOLEDO', '2', 'SUPERVISORA', 1700.
 mysql> INSERT INTO cadfun VALUES (22, 'SANDRA MANZANO', '2','ANALISTA', 2000.00, '2006-07-01');
 mysql> INSERT INTO cadfun VALUES (24, 'MARCIO CANUTO', '2', 'PROGRAMADOR', 1200.00, '2006-07-10');
 mysql> SELECT * FROM cadfun;
-
+````
 
 # 4 - Integração basica usando PHP para exibir alguns dados no navegador...
 
 No diretorio htdoc do nosso servidor web, no meu caso, no /var/www/html
 
-```
+````
 root@srvweb01:/var/www/html# vi consulta.php 
 <html>
 	<head>
@@ -181,6 +183,7 @@ root@srvweb01:/var/www/html# vi consulta.php
 	?>
 	</body>
 </html>
-```
+
+````
 E feito isso, "bora" conferir no navegador se apresentou alguns dados....
 ![image alt text](./imagens/phpmyadmin04.png)
