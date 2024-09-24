@@ -28,7 +28,7 @@
      - Configuração de 2 CPUs, 2048 MB de RAM, e disco de até 10 GB (modo thin provision).
      - Eles carregam uma imagem ISO do Slax como Live CD.
 
-O ambiente acima esta disponivel neste repositorio pelo arquivo de setup do [Vagrantfile <https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2024-Lab-Cripto-e-SegRedes/Vagrantfile>]
+O ambiente acima esta disponivel neste repositorio pelo arquivo de setup do [Vagrantfile (https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2024-Lab-Cripto-e-SegRedes/Vagrantfile)]
 
 
 ## Objetivos 
