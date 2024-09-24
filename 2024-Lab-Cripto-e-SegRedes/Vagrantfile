@@ -1,0 +1,99 @@
+Vagrant.configure("2") do |config|
+
+  # Obter o timestamp atual
+  timestamp = Time.now.to_i
+
+  # Configurações globais
+  config.vm.provider "virtualbox" do |vb|
+    # Todas as máquinas em modo promíscuo
+    vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+  end
+
+  # Configurações de rede interna
+  internal_network_options = {
+    type: "private_network",
+    virtualbox__intnet: "RedeInterna",
+    auto_config: false
+  }
+
+  # Servidor 1 (Ubuntu)
+  config.vm.define "serv1" do |serv1|
+    serv1.vm.box = "ubuntu/bionic64"
+    serv1.vm.hostname = "serv1"
+    serv1.vm.network "private_network", virtualbox__intnet: "RedeInterna", auto_config: false
+    serv1.vm.provider "virtualbox" do |vb|
+      vb.name = "ri-serv1_#{timestamp}"
+      vb.memory = "2048"
+      vb.cpus = 2
+      # Nome do disco com timestamp
+      disk_name = "serv1_#{timestamp}.vdi"
+      vb.customize ["createhd", "--filename", disk_name, "--size", 10000, "--variant", "Standard"]
+ #     vb.customize ["modifyvm", :id, "--nic1", "none"]
+    end
+  end
+
+  # Servidor 2 (Ubuntu)
+  config.vm.define "serv2" do |serv2|
+    serv2.vm.box = "ubuntu/bionic64"
+    serv2.vm.hostname = "serv2"
+    serv2.vm.network "private_network", virtualbox__intnet: "RedeInterna", auto_config: false
+    serv2.vm.provider "virtualbox" do |vb|
+      vb.name = "ri-serv2_#{timestamp}"
+      vb.memory = "2048"
+      vb.cpus = 2
+      # Nome do disco com timestamp
+      disk_name = "serv2_#{timestamp}.vdi"
+      vb.customize ["createhd", "--filename", disk_name, "--size", 10000, "--variant", "Standard"]
+#      vb.customize ["modifyvm", :id, "--nic1", "none"]
+    end
+  end
+
+  # Firewall Servidor (Debian)
+  config.vm.define "fw-serv02" do |fw|
+    fw.vm.box = "debian/buster64"
+    fw.vm.hostname = "fw-serv02"
+    fw.vm.network "public_network", bridge: "wlp0s20f3", use_dhcp_assigned_default_route: true
+    fw.vm.network "private_network", virtualbox__intnet: "RedeInterna", auto_config: false
+    fw.vm.provider "virtualbox" do |vb|
+      vb.name = "fw-serv02_#{timestamp}"
+      vb.memory = "2048"
+      vb.cpus = 2
+      # Nome do disco com timestamp
+      disk_name = "fw-serv02_#{timestamp}.vdi"
+      vb.customize ["createhd", "--filename", disk_name, "--size", 5000, "--variant", "Standard"]
+    end
+  end
+
+  # Servidor Slax 1 (CentOS com XFCE)
+  config.vm.define "slax01" do |slax1|
+    slax1.vm.box = "pure360/centos-7.0-64-puppet-xfce"
+    slax1.vm.hostname = "slax01"
+    slax1.vm.network "private_network", virtualbox__intnet: "RedeInterna", auto_config: false
+    slax1.vm.provider "virtualbox" do |vb|
+      vb.name = "ri-slax01_#{timestamp}"
+      vb.memory = "2048"
+      vb.cpus = 2
+      # Nome do disco com timestamp e tamanho ajustado
+      disk_name = "slax01_#{timestamp}.vdi"
+      vb.customize ["createhd", "--filename", disk_name, "--size", 1024, "--variant", "Standard"]
+#      vb.customize ["modifyvm", :id, "--nic1", "none"]
+    end
+  end
+
+  # Servidor Kali Linux
+  config.vm.define "kali" do |kali|
+    kali.vm.box =  "kalilinux/rolling"
+    kali.vm.hostname = "kali"
+    kali.vm.network "private_network", virtualbox__intnet: "RedeInterna", auto_config: false
+    kali.vm.provider "virtualbox" do |vb|
+      vb.name = "ri-kali_#{timestamp}"
+      vb.memory = "2048"
+      vb.cpus = 2
+      # Nome do disco com timestamp
+      disk_name = "kali_#{timestamp}.vdi"
+      vb.customize ["createhd", "--filename", disk_name, "--size", 10000, "--variant", "Standard"]
+    #  vb.customize ["modifyvm", :id, "--nic1", "none"]
+    end
+  end
+end
+
