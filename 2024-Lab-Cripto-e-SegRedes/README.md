@@ -24,9 +24,9 @@
      - Eles carregam uma imagem ISO do Slax como Live CD.
 
 - 1x Servidores ri-kali:
-     - Utilizam uma distro live CD (Slax) e estão conectados à "RedeInterna".
+     - Utilizam uma distro live CD (Kali) e estão conectados à "RedeInterna".
      - Configuração de 2 CPUs, 2048 MB de RAM, e disco de até 10 GB (modo thin provision).
-     - Eles carregam uma imagem ISO do Slax como Live CD.
+     - Eles carregam uma imagem ISO do Kali como Live CD.
 
 O ambiente acima esta disponivel neste repositorio pelo arquivo de setup do [Vagrantfile](https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2024-Lab-Cripto-e-SegRedes/Vagrantfile) e sua [explicacao](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/vagrantfile.md).
 
