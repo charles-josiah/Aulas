@@ -32,6 +32,7 @@ O ambiente acima esta disponivel neste repositorio pelo arquivo de setup do [Vag
 
 
 ## Objetivos 
+### Aula 2
 - Objetivo 1 - Fazer a bagaça funcionar
 - Objetivo 2 - Entender algumas coisas basicas de rede
     - dns / gw / ip / default gw / etc
@@ -41,3 +42,21 @@ O ambiente acima esta disponivel neste repositorio pelo arquivo de setup do [Vag
 - Objetivo 5 - fazer a bagaca sair para internet, 
     - ver um pouco de tcpdump x wireshark
 - Objetivo 6 - ver se achamos algo bom no wireshark
+### Aula 3
+Observaçoes: 
+- Objetivo 1 - RECAP Express: Conectar o ambiente à internet
+  - Garantir que o ambiente esteja funcional e a máquina virtual tenha acesso à internet.
+- Objetivo 2 - Subir servidor virtual "ri-serv2" e configurar na "RedeInterna"
+  - Criar e configurar a máquina virtual "ri-serv2", conectando-a à rede interna "RedeInterna".
+- Objetivo 3 - Instalar e configurar um servidor HTTP com NGINX
+  - Configuração simples e funcional.
+    - Criar 3 vhosts na rede interna:
+      - **2 vhosts**: Sites completos aleatórios, baixados do [FreeCSS](https://www.free-css.com/free-css-templates).
+      - **1 vhost**: Sistema de login básico.
+- Objetivo 4 - Instalar e configurar um servidor MySQL
+  - Configuração básica e rápida.
+  - Criar 1 banco de dados para autenticação de usuários do sistema de login.
+- Objetivo 5 - Capturar tráfego e verificar senhas de acesso
+  - Realizar capturas de tráfego no ambiente para identificar senhas de acesso ao sistema de login.
+
+
