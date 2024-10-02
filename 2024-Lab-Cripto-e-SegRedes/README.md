@@ -32,7 +32,11 @@ O ambiente acima esta disponivel neste repositorio pelo arquivo de setup do [Vag
 
 
 ## Objetivos 
+
 ### Aula 2
+#### Observação:
+As instalações de servidores e aplicativos serão realizadas em tempo real. troubleshooting serao necessarios.
+#### Objetivos
 - Objetivo 1 - Fazer a bagaça funcionar
 - Objetivo 2 - Entender algumas coisas basicas de rede
     - dns / gw / ip / default gw / etc
@@ -43,7 +47,9 @@ O ambiente acima esta disponivel neste repositorio pelo arquivo de setup do [Vag
     - ver um pouco de tcpdump x wireshark
 - Objetivo 6 - ver se achamos algo bom no wireshark
 ### Aula 3
-Observaçoes: 
+#### Observação:
+As instalações de servidores e aplicativos serão realizadas em tempo real. troubleshooting serao necessarios.
+#### Objetivos
 - Objetivo 1 - RECAP Express: Conectar o ambiente à internet
   - Garantir que o ambiente esteja funcional e a máquina virtual tenha acesso à internet.
 - Objetivo 2 - Subir servidor virtual "ri-serv2" e configurar na "RedeInterna"
