@@ -32,7 +32,7 @@ sudo dnf install openssl
 
 ## 1. Algoritmos de Criptografia de Bloco
 
-Os algoritmos de criptografia de bloco dividem os dados em blocos fixos e os criptografam. Aqui estão os passos para usar cada um deles.
+Os algoritmos de criptografia de bloco dividem os dados em blocos fixos e os criptografam.
 
 ### 1.1 DES (Data Encryption Standard)
 
@@ -190,17 +190,17 @@ openssl enc -chacha20 -d -in arquivo_encrypted.chacha20 -out arquivo_decrypted.t
 
 | Algoritmo        | Tipo           | Resistência a Ataques            | Nível de Segurança         |
 |------------------|----------------|-----------------------------------|---------------------------|
-| DES              | Bloco          | Baixo                             | Baixo (obsoleto)          |
-| 3DES             | Bloco          | Médio                             | Moderado                  |
-| AES-128          | Bloco          | Alto                              | Alto                      |
-| AES-192          | Bloco          | Alto                              | Alto                      |
-| AES-256          | Bloco          | Muito Alto                        | Muito Alto                |
-| IDEA             | Bloco          | Médio                             | Moderado                  |
-| Blowfish         | Bloco          | Alto                              | Alto                      |
-| Twofish          | Bloco          | Alto                              | Alto                      |
-| RC4              | Fluxo          | Médio                             | Baixo (vulnerável a ataques) |
-| ChaCha20         | Fluxo          | Alto                              | Alto                      |
-| Twofish (GPG)    | Fluxo          | Alto                              | Alto                      |
+| DES              |  Bloco          | Baixo                             | Baixo (obsoleto)          |
+| 3DES             |  Bloco          | Médio                             | Moderado                  |
+| AES-128          |  Bloco          | Alto                              | Alto                      |
+| AES-192          |  Bloco          | Alto                              | Alto                      |
+| AES-256          |  Bloco          | Muito Alto                        | Muito Alto                |
+| IDEA             |  Bloco          | Médio                             | Moderado                  |
+| Blowfish         |  Bloco          | Alto                              | Alto                      |
+| Twofish          |  Bloco          | Alto                              | Alto                      |
+| RC4              |  Fluxo          | Médio                             | Baixo (vulnerável a ataques) |
+| ChaCha20         |  Fluxo          | Alto                              | Alto                      |
+| Twofish (GPG)    |  Fluxo          | Alto                              | Alto                      |
 
 ## Considerações:
 
