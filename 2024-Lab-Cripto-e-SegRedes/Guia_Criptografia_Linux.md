@@ -39,13 +39,13 @@ Os algoritmos de criptografia de bloco dividem os dados em blocos fixos e os cri
 #### Criptografar
 
 ```bash
-openssl enc -des -in arquivo.txt -out arquivo_encrypted.des -k "sua_senha"
+openssl enc -des -in arquivo.txt -out arquivo_encrypted.des 
 ```
 
 #### Descriptografar
 
 ```bash
-openssl enc -des -d -in arquivo_encrypted.des -out arquivo_decrypted.txt -k "sua_senha"
+openssl enc -des -d -in arquivo_encrypted.des -out arquivo_decrypted.txt
 ```
 
 ### 1.2 3DES (Triple DES)
@@ -53,13 +53,12 @@ openssl enc -des -d -in arquivo_encrypted.des -out arquivo_decrypted.txt -k "sua
 #### Criptografar
 
 ```bash
-openssl enc -des3 -in arquivo.txt -out arquivo_encrypted.des3 -k "sua_senha"
-```
+openssl enc -des3 -in arquivo.txt -out arquivo_encrypted.des3```
 
 #### Descriptografar
 
 ```bash
-openssl enc -des3 -d -in arquivo_encrypted.des3 -out arquivo_decrypted.txt -k "sua_senha"
+openssl enc -des3 -d -in arquivo_encrypted.des3 -out arquivo_decrypted.txt
 ```
 
 ### 1.3 AES (Advanced Encryption Standard)
@@ -69,13 +68,13 @@ openssl enc -des3 -d -in arquivo_encrypted.des3 -out arquivo_decrypted.txt -k "s
 ##### Criptografar
 
 ```bash
-openssl enc -aes-128-cbc -in arquivo.txt -out arquivo_encrypted.aes128 -k "sua_senha"
+openssl enc -aes-128-cbc -in arquivo.txt -out arquivo_encrypted.aes128 
 ```
 
 ##### Descriptografar
 
 ```bash
-openssl enc -aes-128-cbc -d -in arquivo_encrypted.aes128 -out arquivo_decrypted.txt -k "sua_senha"
+openssl enc -aes-128-cbc -d -in arquivo_encrypted.aes128 -out arquivo_decrypted.txt 
 ```
 
 #### AES-192
@@ -83,13 +82,13 @@ openssl enc -aes-128-cbc -d -in arquivo_encrypted.aes128 -out arquivo_decrypted.
 ##### Criptografar
 
 ```bash
-openssl enc -aes-192-cbc -in arquivo.txt -out arquivo_encrypted.aes192 -k "sua_senha"
+openssl enc -aes-192-cbc -in arquivo.txt -out arquivo_encrypted.aes192 
 ```
 
 ##### Descriptografar
 
 ```bash
-openssl enc -aes-192-cbc -d -in arquivo_encrypted.aes192 -out arquivo_decrypted.txt -k "sua_senha"
+openssl enc -aes-192-cbc -d -in arquivo_encrypted.aes192 -out arquivo_decrypted.txt 
 ```
 
 #### AES-256
@@ -97,13 +96,13 @@ openssl enc -aes-192-cbc -d -in arquivo_encrypted.aes192 -out arquivo_decrypted.
 ##### Criptografar
 
 ```bash
-openssl enc -aes-256-cbc -in arquivo.txt -out arquivo_encrypted.aes256 -k "sua_senha"
+openssl enc -aes-256-cbc -in arquivo.txt -out arquivo_encrypted.aes256 
 ```
 
 ##### Descriptografar
 
 ```bash
-openssl enc -aes-256-cbc -d -in arquivo_encrypted.aes256 -out arquivo_decrypted.txt -k "sua_senha"
+openssl enc -aes-256-cbc -d -in arquivo_encrypted.aes256 -out arquivo_decrypted.txt
 ```
 
 ### 1.4 IDEA
@@ -111,13 +110,13 @@ openssl enc -aes-256-cbc -d -in arquivo_encrypted.aes256 -out arquivo_decrypted.
 #### Criptografar
 
 ```bash
-openssl enc -idea -in arquivo.txt -out arquivo_encrypted.idea -k "sua_senha"
+openssl enc -idea -in arquivo.txt -out arquivo_encrypted.idea 
 ```
 
 #### Descriptografar
 
 ```bash
-openssl enc -idea -d -in arquivo_encrypted.idea -out arquivo_decrypted.txt -k "sua_senha"
+openssl enc -idea -d -in arquivo_encrypted.idea -out arquivo_decrypted.txt 
 ```
 
 ### 1.5 Blowfish
@@ -125,13 +124,13 @@ openssl enc -idea -d -in arquivo_encrypted.idea -out arquivo_decrypted.txt -k "s
 #### Criptografar
 
 ```bash
-openssl enc -bf -in arquivo.txt -out arquivo_encrypted.blowfish -k "sua_senha"
+openssl enc -bf -in arquivo.txt -out arquivo_encrypted.blowfish 
 ```
 
 #### Descriptografar
 
 ```bash
-openssl enc -bf -d -in arquivo_encrypted.blowfish -out arquivo_decrypted.txt -k "sua_senha"
+openssl enc -bf -d -in arquivo_encrypted.blowfish -out arquivo_decrypted.txt 
 ```
 
 ### 1.6 Twofish
@@ -159,13 +158,13 @@ Os algoritmos de criptografia de fluxo processam os dados de forma contínua, cr
 #### Criptografar
 
 ```bash
-openssl enc -rc4 -in arquivo.txt -out arquivo_encrypted.rc4 -k "sua_senha"
+openssl enc -rc4 -in arquivo.txt -out arquivo_encrypted.rc4 
 ```
 
 #### Descriptografar
 
 ```bash
-openssl enc -rc4 -d -in arquivo_encrypted.rc4 -out arquivo_decrypted.txt -k "sua_senha"
+openssl enc -rc4 -d -in arquivo_encrypted.rc4 -out arquivo_decrypted.txt 
 ```
 
 ### 2.2 ChaCha20
@@ -175,13 +174,13 @@ openssl enc -rc4 -d -in arquivo_encrypted.rc4 -out arquivo_decrypted.txt -k "sua
 #### Criptografar
 
 ```bash
-openssl enc -chacha20 -in arquivo.txt -out arquivo_encrypted.chacha20 -k "sua_senha"
+openssl enc -chacha20 -in arquivo.txt -out arquivo_encrypted.chacha20 
 ```
 
 #### Descriptografar
 
 ```bash
-openssl enc -chacha20 -d -in arquivo_encrypted.chacha20 -out arquivo_decrypted.txt -k "sua_senha"
+openssl enc -chacha20 -d -in arquivo_encrypted.chacha20 -out arquivo_decrypted.txt
 ```
 <br>
 <hr>
