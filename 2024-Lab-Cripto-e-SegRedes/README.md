@@ -89,8 +89,8 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
 - Objetivo 7: Conversa sobre Criptografia Simétrica e Exploração de Vulnerabilidades
   - Investigar e analisar potenciais vulnerabilidades relacionadas a algoritmos de criptografia simétrica.
   - Material de apoio: [Guia basico](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/Guia_Criptografia_Linux.md)
-  - Exemplo de descobrir senha no arquivo. [Exemplo usando John the Ripper em um arquivo ZIP](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/ExemploJohnZIP.md) 
-  - Reverter senhas / Descobrir(>) senhas:
+  - [Exemplo usando John the Ripper em um arquivo ZIP com senha](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/ExemploJohnZIP.md)  
+  - Reverter senhas / Descobrir(?) senhas:
     - Ferramenta: [MD5Hashing](https://md5hashing.net)
       - d3e9091dbe0c29fdbb7eb272e38f80800011b325
       - 5356235270111a9c2792caebc20e6eb5a420fc5e
@@ -100,4 +100,8 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
 
 
 
-:wq!
+
+
+
+
+<h6>:wq!</h6>
