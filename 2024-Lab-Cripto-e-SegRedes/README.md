@@ -64,5 +64,30 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
   - Criar 1 banco de dados para autenticação de usuários do sistema de login.
 - Objetivo 5 - Capturar tráfego e verificar senhas de acesso
   - Realizar capturas de tráfego no ambiente para identificar senhas de acesso ao sistema de login.
+### Aula 4
+#### Observação:
+As instalações de servidores e aplicativos serão realizadas em tempo real. troubleshooting serao necessarios.
+#### Objetivos
+- Objetivo 1 - RECAP Express: Conectar o ambiente à internet, Servico HTTP
+  - Assegurar que o ambiente esteja funcional e que a máquina virtual tenha acesso à internet, habilitando o serviço HTTP.
+- Objetivo 2: Implantação do Servidor Virtual "ri-serv1" na Rede Interna
+  - Criar e configurar a máquina virtual "ri-serv1", conectando-a à rede interna denominada "RedeInterna".
+- Objetivo 3: Instalação e Configuração de um Servidor FTP (vsftpd)
+  - Realizar uma configuração simples e funcional:
+    - Adicionar dois usuários para gerenciar seus respectivos sites, **site1** e **site2**.
+    - Corrigir as permissões dos diretórios correspondentes a **site1** e **site2**.
+    - Permitir que os usuários façam upload de arquivos no FTP.
+    - Restringir o acesso dos usuários para que não naveguem livremente pelo servidor.
+- Objetivo 4: Instalação e Configuração do phpMyAdmin
+  - Implementar uma configuração básica, rápida e funcional:
+    - Instalar e configurar o phpMyAdmin.
+    - Configurar o Virtual Host no NGINX para o phpMyAdmin.
+    - Habilitar o acesso remoto ao phpMyAdmin e explorar a aplicação, incluindo a criação e administração de usuários e bancos de dados.
+- Objetivo 5: Captura de Tráfego e Validação
+  - Realizar capturas de tráfego no ambiente para identificar e capturar as senhas dos usuários do FTP e do MySQL.
+- Objetivo 6: Brainstorm, Reflexões, Divagações, Devaneios, Discussões, Deliberações, Propostas, Contemplações, Digressões, Ideias sobre Proteção em Serviços sem Criptografia
+- Objetivo 7: Conversa sobre Criptografia Simétrica e Exploração de Vulnerabilidades
+  - Investigar e analisar potenciais vulnerabilidades relacionadas a algoritmos de criptografia simétrica.
+
 
 
