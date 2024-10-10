@@ -88,7 +88,10 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
 - Objetivo 6: Brainstorm, Reflexões, Divagações, Devaneios, Discussões, Deliberações, Propostas, Contemplações, Digressões, Ideias sobre Proteção em Serviços sem Criptografia
 - Objetivo 7: Conversa sobre Criptografia Simétrica e Exploração de Vulnerabilidades
   - Investigar e analisar potenciais vulnerabilidades relacionadas a algoritmos de criptografia simétrica.
-  - Material de apoio: [Guia basico](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/Guia_Criptografia_Linux.md)
+  - Material de apoio:
+    - [Guia basico](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/Guia_Criptografia_Linux.md)
+    - https://openbenchmarking.org/
+    - https://pgbackrest.org/
   - [Exemplo usando John the Ripper em um arquivo ZIP com senha](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/ExemploJohnZIP.md)  
   - Reverter senhas / Descobrir(?) senhas:
     - Ferramenta: [MD5Hashing](https://md5hashing.net)
