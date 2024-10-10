@@ -1,0 +1,84 @@
+
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	root /var/www/html/site1;
+
+	index index.html index.htm;
+
+	server_name site1.faznada.xyz;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+
+}
+
+
+server {
+	listen 80;
+	listen [::]:80;
+
+	server_name site2.faznada.xyz;
+
+	root /var/www/html/site2;
+
+	index index.html index.htm;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}
+
+server {
+	listen 80;
+	listen [::]:80;
+
+	server_name login.faznada.xyz;
+
+	root /var/www/html/login;
+
+    	index login.php index.php index.html index.htm;
+
+	location / {
+	   try_files $uri $uri/ =404;
+	}
+
+        location ~ \.php$ {
+           include snippets/fastcgi-php.conf;
+           fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;  # For most systems, this should work
+           fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+           include fastcgi_params;
+        }
+
+        location ~ /\.ht {
+           deny all;
+        }
+
+}
+
+
+server {
+    listen 80;
+    server_name phpmyadmin.faznada.xyz;
+
+    root /usr/share/phpmyadmin;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock; # Adjust the version if needed
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+
