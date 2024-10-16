@@ -102,7 +102,8 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
 ### Aula 5
 #### Observação:
 As instalações de servidores e aplicativos serão realizadas em tempo real. troubleshooting serao necessarios.
-Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra da Oracle OCI e dockers, a lot of dockers...
+Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra da Oracle OCI e dockers, a lot of dockers...<br>
+[Nova topologia](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/NovoSetup-UsandoOracleOCI/readme.MD)
 #### Objetivos
 - Objetivo 1 - RECAP Express: Conectar o ambiente à internet, Servico HTTP
   - Assegurar que o ambiente esteja funcional e que a máquina virtual tenha acesso à internet, habilitando o serviço HTTP.
