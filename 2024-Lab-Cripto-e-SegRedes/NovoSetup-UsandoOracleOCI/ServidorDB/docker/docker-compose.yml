@@ -1,0 +1,51 @@
+version: '3'
+
+volumes:
+  data:
+
+services:
+  webserver:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
+    links:
+      - phpmyadmin
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    links:
+      - webserver
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=162.240.228.226
+    links:
+      - db
+  
+  db:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    volumes:
+      - data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=super_senha_secreta 
+      - MYSQL_DATABASE=admin
+  
