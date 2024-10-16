@@ -1,6 +1,3 @@
-
-Estrutura do ambeinte 
-
 # Laboratorio Cripto e SegRedes
 
 ## Nova Topologia proposta temporaria:
@@ -15,7 +12,7 @@ Estrutura do ambeinte
 | ServidorDB | Running | 144.33.31.48 | 172.31.123.6 | VM.Standard.E2.1.Micro | 1 | 1 |
 
 ## Agradecimentos: 
- - Oracle OCI por 1500 reais em credito por criar uma conta lah....
+ - Oracle OCI por 1500 reais em credito por criar uma conta lah.... :D :D :D :D 
 
 
 :wq!
