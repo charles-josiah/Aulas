@@ -108,7 +108,7 @@ Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra
   - Assegurar que o ambiente esteja funcional e que a máquina virtual tenha acesso à internet, habilitando o serviço HTTP.
 - Objetivo 2: Validação do servidor HTTP se esta funcional ainda, e adicionar certificados SSL providos pelo Lelt's Encrypt.
   - Verificar no wireshark as diferencas de com x sem criptografia.
-- Objetivo 3: Validação do Servidor FTP (vsftpd) e ativar a criptografia.
+- Objetivo 3: Validação do Servidor FTP (vsftpd) e ativar a criptografia usando certificados SSL providos pelo Lelt's Encrypt .
   - Realizar testes simples e funcional:
     - Adicionar dois usuários para gerenciar seus respectivos sites, **site1** e **site2**.
     - Corrigir as permissões dos diretórios correspondentes a **site1** e **site2**.
