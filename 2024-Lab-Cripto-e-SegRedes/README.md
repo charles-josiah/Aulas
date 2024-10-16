@@ -99,6 +99,28 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
       - 5356235270111a9c2792caebc20e6eb5a420fc5e
       - 3a7d8c592f0175b771293a6d22937f392d5b147ebb4daa4ffde4ab6d51a7fdc3
       - 20c946581a23e80233acef8866267e3a
+### Aula 5
+#### Observação:
+As instalações de servidores e aplicativos serão realizadas em tempo real. troubleshooting serao necessarios.
+Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra da Oracle OCI e dockers, a lot of dockers...
+#### Objetivos
+- Objetivo 1 - RECAP Express: Conectar o ambiente à internet, Servico HTTP
+  - Assegurar que o ambiente esteja funcional e que a máquina virtual tenha acesso à internet, habilitando o serviço HTTP.
+- Objetivo 2: Validação do servidor HTTP se esta funcional ainda, e adicionar certificados SSL providos pelo Lelt's Encrypt.
+  - Verificar no wireshark as diferencas de com x sem criptografia.
+- Objetivo 3: Validação do Servidor FTP (vsftpd) e ativar a criptografia.
+  - Realizar testes simples e funcional:
+    - Adicionar dois usuários para gerenciar seus respectivos sites, **site1** e **site2**.
+    - Corrigir as permissões dos diretórios correspondentes a **site1** e **site2**.
+    - Verificar no wireshark as diferencas de com x sem criptografia.
+- Objetivo 4: Verificação do phpMyAdmin e adição de certificado HTTPs, via proxy reverso.
+  -  Verificar no wireshark as diferencas de com x sem criptografia.
+- Objetivo 5: Captura de Tráfego e Validação
+  - Realizar capturas de tráfego no ambiente para identificar e capturar as senhas dos usuários do FTP, HTTP, PHPMyAdmin, do MySQL em conexões sem criptografia, e com (se possivel).
+- Objetivo 6: Brainstorm, Reflexões, Divagações, Devaneios, Discussões, Deliberações, Propostas, Contemplações, Digressões, Ideias sobre Proteção em Serviços sem Criptografia
+- Objetivo 7: Conversar sobre Criptografia Assimétrica.
+
+
 
 
 
