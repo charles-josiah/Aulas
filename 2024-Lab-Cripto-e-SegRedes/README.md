@@ -119,7 +119,11 @@ Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra
   - Realizar capturas de tráfego no ambiente para identificar e capturar as senhas dos usuários do FTP, HTTP, PHPMyAdmin, do MySQL em conexões sem criptografia, e com (se possivel).
 - Objetivo 6: Brainstorm, Reflexões, Divagações, Devaneios, Discussões, Deliberações, Propostas, Contemplações, Digressões, Ideias sobre Proteção em Serviços sem Criptografia
 - Objetivo 7: Conversar sobre Criptografia Assimétrica.
-
+  - Material de apoio:
+    - [Guia basico](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/criptografia_simetrica_introducao.md)
+    - https://www.sslchecker.com/
+    - https://www.sslshopper.com/
+    - https://www.ssllabs.com/ssltest/
 
 
 
