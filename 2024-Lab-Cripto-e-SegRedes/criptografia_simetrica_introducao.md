@@ -32,6 +32,8 @@ A criptografia assimétrica é amplamente utilizada em diversos cenários, como:
 - **Autenticação SSH**: Para acessar servidores de forma segura, utiliza-se a autenticação baseada em chaves SSH.
 - **Assinatura de Software**: Os desenvolvedores assinam pacotes de software digitalmente para garantir que não foram adulterados.
 - **Email Seguro (PGP/GPG)**: O PGP (Pretty Good Privacy) utiliza criptografia assimétrica para proteger o conteúdo dos e-mails e garantir a autenticidade do remetente.
+- **VPN**: Criptografia do tráfego de rede para proteger a privacidade dos usuários.
+- **Infraestrutura de chave pública (PKI)**: Gerenciamento de certificados digitais e hierarquias de confiança.
 
 ## 5. Exemplos Práticos em Ubuntu
 
