@@ -13,3 +13,9 @@ Estrutura do ambeinte
 |---|---|---|---|---|---|---|
 | ServidorWEB | Running | 144.33.8.112 | 172.31.123.59 | VM.Standard.E2.1.Micro | 1 | 1 |
 | ServidorDB | Running | 144.33.31.48 | 172.31.123.6 | VM.Standard.E2.1.Micro | 1 | 1 |
+
+## Agradecimentos: 
+ - Oracle OCI por 1500 reais em credito por criar uma conta lah....
+
+
+:wq!
