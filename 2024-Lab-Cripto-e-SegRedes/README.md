@@ -125,6 +125,7 @@ Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra
     - https://www.sslchecker.com/
     - https://www.sslshopper.com/
     - https://www.ssllabs.com/ssltest/
+    - https://github.com/kspviswa/local-packet-whisperer
 
 
 
