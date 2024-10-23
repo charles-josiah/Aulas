@@ -140,6 +140,11 @@ Nova topologia Verga:
 - Objetivo 3: - Captura de Tráfego e Validação de serviços sem SSL e utilizando o tunel. O que acontece ? 
 - Objetivo 4: - Brainstorm, Reflexões, Divagações, Devaneios, Discussões, Deliberações, Propostas, Contemplações, Digressões, Ideias sobre Proteção em Serviços sem Criptografia
 - Objetivo 5: - Tira duvidas geral
+    - Material de apoio:
+         - Servidor de VPN com openvp: <br>
+            - https://github.com/angristan/openvpn-install
+            - https://github.com/Nyr/openvpn-install
+            - Implementação do IPSEC.
 
 
 
