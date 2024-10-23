@@ -137,7 +137,7 @@ Nova topologia Verga:
 #### Objetivos
 - Objetivo 1: - RECAP Express: Validar e conversar sobre contectividade dos servidores com a internet.
 - Objetivo 2: - troubleshouting e serviço de ipsec
-- Objetivo 3: - Captura de Tráfego e Validação
+- Objetivo 3: - Captura de Tráfego e Validação de serviços sem SSL e utilizando o tunel. O que acontece ? 
 - Objetivo 4: - Brainstorm, Reflexões, Divagações, Devaneios, Discussões, Deliberações, Propostas, Contemplações, Digressões, Ideias sobre Proteção em Serviços sem Criptografia
 - Objetivo 5: - Tira duvidas geral
 
