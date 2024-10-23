@@ -127,10 +127,19 @@ Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra
     - https://www.ssllabs.com/ssltest/
     - https://github.com/kspviswa/local-packet-whisperer
 
+### Aula 6
+#### Observação:
+As instalações de servidores e aplicativos serão realizadas em tempo real. troubleshooting serao necessarios.
+Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra da Oracle OCI e dockers, a lot of dockers...<br>
+Nova topologia:
+![image](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/ipsec.png)
 
-
-
-
+#### Objetivos
+- Objetivo 1: - RECAP Express: Validar e conversar sobre contectividade dos servidores com a internet.
+- Objetivo 2: - troubleshouting e serviço de ipsec
+- Objetivo 3: - Captura de Tráfego e Validação
+- Objetivo 4: - Brainstorm, Reflexões, Divagações, Devaneios, Discussões, Deliberações, Propostas, Contemplações, Digressões, Ideias sobre Proteção em Serviços sem Criptografia
+- Objetivo 5: - Tira duvidas geral
 
 
 
