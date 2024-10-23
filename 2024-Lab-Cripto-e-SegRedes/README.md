@@ -131,7 +131,7 @@ Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra
 #### Observação:
 As instalações de servidores e aplicativos serão realizadas em tempo real. troubleshooting serao necessarios.
 Triste noticia meu PC deu falha... E vamos ter que improvisar/inovar com a infra da Oracle OCI e dockers, a lot of dockers...<br>
-Nova topologia:
+Nova topologia Verga:
 ![image](https://github.com/charles-josiah/Aulas/blob/master/2024-Lab-Cripto-e-SegRedes/ipsec.png)
 
 #### Objetivos
