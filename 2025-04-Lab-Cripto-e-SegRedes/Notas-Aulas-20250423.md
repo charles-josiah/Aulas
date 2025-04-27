@@ -1,5 +1,5 @@
 
-# Wiki - Aulas de Redes, DHCP, Criptografia e Serviços
+# Nota - Aulas de Redes, DHCP, Criptografia e Serviço
 
 ## 🔢 Ativando o IP Forwarding
 
