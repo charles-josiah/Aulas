@@ -41,7 +41,8 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
 - Objetivo 5 - fazer a bagaca sair para internet, 
     - ver um pouco de tcpdump x wireshark
 - Objetivo 6 - ver se achamos algo bom no wireshark
-
+#### Links
+- [Nota da Aula](https://github.com/charles-josiah/Aulas/blob/master/2025-04-Lab-Cripto-e-SegRedes/Notas-Aulas-20250423.md)
 
 
 
