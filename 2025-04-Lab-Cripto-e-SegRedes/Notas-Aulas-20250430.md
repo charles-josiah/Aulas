@@ -1,4 +1,30 @@
 
+## 🧬 Docker como Evolução dos Jails do FreeBSD
+
+O **FreeBSD Jail**, introduzido em 2000, é um recurso de isolamento de processos e sistemas de arquivos dentro do sistema operacional FreeBSD. Ele permite criar ambientes isolados no mesmo sistema, cada um com seu próprio conjunto de usuários, processos e até pilha de rede — algo bastante similar ao conceito moderno de containers.
+
+Embora os **jails** tenham sido pioneiros nesse tipo de virtualização leve, sua adoção permaneceu limitada ao ecossistema do FreeBSD.
+
+O **Docker**, por outro lado, surgiu em 2013 e se popularizou no ecossistema Linux ao combinar várias tecnologias nativas, como:
+
+- **Namespaces**: isolamento de processos, usuários, redes, etc.
+- **Cgroups**: controle de uso de recursos (CPU, memória, I/O).
+- **Union Filesystems** (como AUFS, OverlayFS): camadas de sistema de arquivos.
+- **LXC** (Linux Containers): usado como base inicial do Docker.
+
+### 🧠 Principais Diferenciais do Docker
+
+- Interface simples e acessível via CLI.
+- Empacotamento completo de aplicações e suas dependências.
+- Imagens portáteis publicáveis no Docker Hub.
+- Ecossistema completo para CI/CD, desenvolvimento e orquestração.
+
+### 📌 Conclusão
+
+Sim, o Docker pode ser considerado um **descendente moderno e multiplataforma** de tecnologias como o **FreeBSD Jail**. Ele reinterpretou e ampliou conceitos existentes com foco em portabilidade, padronização e automação — o que o tornou uma ferramenta central no desenvolvimento moderno de software.
+
+
+
 # Projeto Docker Compose: PHP + Apache + MariaDB + phpMyAdmin
 
 Este projeto configura um ambiente de desenvolvimento web utilizando Docker Compose com três serviços principais:
