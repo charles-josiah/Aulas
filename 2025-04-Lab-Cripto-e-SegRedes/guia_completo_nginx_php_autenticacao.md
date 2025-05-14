@@ -43,6 +43,9 @@ Conteúdo de exemplo:
 
 ```bash
 echo "<h1>Site 1</h1>" | sudo tee /var/www/site1.faznada.xyz/public_html/index.html
+echo "<h1>Site 2</h1>" | sudo tee /var/www/site2.faznada.xyz/public_html/index.html
+echo "<h1>Site 3</h1>" | sudo tee /var/www/site3.faznada.xyz/public_html/index.html
+
 ```
 
 Permissões:
