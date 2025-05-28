@@ -1,62 +1,81 @@
-# Aula Pratica - Ambientes Vulneraveis para Testes com Scanners
+# Aula Prática - Ambientes Vulneráveis para Testes com Scanners
+
+## Índice
+
+1. [Observações](#observações)
+2. [Topologia do Laboratório](#topologia-proposta)
+   - [Componentes da Topologia](#componentes-da-topologia)
+   - [Vantagens da Arquitetura](#vantagens-da-arquitetura)
+   - [Recomendações Técnicas](#recomendações-técnicas)
+3. [Distribuições e Imagens](#distribuições-e-imagens-utilizadas)
+   - [Metasploitable2](#1-metasploitable2---maquina-virtual-vulneravel)
+   - [DVWA](#2-dvwa---damn-vulnerable-web-application)
+   - [Vulhub](#3-vulhub---ambientes-docker-com-cves)
+   - [Kali Linux](#4-kali-linux---distribuicao-para-testes-de-invasao)
+4. [Iniciando Laboratórios](#iniciando-laboratorios)
+   - [Recursos e Links](#recursos-e-links)
+   - [Configuração dos Hosts](#tabela-de-hosts)
+   - [Configuração de Redes](#tabela-de-redes-do-virtual-box)
+5. [Primeiros Scans](#fazendo-os-primeiros-scans)
+   - [NMAP - Conceitos Básicos](#o-que-é-o-nmap)
+   - [Exemplos de Uso](#exemplos-basicos-de-uso)
+   - [Análise de Serviços](#analise-de-servico-identificado-com-nmap)
+   - [Exploração de Vulnerabilidades](#exploracao-com-metasploit)
+6. [Nikto - Scanner Web](#nikto)
+   - [Visão Geral](#o-que-é-o-nikto)
+   - [Funcionalidades](#funcionalidades-principais)
+   - [Considerações Técnicas](#considerações-técnicas)
+   - [Exemplos de Uso](#exemplos-de-uso)
 
 <hr>
 
-## Observacoes
+## 1. Observações
 
-- Nunca utilize essas ferramentas ou ambientes em redes de terceiros sem autorizacao explicita.
-- Sempre isole os ambientes vulneraveis em maquinas virtuais ou redes internas controladas.
+- Nunca utilize essas ferramentas ou ambientes em redes de terceiros sem autorização explícita.
+- Sempre isole os ambientes vulneráveis em máquinas virtuais ou redes internas controladas.
 
 <hr>
 
-## Topologia proposta
-<center>
+## 2. Topologia do Laboratório
 
 ![image](https://github.com/user-attachments/assets/9f3f202a-090b-4077-83f8-052decbea686)
 
+### 2.1 Componentes da Topologia
 
-</center>
-
-### Topologia de Laboratorio de Seguranca - Ambiente Isolado
-
-A topologia apresentada representa um ambiente controlado para testes de seguranca da informacao, ideal para escaneamento de vulnerabilidades e validacao de ferramentas ofensivas e defensivas.
-
-### Componentes da Topologia
-
-- **MS2 (Metasploitable2):** Maquina virtual com diversas falhas conhecidas, usada como alvo em testes de exploracao.
-- **DVWA (Damn Vulnerable Web App):** Aplicacao web vulneravel escrita em PHP/MySQL.
-- **Vulhub:** Colecao de containers Docker com CVEs especificos para exploracao.
-- **Kali:** Distribuicao Linux voltada para testes de invasao e seguranca ofensiva.
-- **FW (Firewall):** Componente intermediario que controla o trafego entre a rede de laboratorio e a internet.
+- **MS2 (Metasploitable2):** Máquina virtual com diversas falhas conhecidas, usada como alvo em testes de exploração.
+- **DVWA (Damn Vulnerable Web App):** Aplicação web vulnerável escrita em PHP/MySQL.
+- **Vulhub:** Coleção de containers Docker com CVEs específicos para exploração.
+- **Kali:** Distribuição Linux voltada para testes de invasão e segurança ofensiva.
+- **FW (Firewall):** Componente intermediário que controla o tráfego entre a rede de laboratório e a internet.
 - **Docker:** Host destinado a subir aplicações e testes via docker.
-- **Nuvem (Internet):** Simbolo de conexao externa controlada.
+- **Nuvem (Internet):** Símbolo de conexão externa controlada.
 
-## Vantagens da Arquitetura
+### 2.2 Vantagens da Arquitetura
 
-- **Isolamento completo:** Alvos vulneraveis estao em rede separada, sem contato com a rede de producao.
-- **Controle de trafego:** O firewall pode restringir acessos externos e simular ataques internos.
+- **Isolamento completo:** Alvos vulneráveis estão em rede separada, sem contato com a rede de produção.
+- **Controle de tráfego:** O firewall pode restringir acessos externos e simular ataques internos.
 - **Facilidade de escalabilidade:** Novas VMs ou containers podem ser adicionados facilmente.
-- **Ambiente seguro para testes reais:** Permite exercicios praticos com ferramentas como Nmap, Nikto, Nessus, sqlmap, etc.
+- **Ambiente seguro para testes reais:** Permite exercícios práticos com ferramentas como Nmap, Nikto, Nessus, sqlmap, etc.
 
-## Recomendacoes Tecnicas
+### 2.3 Recomendações Técnicas
 
-- Configure a rede virtual como NAT ou Host-only para evitar exposicao externa.
-- Garanta que apenas o Kali tenha acesso controlado a internet.
+- Configure a rede virtual como NAT ou Host-only para evitar exposição externa.
+- Garanta que apenas o Kali tenha acesso controlado à internet.
 - Utilize ferramentas como `iptables`, `ufw` ou `pfSense` para configurar o FW.
 
 
-## Ditribuições e Imagens utilizadas
+## 3. Distribuições e Imagens Utilizadas
 
-### 1. Metasploitable2 - Maquina Virtual Vulneravel
+### 3.1 Metasploitable2 - Máquina Virtual Vulnerável
 
 **Link para download:**
 https://sourceforge.net/projects/metasploitable/
 
-**Descricao:**
-Distribuicao Linux projetada com diversas falhas propositalmente. Ideal para testes com Nmap, Nessus, OpenVAS, etc.
+**Descrição:**
+Distribuição Linux projetada com diversas falhas propositalmente. Ideal para testes com Nmap, Nessus, OpenVAS, etc.
 
-**Credenciais padrao:**
-- Usuario: msfadmin
+**Credenciais padrão:**
+- Usuário: msfadmin
 - Senha: msfadmin
 
 **Requisitos:**
@@ -183,176 +202,89 @@ Fazer um scan, bacana como exemplo abaixo...
 
 #### O que é o Nmap?
 
-**Nmap (Network Mapper)** é uma ferramenta de código aberto usada para descobrir hosts e serviços em uma rede. Ela realiza mapeamento de portas, identifica sistemas operacionais, versões de serviços e possiveis vulnerabilidades.
+O **Nmap (Network Mapper)** é uma ferramenta de código aberto usada para descobrir hosts e serviços em uma rede. Ela realiza mapeamento de portas, identifica sistemas operacionais, versões de serviços e possíveis vulnerabilidades.
 
----
+#### Capacidades do Nmap:
 
-##### O que o Nmap pode fazer?
-
-- Descobrir quais dispositivos estao ativos em uma rede
+- Descobrir quais dispositivos estão ativos em uma rede
 - Identificar portas abertas
-- Descobrir servicos e suas versoes como Apache, SSH, etc.
+- Descobrir serviços e suas versões como Apache, SSH, etc.
 - Identificar o sistema operacional do host
 - Rodar scripts NSE para verificar vulnerabilidades conhecidas
 
----
+### 5.2 Exemplos de Uso do Nmap
 
-##### Exemplos basicos de uso
-
-###### 1. Scan simples de host
-
+#### 1. Scan Simples de Host
 ```bash
 nmap 192.168.0.10
 ```
 > Escaneia as 1000 portas mais comuns do host.
 
----
-
-###### 2. Scan de todas as portas
-
+#### 2. Scan de Todas as Portas
 ```bash
 nmap -p- 192.168.0.10
 ```
 > Verifica todas as 65535 portas TCP.
 
----
-
-###### 3. Descobrir versoes de servicos
-
+#### 3. Descobrir Versões de Serviços
 ```bash
 nmap -sV 192.168.0.10
 ```
-> Retorna nome e versao de cada servico nas portas abertas.
+> Retorna nome e versão de cada serviço nas portas abertas.
 
----
-
-###### 4. Scan agressivo com SO e traceroute
-
+#### 4. Scan Agressivo com SO e Traceroute
 ```bash
 nmap -A 192.168.0.10
 ```
-> Faz detecao de sistema operacional, traceroute, versao de servicos e scripts NSE.
+> Faz detecção de sistema operacional, traceroute, versão de serviços e scripts NSE.
 
----
-
-###### 5. Verificar vulnerabilidades com script
-
+#### 5. Verificar Vulnerabilidades com Script
 ```bash
 nmap --script vuln -p 21 192.168.0.10
 ```
-> Usa o motor de scripts para verificar vulnerabilidades conhecidas no servico FTP.
+> Usa o motor de scripts para verificar vulnerabilidades conhecidas no serviço FTP.
 
----
+### 5.3 Opções Úteis do Nmap
 
-###### 6. Verificar todos os hosts ativos em uma rede
-
-```bash
-nmap -sn 192.168.0.0/24
-```
-> Faz varredura de todos os 256 IPs possíveis no range 192.168.0.0/24 e retorna somente os hosts ativos.
-
----
-
-###### 7. Exibir somente os IPs ativos
-
-```bash
-nmap -sn 192.168.0.0/24 | grep "Nmap scan report"
-```
-> Mostra apenas os IPs dos hosts ativos, eliminando o restante da saída do comando.
-
----
-
-###### 8. Verificar se o host está ativo mesmo com ICMP bloqueado
-
-```bash
-nmap -Pn 192.168.0.10
-```
-> Usa o modo "no ping": assume que o host está ativo e tenta escanear as portas, mesmo sem resposta ao ICMP.
-
----
-
-###### 9. Verificar se o host está ativo mesmo com ICMP bloqueado
-
-```bash
-nmap -Pn 192.168.0.10
-```
-> Usa o modo "no ping": assume que o host está ativo e tenta escanear as portas, mesmo sem resposta ao ICMP.
-
----
-
-###### 10. Verificar todos os hosts e detectar seus nomes (DNS)
-
-```bash
-nmap -sP 192.168.0.10
-```
-> Similar ao -sn, mas também tenta resolver o nome DNS de cada IP. Útil para identificar dispositivos nomeados na rede.
-
----
-
-###### Opcoes uteis
-
-| Opcao              | Descricao                                       |
+| Opção              | Descrição                                       |
 |--------------------|-------------------------------------------------|
 | `-sS`              | TCP SYN scan (modo furtivo)                     |
 | `-O`               | Tenta identificar o sistema operacional         |
-| `-Pn`              | Ignora ping; assume que o host esta ativo       |
+| `-Pn`              | Ignora ping; assume que o host está ativo       |
 | `-T4`              | Acelera o escaneamento (uso comum em LAN)       |
 | `-oN resultado.txt`| Salva o resultado em arquivo texto              |
 
----
+### 5.4 Documentação Oficial do Nmap
+- [Nmap Reference Guide](https://nmap.org/book/)
+- [NSE Documentation](https://nmap.org/nsedoc/)
 
-###### Documentacao oficial
+### 5.5 Prática no Laboratório
 
-- https://nmap.org/book/
-- https://nmap.org/nsedoc/
-
-##### Vamos particar no nosso lab
-
-Vamos testar o host MS2 do nosso lab.
+Vamos testar o host MS2 do nosso lab:
 
 ```bash
 nmap -sV -p- 192.168.100.12
 ```
-Resultado:
 
+Resultado:
 <img width="947" alt="image" src="https://github.com/user-attachments/assets/572f3c67-cdd2-4d8d-adf5-c2a0d34efc91" />
 
-<br>Coisa mais linda :D :D :D Até um telnet aberto... 
-<br>Varias portas para treinarmos e testamos forte...
+### 5.6 Análise de Vulnerabilidade: vsftpd 2.3.4
 
----
+#### Detalhes do CVE-2011-2523
 
-##### Analise de Servico Identificado com Nmap
+##### Contexto Histórico
+O atacante modificou o código-fonte da versão 2.3.4, inserindo um backdoor deliberado. Este código malicioso não estava presente no repositório oficial de desenvolvimento, apenas na cópia que foi publicada para download no site principal.
 
-**Servico:** vsftpd  
-**Versao:** 2.3.4
+##### Funcionamento
+- Backdoor ativado por login contendo `:)` via FTP
+- Abre shell de comando na porta 6200
+- Permite acesso remoto ao sistema
 
----
-
-###### CVE Relacionado: CVE-2011-2523
-
-###### Historinha... 
-
-O atacante modificou o código-fonte da versão 2.3.4, inserindo um backdoor deliberado.
-
-Esse código malicioso não estava presente no repositório oficial de desenvolvimento, apenas na cópia que foi publicada para download no site principal.
-
-O backdoor permanecia inativo até que um login contendo :) fosse feito via FTP.
-
-Ao detectar esse login especial, o serviço abria uma shell de comando na porta 6200, permitindo acesso remoto ao sistema.
-
-###### Detalhes
-
-- Não era ativado por padrão, apenas em condições específicas.
-- Permitia execução de comandos no sistema.
-- Foi incluído sem o conhecimento ou consentimento do desenvolvedor original.
-- Detectado rapidamente pela comunidade e removido.
-
-###### Impacto
-
-- Execucao de comandos no sistema alvo sem autenticacao
-- Comprometimento total da maquina
-- Acesso remoto como root (dependendo da configuracao)
+##### Impacto
+- Execução de comandos no sistema alvo sem autenticação
+- Comprometimento total da máquina
+- Acesso remoto como root (dependendo da configuração)
 
 ###### Reação do desenvolvedor
 
@@ -424,7 +356,69 @@ https://www.exploit-db.com/exploits/49757
 
 ---
 
+### Nikto
 
+#### 6.1 O que é o Nikto?
 
+O Nikto é uma ferramenta de código aberto, escrita em Perl, utilizada para escanear servidores web em busca de vulnerabilidades conhecidas. Ela realiza verificações abrangentes em servidores HTTP/HTTPS, identificando arquivos e scripts potencialmente perigosos, configurações incorretas e versões vulneráveis de softwares.
 
+#### 6.2 Funcionalidades Principais
 
+- **Detecção de Vulnerabilidades:** Identifica arquivos e scripts inseguros
+- **Análise de Versões:** Verifica versões de software conhecidas por serem vulneráveis
+- **Avaliação de Configurações:** Identifica configurações de segurança incorretas (ex: permissões perigosas de arquivos)
+- **Suporte Abrangente:** Realiza testes contra servidores HTTP/HTTPS
+- **Recursos Avançados:** Suporta autenticação básica, proxy, SSL, e ataques a hosts virtuais
+
+#### 6.3 Considerações Técnicas
+
+- **Detecção:** O Nikto não é stealth, ou seja, ele não tenta evitar detecção por IDS/IPS
+- **Ambiente de Uso:** É uma excelente ferramenta de validação inicial em ambientes de teste e homologação
+- **Precisão:** Pode gerar muitos falsos positivos, pois utiliza uma base ampla de assinaturas
+
+#### 6.4 Exemplos de Uso
+
+#### 1. Scan Básico
+```bash
+nikto -h http://192.168.100.14
+```
+> Realiza um scan básico no servidor web alvo.
+
+#### 2. Scan com SSL
+```bash
+nikto -h https://192.168.100.14 -ssl
+```
+> Executa scan em servidor HTTPS.
+
+#### 3. Scan com Autenticação
+```bash
+nikto -h http://192.168.100.14 -id admin:senha123
+```
+> Realiza scan usando credenciais de autenticação básica.
+
+#### 4. Scan com Saída em Arquivo
+```bash
+nikto -h http://192.168.100.14 -output relatorio.html -Format html
+```
+> Gera relatório em formato HTML.
+
+### 6.5 Documentação e Recursos
+
+- **GitHub:** [https://github.com/sullo/nikto](https://github.com/sullo/nikto)
+- **Site Oficial:** [https://cirt.net/Nikto2](https://cirt.net/Nikto2)
+- **Wiki:** [https://github.com/sullo/nikto/wiki](https://github.com/sullo/nikto/wiki)
+
+### 6.6 Prática no Laboratório
+
+Vamos executar um scan básico no servidor web do nosso laboratório:
+
+```bash
+nikto -h http://192.168.100.11
+```
+
+#### Resultado do Scan
+![Resultado do scan do Nikto](./nikto.png)
+
+> O scan do Nikto mostra diversas vulnerabilidades potenciais encontradas no servidor web, incluindo versões de software, arquivos sensíveis e configurações incorretas.
+
+---
