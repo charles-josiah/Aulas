@@ -315,9 +315,9 @@ nmap -sV -p- 192.168.100.12
 ```
 Resultado:
 
-![image](https://github.com/user-attachments/assets/72facb9d-8ea3-4e50-b3ac-ec2c8a10d9ff)
+<img width="947" alt="image" src="https://github.com/user-attachments/assets/572f3c67-cdd2-4d8d-adf5-c2a0d34efc91" />
 
-Coisa mais linda :D :D :D 
-Varias portas para testarmos forte...
+<br>Coisa mais linda :D :D :D Até um telnet aberto... 
+<br>Varias portas para treinarmos e testamos forte...
 
 
