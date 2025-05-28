@@ -146,6 +146,8 @@ nmap -sV -p- 192.168.0.10
 # Iniciando Laboratorios
 
 **Gravacao Youtude do deploy dos servidores**
+ - Parte 1 - https://youtu.be/-lkHJ9oY3u0
+ - Parte 2 - https://youtu.be/ErhBy_LBRPI
 
 **Links com scripts para configuracoes iniciais**
  - https://github.com/charles-josiah/scriptz/blob/master/setup-router-only-for-lab.sh
