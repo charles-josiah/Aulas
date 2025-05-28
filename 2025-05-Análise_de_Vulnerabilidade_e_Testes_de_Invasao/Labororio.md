@@ -12,7 +12,7 @@
 ## Topologia proposta
 <center>
 
-![image](https://github.com/user-attachments/assets/45efc37d-1b92-40f6-80c5-84c2eec20d4f)
+![image](https://github.com/user-attachments/assets/9f3f202a-090b-4077-83f8-052decbea686)
 
 
 </center>
@@ -177,7 +177,7 @@ nmap -sV -p- 192.168.0.10
 Depois de localizar e acessar o Kali Linux e iniciar o MS2
 Fazer um scan, bacana como exemplo abaixo...
 ```bash
-nmap -sV -p- 192.168.0.10
+nmap -sV -p- 192.168.100.12
 ```
 Resultado:
 
