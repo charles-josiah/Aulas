@@ -178,6 +178,143 @@ nmap -sV -p- 192.168.0.10
 ## Fazendo os primeiros scans
 Depois de localizar e acessar o Kali Linux e iniciar o MS2
 Fazer um scan, bacana como exemplo abaixo...
+
+### NMAP
+
+#### O que é o Nmap?
+
+**Nmap (Network Mapper)** é uma ferramenta de código aberto usada para descobrir hosts e serviços em uma rede. Ela realiza mapeamento de portas, identifica sistemas operacionais, versões de serviços e possiveis vulnerabilidades.
+
+---
+
+##### O que o Nmap pode fazer?
+
+- Descobrir quais dispositivos estao ativos em uma rede
+- Identificar portas abertas
+- Descobrir servicos e suas versoes como Apache, SSH, etc.
+- Identificar o sistema operacional do host
+- Rodar scripts NSE para verificar vulnerabilidades conhecidas
+
+---
+
+##### Exemplos basicos de uso
+
+###### 1. Scan simples de host
+
+```bash
+nmap 192.168.0.10
+```
+> Escaneia as 1000 portas mais comuns do host.
+
+---
+
+###### 2. Scan de todas as portas
+
+```bash
+nmap -p- 192.168.0.10
+```
+> Verifica todas as 65535 portas TCP.
+
+---
+
+###### 3. Descobrir versoes de servicos
+
+```bash
+nmap -sV 192.168.0.10
+```
+> Retorna nome e versao de cada servico nas portas abertas.
+
+---
+
+###### 4. Scan agressivo com SO e traceroute
+
+```bash
+nmap -A 192.168.0.10
+```
+> Faz detecao de sistema operacional, traceroute, versao de servicos e scripts NSE.
+
+---
+
+###### 5. Verificar vulnerabilidades com script
+
+```bash
+nmap --script vuln -p 21 192.168.0.10
+```
+> Usa o motor de scripts para verificar vulnerabilidades conhecidas no servico FTP.
+
+---
+
+###### 6. Verificar todos os hosts ativos em uma rede
+
+```bash
+nmap -sn 192.168.0.0/24
+```
+> Faz varredura de todos os 256 IPs possíveis no range 192.168.0.0/24 e retorna somente os hosts ativos.
+
+---
+
+###### 7. Exibir somente os IPs ativos
+
+```bash
+nmap -sn 192.168.0.0/24 | grep "Nmap scan report"
+```
+> Mostra apenas os IPs dos hosts ativos, eliminando o restante da saída do comando.
+
+---
+
+###### 8. Verificar se o host está ativo mesmo com ICMP bloqueado
+
+```bash
+nmap -Pn 192.168.0.10
+```
+> Usa o modo "no ping": assume que o host está ativo e tenta escanear as portas, mesmo sem resposta ao ICMP.
+
+---
+
+###### 9. Verificar se o host está ativo mesmo com ICMP bloqueado
+
+```bash
+nmap -Pn 192.168.0.10
+```
+> Usa o modo "no ping": assume que o host está ativo e tenta escanear as portas, mesmo sem resposta ao ICMP.
+
+---
+
+###### 10. Verificar todos os hosts e detectar seus nomes (DNS)
+
+```bash
+nmap -sP 192.168.0.10
+```
+> Similar ao -sn, mas também tenta resolver o nome DNS de cada IP. Útil para identificar dispositivos nomeados na rede.
+
+---
+
+
+
+
+
+
+###### Opcoes uteis
+
+| Opcao              | Descricao                                       |
+|--------------------|-------------------------------------------------|
+| `-sS`              | TCP SYN scan (modo furtivo)                     |
+| `-O`               | Tenta identificar o sistema operacional         |
+| `-Pn`              | Ignora ping; assume que o host esta ativo       |
+| `-T4`              | Acelera o escaneamento (uso comum em LAN)       |
+| `-oN resultado.txt`| Salva o resultado em arquivo texto              |
+
+---
+
+###### Documentacao oficial
+
+- https://nmap.org/book/
+- https://nmap.org/nsedoc/
+
+
+
+
+
 ```bash
 nmap -sV -p- 192.168.100.12
 ```
@@ -186,4 +323,6 @@ Resultado:
 ![image](https://github.com/user-attachments/assets/72facb9d-8ea3-4e50-b3ac-ec2c8a10d9ff)
 
 Coisa mais linda :D :D :D 
-Varias portas para testarmos forte... 
+Varias portas para testarmos forte...
+
+
