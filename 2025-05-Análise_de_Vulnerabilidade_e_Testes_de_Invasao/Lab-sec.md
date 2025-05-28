@@ -45,7 +45,7 @@ A topologia apresentada representa um ambiente controlado para testes de seguran
 - Utilize ferramentas como `iptables`, `ufw` ou `pfSense` para configurar o FW.
 
 
-## Ditrobuições e Imagens utilizadas
+## Ditribuições e Imagens utilizadas
 
 ### 1. Metasploitable2 - Maquina Virtual Vulneravel
 
