@@ -289,11 +289,6 @@ nmap -sP 192.168.0.10
 
 ---
 
-
-
-
-
-
 ###### Opcoes uteis
 
 | Opcao              | Descricao                                       |
@@ -311,9 +306,9 @@ nmap -sP 192.168.0.10
 - https://nmap.org/book/
 - https://nmap.org/nsedoc/
 
+##### Vamos particar no nosso lab
 
-
-
+Vamos testar o host MS2 do nosso lab.
 
 ```bash
 nmap -sV -p- 192.168.100.12
