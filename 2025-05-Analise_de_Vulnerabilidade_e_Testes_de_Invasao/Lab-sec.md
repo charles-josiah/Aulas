@@ -480,8 +480,9 @@ nikto -h http://192.168.100.14 -Tuning 123bde -Format htm -output nikto-report.h
 #### 6.7 Análise de Vulnerabilidade: Payload maliciosos com Msfvenom
 
 Primeiramente vamos scannear a rede para detectar o host comprometido
+```bash
 nikto -h http://192.168.100.11
-
+```
 
 ![Resultado do scan do Nikto](./lab-n-1.png)
 
@@ -544,11 +545,16 @@ msf6 > exploit
 No browser clique no link: 
 -   http://192.168.10.11/dav/webshell.php
 
-Que vimos anteriornetne, e este abrirá o tunel reverso apra a maquina
-digitando sysinfo aparecerá informacoes sobre o servidor. 
+Que vimos anteriormente, e este abrirá o tunel reverso apra a estacao do KALI, 192.168.100.11
+
+Digitando sysinfo aparecerá informacoes sobre o servidor. 
 Entraremos no shell do servidor invadido, e criaremos um arquivo hacked.html no servidor web... para marcar a nossa presença.
 
 ![hacked](./lab-n-6.png)
+
+
+----
+
 
 #### 6.8 Ferramentas Alternativas para Exploração WebDAV
 
@@ -628,7 +634,7 @@ dav:/dav/> put shell.php
    - Usar WAF (Web Application Firewall)
    - Implementar políticas de segurança rigorosas
 
-#### Detecção de Shells Web
+#### Exemplo Detecção de Shells Web
 
 ```bash
 # Procura por shells PHP conhecidos
