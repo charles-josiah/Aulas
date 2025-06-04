@@ -1348,9 +1348,9 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-06-04 14:33:
 - A ética e responsabilidade no uso de ferramentas de segurança ofensiva são tão importantes quanto o conhecimento técnico
 
 ---
+<div align="center">
 
 ⚠️ Aviso Legal
 
-<div align="center">
 Este conteúdo é fornecido apenas para fins educacionais.<br> Realizar força bruta ou qualquer tipo de acesso não autorizado a sistemas sem permissão constitui crime.<br> Use somente em ambientes controlados e autorizados, como laboratórios e CTFs.
 </div>
