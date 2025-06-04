@@ -1351,6 +1351,6 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-06-04 14:33:
 
 ⚠️ Aviso Legal
 
-<center>
+<div align="center">
 Este conteúdo é fornecido apenas para fins educacionais.<br> Realizar força bruta ou qualquer tipo de acesso não autorizado a sistemas sem permissão constitui crime.<br> Use somente em ambientes controlados e autorizados, como laboratórios e CTFs.
-</center>
+</div>
