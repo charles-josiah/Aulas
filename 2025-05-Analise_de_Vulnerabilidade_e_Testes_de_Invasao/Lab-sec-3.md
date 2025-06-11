@@ -1,4 +1,4 @@
-# Uma rapida explicação do Docker no Ubuntu 24.04 e uso em ambintes de Pentest e analise de segurança
+# Uma introdução concisa ao Docker no Ubuntu 24.04, com foco em sua aplicação em ambientes de Pentest e análise de segurança.
 
 
 ## Instalação do Docker 
