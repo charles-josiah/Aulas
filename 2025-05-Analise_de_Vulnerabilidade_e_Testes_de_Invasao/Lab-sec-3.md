@@ -1,4 +1,4 @@
-# Docker no Ubuntu 24.04
+# Uma rapida explicação do Docker no Ubuntu 24.04 e uso em ambintes de Pentest e analise de segurança
 
 
 ## Instalação do Docker 
@@ -388,7 +388,7 @@ docker network create --subnet=192.168.100.0/24 --gateway=192.168.100.1 dmz-net
 ---
 
 
-## 4. Introdução ao Docker Compose (20 min)
+## 4. Introdução ao Docker Compose 
 
 ### O que é:
 O **Docker Compose** é uma ferramenta oficial do Docker que permite definir e executar **aplicações multicontainer** de forma simples e organizada, usando um único arquivo de configuração chamado `docker-compose.yml`.
@@ -638,6 +638,17 @@ trivy image vulnerables/web-dvwa
 - **Anchore Engine** – escaneia imagens e aplica políticas de segurança.
 - **Grype** – scanner rápido da Anchore, com suporte nativo a várias distros.
 - **Dockle** – verifica práticas de segurança em configurações Dockerfiles.
+
+#### Você pode substituir o DVWA por outras imagens vulneráveis, como:
+- vulnerables/web-dvwa
+- bkimminich/juice-shop (OWASP Juice Shop)
+- cyberxsecurity/metasploitable
+
+E escanear com ferramentas como:
+- nmap
+- nikto
+- wpscan
+- sqlmap (em containers ou via Kali)
 
 ---
 
