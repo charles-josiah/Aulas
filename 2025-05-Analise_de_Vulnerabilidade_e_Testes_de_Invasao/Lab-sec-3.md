@@ -426,22 +426,22 @@ services:
 
 - Subir os containers:
   ```bash
-  docker-compose up -d
+  docker compose up -d
   ```
 
 - Ver status:
   ```bash
-  docker-compose ps
+  docker compose ps
   ```
 
 - Parar e remover tudo:
   ```bash
-  docker-compose down
+  docker compose down
   ```
 
 - Ver logs dos serviços:
   ```bash
-  docker-compose logs -f
+  docker compose logs -f
   ```
 
 ### Exemplos práticos com volumes
@@ -554,9 +554,24 @@ Senha: admin (ou consultar via `docker logs openvas`)
 
 Trivy é um scanner de vulnerabilidades moderno e rápido, usado para inspecionar imagens antes de enviá-las para produção.
 
+Docuemntação: https://trivy.dev/v0.57/getting-started/installation/
+
 #### Instalar Trivy:
 ```bash
-sudo apt install trivy  # ou usar via Docker
+wget https://github.com/aquasecurity/trivy/releases/download/v0.57.1/trivy_0.57.1_Linux-64bit.deb
+sudo dpkg -i trivy_0.57.1_Linux-64bit.deb
+
+#ou
+
+sudo apt-get install wget gnupg
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+sudo apt-get update
+sudo apt-get install trivy
+
+#ou
+#usando docker
+docker run -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/Library/Caches:/root/.cache/ aquasec/trivy:0.57.1 image python:3.4-alpine
 ```
 
 #### Rodar varredura em uma imagem:
