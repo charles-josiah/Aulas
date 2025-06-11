@@ -661,10 +661,9 @@ E escanear com ferramentas como:
 - Separe ambientes de dev/prod nos `docker-compose.yml`.
 
 ---
-<center>
+<div align="center">
+
 ⚠️ Aviso Legal
 
-Este conteúdo é fornecido apenas para fins educacionais.
-Realizar força bruta ou qualquer tipo de acesso não autorizado a sistemas sem permissão constitui crime.
-Use somente em ambientes controlados e autorizados, como laboratórios e CTFs.
-</center>
+Este conteúdo é fornecido apenas para fins educacionais.<br> Realizar força bruta ou qualquer tipo de acesso não autorizado a sistemas sem permissão constitui crime.<br> Use somente em ambientes controlados e autorizados, como laboratórios e CTFs.
+</div>
