@@ -119,8 +119,6 @@ docker run -it alpine /bin/sh
 ```bash
 docker exec -it <nome ou id> /bin/sh
 ```
-c
-
 
 ### Baixando imagens:
 ```bash
@@ -134,7 +132,7 @@ docker pull nginx
 
 Volumes são usados para **armazenamento persistente** de dados em containers. Eles ficam fora do sistema de arquivos do container, permitindo que os dados sobrevivam à sua reinicialização ou exclusão.
 
-### 🔸 Tipos principais
+### Tipos principais
 
 #### 1. Volumes nomeados
 Criados e gerenciados pelo Docker. Ideal para manter dados entre reinicializações de containers.
@@ -208,7 +206,7 @@ docker run -d \
   nginx
 ```
 
-📁 **Resultado**: os arquivos HTML que o Nginx serve ficam armazenados no volume `conteudo-nginx`. Mesmo que o container seja removido, o conteúdo persiste.
+> **Resultado**: os arquivos HTML que o Nginx serve ficam armazenados no volume `conteudo-nginx`. Mesmo que o container seja removido, o conteúdo persiste.
 
 
 ### 2. Conectar um container a diferentes volumes
@@ -243,7 +241,7 @@ docker run --rm -v dados-v2:/check alpine cat /check/versao.txt
 # Saída: Versão 2
 ```
 
-📁 **Resultado**: demonstramos como um container pode usar volumes diferentes para armazenar dados distintos em momentos diferentes.
+> **Resultado**: demonstramos como um container pode usar volumes diferentes para armazenar dados distintos em momentos diferentes.
 
 
 ### 3. Exemplo: Servindo arquivos HTML locais com Nginx
@@ -269,20 +267,20 @@ docker run -d \
 - `/usr/share/nginx/html`: diretório onde o Nginx busca os arquivos.
 - `:ro`: monta como *somente leitura* (opcional, para segurança).
 
-#### 3️⃣ Acesse no navegador:
+#### Acesse no navegador:
 
 ```
 http://localhost:8081
 ```
 
-📁 **Resultado**: o Nginx vai servir diretamente o arquivo `index.html` do diretório local `html-site`.
+> **Resultado**: o Nginx vai servir diretamente o arquivo `index.html` do diretório local `html-site`.
 
 
 ## Redes no Docker – Tipos, Operações e Exemplo de DMZ
 
 ---
 
-### 🔸 Tipos de Rede no Docker
+### Tipos de Rede no Docker
 
 1. **bridge** (padrão)
    - Rede NAT privada gerenciada pelo Docker.
@@ -390,7 +388,7 @@ docker network create --subnet=192.168.100.0/24 --gateway=192.168.100.1 dmz-net
 ---
 
 
-## 📄 4. Introdução ao Docker Compose (20 min)
+## 4. Introdução ao Docker Compose (20 min)
 
 ### O que é:
 O **Docker Compose** é uma ferramenta oficial do Docker que permite definir e executar **aplicações multicontainer** de forma simples e organizada, usando um único arquivo de configuração chamado `docker-compose.yml`.
