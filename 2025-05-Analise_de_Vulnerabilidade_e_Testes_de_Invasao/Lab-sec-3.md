@@ -622,6 +622,7 @@ docker run -d \
   -e MYSQL_PASSWORD=dvwa \
   -e MYSQL_USER=dvwa \
   -e MYSQL_DATABASE=dvwa \
+  -p 80:80 \
   vulnerables/web-dvwa
 ```
 
