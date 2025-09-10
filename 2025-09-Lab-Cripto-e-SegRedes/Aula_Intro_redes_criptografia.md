@@ -1,6 +1,4 @@
-# Aula Introdutória de Redes e Criptografia (Nível Graduação)
-
-> Material base para uma aula de 1h–1h30. Este arquivo **não** traz marcações de tempo por tópico e **não** inclui a “sequência sugerida”; os módulos são independentes e podem ser reordenados conforme a turma.
+# Aula Introdutória de Redes e Criptografia 
 
 ---
 
