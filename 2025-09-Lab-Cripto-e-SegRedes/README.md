@@ -42,7 +42,7 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
     - ver um pouco de tcpdump x wireshark
 - Objetivo 6 - ver se achamos algo bom no wireshark
 #### Links
-- [Nota da Aula](https://github.com/charles-josiah/Aulas/blob/master/2025-04-Lab-Cripto-e-SegRedes/Notas-Aulas-20250423.md)
+- [Nota da Aula](https://github.com/charles-josiah/Aulas/blob/master/2025-09-Lab-Cripto-e-SegRedes/Nota01.md)
 
 
 
