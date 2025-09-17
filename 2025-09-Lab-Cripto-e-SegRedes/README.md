@@ -43,6 +43,7 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
 - Objetivo 6 - ver se achamos algo bom no wireshark
 #### Links
 - [Nota da Aula](https://github.com/charles-josiah/Aulas/blob/master/2025-09-Lab-Cripto-e-SegRedes/Nota01.md)
+- [ + Nota da Aula](https://github.com/charles-josiah/Aulas/blob/master/2025-09-Lab-Cripto-e-SegRedes/lab_cripto_1.md)
 
 
 
