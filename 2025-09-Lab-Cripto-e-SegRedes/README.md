@@ -44,7 +44,8 @@ As instalações de servidores e aplicativos serão realizadas em tempo real. tr
 #### Links
 - [Nota da Aula](https://github.com/charles-josiah/Aulas/blob/master/2025-09-Lab-Cripto-e-SegRedes/Nota01.md)
 - [ + Nota da Aula](https://github.com/charles-josiah/Aulas/blob/master/2025-09-Lab-Cripto-e-SegRedes/lab_cripto_1.md)
-
+- Rabisco: 
+<img width="978" height="549" alt="image" src="https://github.com/user-attachments/assets/5986ea4e-a979-4873-8a76-83a400441807" />
 
 
 <h6>:wq!</h6>
