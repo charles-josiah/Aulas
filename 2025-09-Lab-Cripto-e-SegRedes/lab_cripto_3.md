@@ -93,8 +93,9 @@ telnet IP_DO_SERVIDOR 3306
 
 ```bash
 # se tiver nc:
-mysql -h 203.0.113.10 -P 3306 -u appuser -p --ssl=0
+mysql -h <ip_do_servidor_mysql> -P 3306 -u appuser -p --ssl=0
 ```
+
 
 ```sql
 SELECT USER(), CURRENT_USER();
@@ -102,9 +103,20 @@ SELECT USER(), CURRENT_USER();
 -- USER() = string usada ao logar;
 -- CURRENT_USER() = a conta efetivamente autenticada ('appuser'@'host') — útil para saber qual entrada alterar.
 
+
+-- mostra os privilégios do usuário com o qual você está conectado
+SHOW GRANTS FOR CURRENT_USER();
+
+-- executar alguns show, capturar e validar no wireshark.
 -- troca da senha do usuario, lembrar de sniffar neste momento.
 ALTER USER CURRENT_USER() IDENTIFIED BY 'NovaSenhaForte!2025';
 
+-- ver quais bancos o usuário "vê" (pode variar se SHOW DATABASES foi limitado por privilégios):
+SHOW DATABASES;
+
+-- para cada DB que aparecer:
+USE nome_do_db;
+SHOW TABLES;
 
 ```
 
