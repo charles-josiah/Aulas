@@ -77,9 +77,7 @@ Registrar com Nessus Essentials
 
 ---
 
-## 
-
-Demonstração e Análise
+## Demonstração e Análise
 
 ### OpenVAS
 
@@ -135,28 +133,7 @@ O uso de ferramentas de varredura automatizada permite identificar **CVE (Common
 
 ---
 
-###  Exemplo 1: Usando OpenVAS (Greenbone Vulnerability Manager)
-
-O OpenVAS é uma plataforma completa de **varredura de vulnerabilidades de rede**, podendo detectar milhares de falhas conhecidas em serviços, sistemas operacionais, servidores web, etc.
-
-#### Executar o OpenVAS via Docker:
-
-```bash
-docker run -d -p 8080:9392 --name openvas mikesplain/openvas
-```
-
-#### Acessar via navegador:
-
-```
-http://localhost:8080
-Usuário: admin
-Senha: admin (ou consultar via `docker logs openvas`)
-```
-
-> Ideal para varreduras externas em máquinas da rede ou em containers com serviços expostos.
-
-
-### Exemplo 2: Usando Trivy (scanner de imagem leve)
+### Exemplo 1: Usando Trivy (scanner de imagem leve)
 
 Trivy é um scanner de vulnerabilidades moderno e rápido, usado para inspecionar imagens antes de enviá-las para produção.
 
@@ -187,7 +164,7 @@ trivy image nginx
 > Retorna lista de vulnerabilidades por severidade, pacote e CVE.
 
 
-### Exemplo 3: Clair – Scanner de Imagens Docker
+### Exemplo 2: Clair – Scanner de Imagens Docker
 
 Clair é um scanner popular para **pipelines CI/CD** que inspeciona imagens e armazena relatórios de vulnerabilidade.
 
@@ -201,7 +178,7 @@ docker-compose up
 > Integra-se facilmente com registries como Harbor ou Quay.io.
 
 
-### Exemplo 4: Exemplo: Scanner com Nmap contra um container vulnerável (CVE)
+### Exemplo 3: Exemplo: Scanner com Nmap contra um container vulnerável (CVE)
 
  Exemplo: Scanner com Nmap contra um Container Vulnerável (DVWA)
 
