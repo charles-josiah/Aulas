@@ -1,4 +1,4 @@
-# 🐳 Proposta de Estrutura do Laboratório Baseada em Docker
+# 🐳 Proposta de Estrutura do Laboratório Baseada em Docker 
 
 ---
 
@@ -189,7 +189,7 @@ http://<IP_DO_HOST_DOCKER>:8080
 
 ---
 
-# 🧪 5. EXERCÍCIOS PRÁTICOS PROPOSTOS (NÍVEL 2026)
+# 🧪 5. EXERCÍCIOS PRÁTICOS PROPOSTOS
 
 A estrutura baseada em containers permite simular cenários modernos de ataque e movimentação lateral, não triviais em ambientes tradicionais de máquinas virtuais.
 
@@ -220,129 +220,32 @@ Atividades:
 
 ## ⚠️ 5.3 Abuso de Docker Socket (Escalada de Privilégio)
 
-### 🎯 Objetivo
+Objetivo:
+- Demonstrar riscos de má configuração do Docker
 
-Demonstrar como a exposição indevida do Docker Socket (`/var/run/docker.sock`) pode permitir:
-
-- controle total do ambiente Docker
-- criação de containers privilegiados
-- potencial comprometimento do Host
-
----
-
-### 🧠 Conceito Fundamental
-
-O arquivo:
-
-/var/run/docker.sock
-
-é o canal de comunicação entre o cliente Docker e o daemon.
-
-👉 Quem tem acesso a esse socket:
-- pode listar containers
-- iniciar/parar containers
-- montar volumes do Host
-- executar comandos com privilégios elevados
-
-⚠️ Em termos práticos:  
-acesso ao socket = acesso root indireto ao Host
+Atividades:
+- Identificar container com acesso ao socket Docker (`/var/run/docker.sock`)
+- Criar container privilegiado
+- Escalar acesso para o Host
 
 ---
 
-### 🧪 Cenário de Laboratório
+## ⚖️ Diretriz Metodológica
 
-Para simulação controlada, será necessário:
+Todos os exercícios devem observar:
 
-- um container vulnerável com o socket montado
-- acesso ao shell dentro do container
-
-Exemplo conceitual de configuração insegura:
-
-- volume:
-  - /var/run/docker.sock:/var/run/docker.sock
+- execução em ambiente controlado
+- registro de evidências
+- análise do impacto da vulnerabilidade
+- proposta de mitigação
 
 ---
 
-### 🔍 Etapa 1 — Identificação da Vulnerabilidade
+## 🔥 Resultado Esperado
 
-Dentro do container comprometido, verificar:
+Ao final, o aluno deverá ser capaz de:
 
-- existência do socket Docker
-- permissões de acesso
-
-Indicadores:
-
-- presença do arquivo `/var/run/docker.sock`
-- acesso de leitura/escrita
-
----
-
-### 🧪 Etapa 2 — Interação com o Docker
-
-Uma vez identificado o socket:
-
-- verificar containers existentes
-- validar acesso ao daemon Docker
-
-Objetivo didático:
-👉 demonstrar que o container tem controle sobre o ambiente
-
----
-
-### 💣 Etapa 3 — Escalada de Privilégio (Conceito)
-
-O risco ocorre quando é possível:
-
-- criar um novo container com privilégios elevados
-- montar o sistema de arquivos do Host
-- acessar arquivos críticos do sistema
-
-👉 Exemplo conceitual:
-- container com acesso ao `/` do Host
-- execução de comandos com contexto privilegiado
-
----
-
-### ⚠️ Resultado Esperado
-
-O aluno deve compreender que:
-
-- containers não são seguros por padrão
-- isolamento pode ser quebrado por má configuração
-- Docker mal configurado equivale a exposição do Host
-
----
-
-### 📊 Evidência Esperada
-
-O aluno deverá apresentar:
-
-- prova de acesso ao socket
-- demonstração de controle sobre containers
-- evidência de potencial impacto no Host
-
----
-
-### 🛡️ Mitigação (Ponto MAIS IMPORTANTE)
-
-Nunca:
-
-- expor `/var/run/docker.sock` para containers desnecessariamente
-
-Boas práticas:
-
-- utilizar usuários não privilegiados
-- aplicar políticas de segurança (AppArmor / SELinux)
-- evitar containers privilegiados
-- usar Docker rootless quando possível
-- controlar acesso via RBAC (em ambientes orquestrados)
-
----
-
-### ⚖️ Conclusão
-
-Docker não é vulnerável por si só.
-
-👉 A vulnerabilidade está na configuração.
-
----
+- compreender fluxos reais de ataque
+- correlacionar vulnerabilidades com impacto prático
+- executar testes de forma estruturada
+- documentar tecnicamente os achados
