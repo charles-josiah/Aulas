@@ -1,208 +1,212 @@
-# 📘 UC – Ambientes Vulneráveis para Testes com Scanners
----
-
-# ⚖️ 1. PREMISSAS E RESPONSABILIDADE
-
-A execução de testes de segurança deve observar, obrigatoriamente:
-
-- utilização de ambiente isolado (laboratório controlado)
-- autorização expressa para realização dos testes
-- segregação de rede (Host-Only, NAT ou VLAN isolada)
-
-> ⚠️ Testes sem autorização configuram infração legal.
+# 📘 UC - Ambientes Vulneraveis para Testes com Scanners
 
 ---
 
-# 🧠 2. ESTRUTURA DO LABORATÓRIO (2026)
-
-## 📌 Topologia recomendada
-
-- 🔴 Máquina atacante:
-  - Kali Linux / Parrot OS
-
-- 🟡 Alvos vulneráveis:
-  - Metasploitable2 (ambiente legado)
-  - DVWA (aplicação web)
-  - OWASP Juice Shop (ambiente moderno)
-  - APIs vulneráveis (OWASP API Security)
-  - Containers vulneráveis (Docker)
-
-- 🔵 Camada de controle:
-  - Firewall (pfSense / OPNsense – opcional)
-  - Monitoramento de logs
-
-## Sugestão de topologia 
-
-<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/aaffabad-ad5f-4be9-9234-761146d5bf8e" />
-<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/35a0eb5d-7cbc-44d2-815a-353e1d787882" />
----
-
-# 🔍 3. FASE 1 — ANÁLISE COM SCANNERS
-
-## 🎯 Objetivo
-Mapear a superfície de ataque.
-
-## 🛠️ Ferramentas recomendadas
-
-- Nmap (descoberta de rede)
-- Nikto (análise web)
-- OpenVAS / Greenbone (vulnerabilidades)
-- OWASP ZAP (scanner moderno)
-- Burp Suite (proxy e análise web)
-
-## 📌 O que identificar
-
-- hosts ativos  
-- portas abertas  
-- serviços e versões  
-- possíveis vulnerabilidades  
-
-> ⚖️ Scanner aponta indícios — não conclusões definitivas.
+> [!CAUTION]
+> **AVISO DE ETICA E RESPONSABILIDADE**
+> Este conteudo foi elaborado exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
+>
+> **Nao utilizar em ambiente produtivo.**
+>
+> Uso vedado em:
+>
+> - ambientes de producao;
+> - sistemas de terceiros sem autorizacao formal;
+> - qualquer contexto que viole normas legais.
+>
+> Execucao permitida apenas em laboratorio isolado (VM dedicada, Docker Lab, NAT/Host-Only ou rede segregada).
 
 ---
 
-# 🧪 4. FASE 2 — VALIDAÇÃO MANUAL
+## ⚖️ 1. Premissas e responsabilidade
 
-## 🎯 Objetivo
-Confirmar a existência real da vulnerabilidade.
+A execucao de testes de seguranca deve observar, obrigatoriamente:
 
-## 📌 Técnicas
+- utilizacao de ambiente isolado (laboratorio controlado);
+- autorizacao expressa para realizacao dos testes;
+- segregacao de rede (Host-Only, NAT ou VLAN isolada).
 
-- análise manual de requisições HTTP
-- manipulação de parâmetros
-- validação de autenticação
-- inspeção de respostas
-
-> ⚖️ Nem todo alerta é vulnerabilidade real.  
-> ⚖️ Validação é obrigatória.
+> Testes sem autorizacao configuram infracao legal.
 
 ---
 
-# 💣 5. FASE 3 — EXPLORAÇÃO CONTROLADA
+## 🧠 2. Estrutura do laboratorio 
 
-## 🎯 Objetivo
-Comprovar o impacto da vulnerabilidade.
+### 2.1 Topologia recomendada
 
-## ⚠️ Restrição
-Somente em ambiente controlado.
+- **Maquina atacante:** Kali Linux ou Parrot OS;
+- **alvos vulneraveis:** Metasploitable2, DVWA, OWASP Juice Shop, APIs vulneraveis e containers vulneraveis;
+- **camada de controle:** firewall (pfSense/OPNsense, opcional) e monitoramento de logs.
 
-## 📌 Exemplos
+### 2.2 Sugestao de topologia
 
-- SQL Injection validado  
-- XSS funcional  
-- bypass de autenticação  
-- brute force controlado  
-
-> ⚖️ Explorar para provar — não para causar dano.
+Topologia sugerida 1
+Topologia sugerida 2
 
 ---
 
-# 🌐 6. SEGURANÇA EM AMBIENTES MODERNOS (2026)
+## 🔍 3. Fase 1 - Analise com scanners
 
-## 📌 APIs
+### 3.1 Objetivo
 
-- falhas de autenticação  
-- exposição indevida de endpoints  
-- ausência de rate limiting  
-- OWASP API Top 10  
+Mapear a superficie de ataque do ambiente.
 
-## 📌 Containers
+### 3.2 Ferramentas recomendadas
 
-- imagens vulneráveis  
-- portas expostas  
-- falhas de isolamento  
-- configurações inseguras  
+- Nmap (descoberta de rede);
+- Nikto (analise web);
+- OpenVAS/Greenbone (vulnerabilidades);
+- OWASP ZAP (scanner moderno);
+- Burp Suite (proxy e analise web).
 
-## 📌 Cloud
+### 3.3 O que identificar
 
-- credenciais expostas  
-- permissões excessivas  
-- storage público  
+- hosts ativos;
+- portas abertas;
+- servicos e versoes;
+- possiveis vulnerabilidades.
 
----
-
-# 🔐 7. HARDENING (DEFESA)
-
-## 🎯 Objetivo
-Reduzir a superfície de ataque.
-
-## 📌 Ações recomendadas
-
-- atualização contínua de sistemas  
-- remoção de serviços desnecessários  
-- políticas de senha + MFA  
-- segmentação de rede  
-- monitoramento e logs  
-
-> ⚖️ Segurança começa antes do ataque.
+> Scanner aponta indicios; nao produz conclusoes definitivas sem validacao.
 
 ---
 
-# 📊 8. SEVERIDADE E CLASSIFICAÇÃO
+## 🧪 4. Fase 2 - Validacao manual
 
-## 📌 Modelo
+### 4.1 Objetivo
 
-- CVSS (FIRST)
+Confirmar a existencia real das vulnerabilidades indicadas.
 
-## 📌 Critérios
+### 4.2 Tecnicas sugeridas
 
-- impacto  
-- explorabilidade  
-- contexto  
+- analise manual de requisicoes HTTP;
+- manipulacao de parametros;
+- validacao de autenticacao;
+- inspecao de respostas.
 
-## 📊 Classificação
-
-- Baixo  
-- Médio  
-- Alto  
-- Crítico  
+> Nem todo alerta e vulnerabilidade real. Validacao tecnica e obrigatoria.
 
 ---
 
-# 🧾 9. RELATÓRIO TÉCNICO
+## 💣 5. Fase 3 - Exploracao controlada
 
-## 📌 Estrutura mínima
+### 5.1 Objetivo
 
-- identificação do alvo  
-- descrição da vulnerabilidade  
-- evidência técnica  
-- nível de severidade  
-- impacto  
-- recomendação  
+Comprovar o impacto pratico da vulnerabilidade validada.
 
-> ⚖️ Se não está documentado, não existe.
+### 5.2 Restricao obrigatoria
 
----
+Somente em ambiente controlado e autorizado.
 
-# 📎 10. EVIDÊNCIAS ESPERADAS DO ALUNO
+### 5.3 Exemplos de provas de conceito
 
-Cada achado deverá conter, obrigatoriamente:
+- SQL Injection validado;
+- XSS funcional;
+- bypass de autenticacao;
+- brute force controlado.
 
-- 🎯 Alvo (IP ou aplicação)  
-- 🔌 Porta  
-- ⚙️ Serviço  
-- 🐞 Vulnerabilidade identificada  
-- 📊 Severidade (CVSS)  
-- 📸 Evidência (print, log ou requisição)  
-- 💣 Prova de conceito (quando aplicável)  
-- 🛡️ Mitigação recomendada  
-
-> ⚠️ Entregas sem evidência técnica não validam o achado.
+> Explorar para comprovar impacto, nunca para causar dano.
 
 ---
 
-# 🎓 11. DIRETRIZ FINAL
+## 🌐 6. Seguranca em ambientes modernos 
 
-Scanner encontra.  
-Analista valida.  
-Profissional comprova.  
-Especialista documenta e resolve.
+### 6.1 APIs
+
+- falhas de autenticacao;
+- exposicao indevida de endpoints;
+- ausencia de rate limiting;
+- OWASP API Top 10.
+
+### 6.2 Containers
+
+- imagens vulneraveis;
+- portas expostas;
+- falhas de isolamento;
+- configuracoes inseguras.
+
+### 6.3 Cloud
+
+- credenciais expostas;
+- permissoes excessivas;
+- storage publico.
 
 ---
 
-# 🔥 MENSAGEM FINAL
+## 🔐 7. Hardening (defesa)
 
-Em segurança da informação:
+### 7.1 Objetivo
 
-**Conhecer não basta.  
-Executar é obrigatório.**
+Reduzir a superficie de ataque antes, durante e apos os testes.
+
+### 7.2 Acoes recomendadas
+
+- atualizacao continua de sistemas;
+- remocao de servicos desnecessarios;
+- politicas de senha com MFA;
+- segmentacao de rede;
+- monitoramento e logs.
+
+> Seguranca eficaz comeca antes do ataque.
+
+---
+
+## 📊 8. Severidade e classificacao
+
+### 8.1 Modelo de referencia
+
+- CVSS (FIRST).
+
+### 8.2 Criterios de analise
+
+- impacto;
+- explorabilidade;
+- contexto.
+
+### 8.3 Escala de classificacao
+
+- baixo;
+- medio;
+- alto;
+- critico.
+
+---
+
+## 🧾 9. Relatorio tecnico
+
+### 9.1 Estrutura minima
+
+- identificacao do alvo;
+- descricao da vulnerabilidade;
+- evidencia tecnica;
+- nivel de severidade;
+- impacto;
+- recomendacao.
+
+> Se nao esta documentado, nao existe do ponto de vista tecnico.
+
+---
+
+## 📎 10. Evidencias esperadas do aluno
+
+Cada achado deve conter obrigatoriamente:
+
+- alvo (IP ou aplicacao);
+- porta;
+- servico;
+- vulnerabilidade identificada;
+- severidade (CVSS);
+- evidencia (print, log ou requisicao);
+- prova de conceito (quando aplicavel);
+- mitigacao recomendada.
+
+> Entregas sem evidencia tecnica nao validam o achado.
+
+---
+
+## 🎓 11. Diretriz final
+
+- Scanner encontra.  
+- Analista valida.  
+- Profissional comprova.  
+- Especialista documenta e resolve.
+
