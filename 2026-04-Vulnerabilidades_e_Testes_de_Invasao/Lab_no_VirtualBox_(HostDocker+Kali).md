@@ -1,5 +1,7 @@
 # Laboratorio no VirtualBox (Host Docker + Kali)
 
+
+
 ---
 
 > [!CAUTION]
@@ -9,6 +11,10 @@
 > **Nao utilizar em ambiente produtivo** e **nao atacar sistemas de terceiros** sem autorizacao formal.
 
 ---
+
+[Topologia do laboratorio](imagens/topologia_lab_virtualbox-01.png)
+
+--- 
 
 ## Objetivo (o que voce vai montar)
 
