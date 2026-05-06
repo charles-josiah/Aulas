@@ -18,6 +18,14 @@
   <img src="imagens/topologia_lab_virtualbox-01.png" alt="Topologia do laboratorio">
 </p>
 
+## Topologia Proposta
+
+
+<p align="center">
+  <img src="imagens/topologia_lab_virtualbox-02.png" alt="Topologia do laboratorio">
+</p>
+
+
 --- 
 
 ## Objetivo (o que voce vai montar)
