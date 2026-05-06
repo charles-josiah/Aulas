@@ -1,4 +1,4 @@
-# Laboratorio no VirtualBox (Host Docker + Kali) — guia baby steps
+# Laboratorio no VirtualBox (Host Docker + Kali)
 
 ---
 

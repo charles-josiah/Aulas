@@ -27,7 +27,7 @@ O laboratorio deixa de ser baseado em multiplas VMs e passa a utilizar:
 
 O Kali Linux atuara como maquina atacante, explorando uma rede virtual interna criada pelo Docker.
 
-> Se voce quer montar esse laboratorio em **VirtualBox** (com 2 VMs: Host Docker + Kali), siga o guia: [`Lab_no_VirtualBox_(HostDocker+Kali).md`](Lab_no_VirtualBox_(HostDocker+Kali).md).
+> Se voce quer montar esse laboratorio em **VirtualBox** (com 2 VMs: Host Docker + Kali), siga o guia: `[Lab_no_VirtualBox_(HostDocker+Kali).md](Lab_no_VirtualBox_(HostDocker+Kali)`.md).
 
 ---
 
@@ -39,7 +39,7 @@ Sugestao:
 
 Topologia do laboratorio Docker recomendada
 
-[![Topologia do laboratorio Docker recomendada](imagens/topologia_lab_docker.png)](imagens/topologia_lab_docker.png)
+[Topologia do laboratorio Docker recomendada](imagens/topologia_lab_docker.png)
 
 ### 1.1 Estrutura logica
 
@@ -99,7 +99,7 @@ Caracteristica importante: estado nao persistente (reset automatico ao reiniciar
 
 ## 3. Implementacao com Docker Compose
 
-Para padronizar e facilitar o uso, utilize o ficheiro [`lab-seguranca/docker-compose.yml`](lab-seguranca/docker-compose.yml) (inclui **Portainer** para gestao visual dos containers).
+Para padronizar e facilitar o uso, utilize o ficheiro `[lab-seguranca/docker-compose.yml](lab-seguranca/docker-compose.yml)` (inclui **Portainer** para gestao visual dos containers).
 
 ### 3.1 Pre-requisitos minimos
 
@@ -260,15 +260,17 @@ Substitua `<IP_DO_HOST_DOCKER>` pelo endereco IP da VM ou maquina onde o Docker 
 
 **Exemplos de URL / cliente** (troque `<IP_DO_HOST_DOCKER>`):
 
-| Uso | Exemplo | Notas |
-| --- | --- | --- |
-| Gestao (Portainer) | `https://<IP_DO_HOST_DOCKER>:9443` | HTTPS; certificado autoassinado — aceitar excecao em laboratorio; criar admin na primeira vez |
-| Metasploitable2 (web) | `http://<IP_DO_HOST_DOCKER>:8181` | Equivale ao HTTP na porta 80 **dentro** do container |
-| Metasploitable2 (FTP) | `ftp://<IP_DO_HOST_DOCKER>:2121` | Alternativa: `ftp <IP_DO_HOST_DOCKER> 2121` |
-| Metasploitable2 (SSH) | `ssh <usuario>@<IP_DO_HOST_DOCKER> -p 2222` | SSH na porta 22 **dentro** do container |
-| DVWA | `http://<IP_DO_HOST_DOCKER>:8080` |  |
-| Juice Shop | `http://<IP_DO_HOST_DOCKER>:3000` |  |
-| Vulnerable API | `http://<IP_DO_HOST_DOCKER>:8888` |  |
+
+| Uso                   | Exemplo                                     | Notas                                                                                         |
+| --------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Gestao (Portainer)    | `https://<IP_DO_HOST_DOCKER>:9443`          | HTTPS; certificado autoassinado — aceitar excecao em laboratorio; criar admin na primeira vez |
+| Metasploitable2 (web) | `http://<IP_DO_HOST_DOCKER>:8181`           | Equivale ao HTTP na porta 80 **dentro** do container                                          |
+| Metasploitable2 (FTP) | `ftp://<IP_DO_HOST_DOCKER>:2121`            | Alternativa: `ftp <IP_DO_HOST_DOCKER> 2121`                                                   |
+| Metasploitable2 (SSH) | `ssh <usuario>@<IP_DO_HOST_DOCKER> -p 2222` | SSH na porta 22 **dentro** do container                                                       |
+| DVWA                  | `http://<IP_DO_HOST_DOCKER>:8080`           |                                                                                               |
+| Juice Shop            | `http://<IP_DO_HOST_DOCKER>:3000`           |                                                                                               |
+| Vulnerable API        | `http://<IP_DO_HOST_DOCKER>:8888`           |                                                                                               |
+
 
 #### Como obter o IP de cada container (rede interna Docker)
 
@@ -384,10 +386,6 @@ Ao final, o aluno devera ser capaz de:
 - correlacionar vulnerabilidades com impacto pratico;
 - executar testes de forma estruturada;
 - documentar tecnicamente os achados.
-
-
-
-
 
 > [!CAUTION]  
 > **AVISO DE ETICA E RESPONSABILIDADE**  
