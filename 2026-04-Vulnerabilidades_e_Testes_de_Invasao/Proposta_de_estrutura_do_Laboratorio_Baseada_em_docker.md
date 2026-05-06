@@ -40,7 +40,9 @@ Sugestao:
 
 Topologia do laboratorio Docker recomendada
 
-[Topologia do laboratorio Docker recomendada](imagens/topologia_lab_docker.png)
+<p align="center">
+  <img src="imagens/topologia_lab_docker.png" alt="Topologia do laboratorio">
+</p>
 
 ### 1.1 Estrutura logica
 
