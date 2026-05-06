@@ -27,6 +27,8 @@ O laboratorio deixa de ser baseado em multiplas VMs e passa a utilizar:
 
 O Kali Linux atuara como maquina atacante, explorando uma rede virtual interna criada pelo Docker.
 
+> Se voce quer montar esse laboratorio em **VirtualBox** (com 2 VMs: Host Docker + Kali), siga o guia: [`Lab_no_VirtualBox_(HostDocker+Kali).md`](Lab_no_VirtualBox_(HostDocker+Kali).md).
+
 ---
 
 ## 1. Topologia recomendada (logica e rede)
