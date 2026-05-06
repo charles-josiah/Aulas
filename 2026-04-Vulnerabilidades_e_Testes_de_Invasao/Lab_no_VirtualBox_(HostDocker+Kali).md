@@ -134,6 +134,95 @@ sudo apt update && sudo apt -y upgrade
 
 ---
 
+## 3) Criação automatizada usando vagrant
+
+O Vagrant é uma ferramenta que automatiza a criação e configuração de máquinas virtuais via código. Ele garante que todo o laboratório (redes, IPs e ferramentas) seja montado exatamente igual para todos com apenas um comando.
+
+### Como utilizar este arquivo:
+
+ - Instale o [Vagrant](https://www.vagrantup.com/downloads) e o [VirtualBox](https://www.virtualbox.org/wiki/Downloads) .
+
+Crie uma pasta para a aula e salve o código abaixo em um arquivo chamado ```Vagrantfile``` (sem extensão .txt).
+
+```vagrantfile 
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  # VM 1: HOST DOCKER (Alvos Vulneráveis)
+  config.vm.define "host-docker" do |node|
+    node.vm.box = "ubuntu/jammy64"
+    node.vm.hostname = "host-docker-lab"
+    node.vm.network "private_network", ip: "192.168.56.10"
+
+    node.vm.provider "virtualbox" do |vb|
+      vb.name = "Host-Docker-Lab"
+      vb.memory = "4096"
+      vb.cpus = 2
+    end
+
+    node.vm.provision "shell", inline: <<-SHELL
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update && apt-get install -y ca-certificates curl gnupg
+      install -m 0755 -d /etc/apt/keyrings
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu jammy stable" > /etc/apt/sources.list.d/docker.list
+      apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      usermod -aG docker vagrant
+      
+      # Setup do Lab
+      mkdir -p /home/vagrant/lab-seguranca
+      curl -fsSL https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml -o /home/vagrant/lab-seguranca/docker-compose.yml
+      chown -R vagrant:vagrant /home/vagrant/lab-seguranca
+      cd /home/vagrant/lab-seguranca && docker compose up -d
+    SHELL
+  end
+
+  # VM 2: KALI LINUX (Atacante)
+  config.vm.define "kali" do |node|
+    node.vm.box = "kalilinux/kali-rolling"
+    node.vm.hostname = "kali-lab"
+    node.vm.network "private_network", ip: "192.168.56.20"
+
+    node.vm.provider "virtualbox" do |vb|
+      vb.name = "Kali-Lab"
+      vb.memory = "4096"
+      vb.cpus = 2
+      vb.gui = true
+    end
+
+    node.vm.provision "shell", inline: "apt-get update && apt-get install -y kali-tools-web"
+  end
+
+end
+```
+
+- Abra o terminal (ou PowerShell) dentro dessa pasta e execute:
+
+```Bash
+vagrant up
+Aguarde: O Vagrant vai baixar as imagens, configurar as redes e instalar o Docker/ferramentas automaticamente.
+```
+
+### Comandos de Execução
+
+No terminal, dentro da pasta onde salvou o arquivo, utilize os comandos:
+
+| Comando | Descrição |
+| :--- | :--- |
+| `vagrant up` | Cria e liga as máquinas (primeira execução demora mais). |
+| `vagrant halt` | Desliga as máquinas com segurança. |
+| `vagrant ssh host-docker` | Acessa o terminal da máquina alvo. |
+| `vagrant destroy -f` | Remove completamente as VMs do disco. |
+
+
+
+---
+
+
+
+
 ## Passo a passo — configurar IPs na rede do laboratorio (Adapter 2)
 
 Voce precisa que as duas VMs se enxerguem pela rede do laboratorio.
