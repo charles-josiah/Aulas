@@ -34,7 +34,8 @@ O Kali Linux atuara como maquina atacante, explorando uma rede virtual interna c
 Para garantir isolamento e simulacao realista, sera utilizada uma rede Docker do tipo `bridge`.
 
 Sugestao visual:
-Topologia sugerida
+
+![Topologia do laboratorio Docker recomendada](imagens/topologia_lab_docker.png)
 
 ### 1.1 Estrutura logica
 
