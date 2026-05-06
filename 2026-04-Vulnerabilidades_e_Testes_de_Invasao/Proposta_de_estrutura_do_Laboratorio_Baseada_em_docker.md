@@ -1,4 +1,4 @@
-# Proposta de Estrutura do Laboratorio Baseada em Docker
+# 🐳 Proposta de Estrutura do Laboratorio Baseada em Docker
 
 ---
 
@@ -18,7 +18,7 @@
 
 ---
 
-## Visao geral
+## 📌 Visao geral
 
 O laboratorio deixa de ser baseado em multiplas VMs e passa a utilizar:
 
@@ -29,13 +29,13 @@ O Kali Linux atuara como maquina atacante, explorando uma rede virtual interna c
 
 ---
 
-## 1. Topologia recomendada (logica e rede)
+## 🧠 1. Topologia recomendada (logica e rede)
 
 Para garantir isolamento e simulacao realista, sera utilizada uma rede Docker do tipo `bridge`.
 
 Sugestao:
 
-![Topologia do laboratorio Docker recomendada](imagens/topologia_lab_docker.png)
+Topologia do laboratorio Docker recomendada
 
 ### 1.1 Estrutura logica
 
@@ -60,7 +60,7 @@ Sugestao:
 
 ---
 
-## 2. Detalhamento dos componentes
+## ⚙️ 2. Detalhamento dos componentes
 
 ### 2.1 Maquina atacante (fora da rede Docker)
 
@@ -93,9 +93,9 @@ Caracteristica importante: estado nao persistente (reset automatico ao reiniciar
 
 ---
 
-## 3. Implementacao com Docker Compose
+## 🧩 3. Implementacao com Docker Compose
 
-Para padronizar e facilitar o uso, utilize o ficheiro [`lab-seguranca/docker-compose.yml`](https://github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml) (inclui **Portainer** para gestao visual dos containers).
+Para padronizar e facilitar o uso, utilize o ficheiro `[lab-seguranca/docker-compose.yml](https://github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml)` (inclui **Portainer** para gestao visual dos containers).
 
 ### 3.1 Pre-requisitos minimos
 
@@ -109,10 +109,12 @@ Para padronizar e facilitar o uso, utilize o ficheiro [`lab-seguranca/docker-com
 
 O compose completo (rede `lab_vulneravel`, alvos didaticos e **Portainer** para gestao por interface) esta versionado no repositorio:
 
-| Acao | Link |
-| --- | --- |
-| Ver no GitHub | [Proposta em `lab-seguranca/docker-compose.yml` no repositorio Aulas](https://github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml) |
-| **Download direto (raw)** | [docker-compose.yml (raw)](https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml) |
+
+| Acao                      | Link                                                                                                                                                                                                     |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ver no GitHub             | [Proposta em `lab-seguranca/docker-compose.yml` no repositorio Aulas](https://github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml) |
+| **Download direto (raw)** | [docker-compose.yml (raw)](https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml)                                  |
+
 
 **Descarregar pela linha de comandos** (grava `docker-compose.yml` na pasta atual):
 
@@ -201,7 +203,7 @@ services:
 
 ---
 
-## 4. Guia operacional
+## 🚀 4. Guia operacional
 
 Apos configurar o Host Docker e obter o ficheiro `docker-compose.yml` (pasta de trabalho = diretorio onde o ficheiro esta), execute os comandos abaixo.
 
@@ -240,15 +242,17 @@ Substitua `<IP_DO_HOST_DOCKER>` pelo endereco IP da VM ou maquina onde o Docker 
 
 #### Portas publicadas no host (mapeamento Host:Container)
 
-| Porta no host | Porta dentro do container | Servico / uso |
-| --- | --- | --- |
-| **9443** | 9443 | Portainer (HTTPS) — gestao visual |
-| **8181** | 80 | Metasploitable2 — HTTP (web legada) |
-| **2121** | 21 | Metasploitable2 — FTP |
-| **2222** | 22 | Metasploitable2 — SSH |
-| **8080** | 80 | DVWA |
-| **3000** | 3000 | Juice Shop |
-| **8888** | 8080 | Vulnerable API |
+
+| Porta no host | Porta dentro do container | Servico / uso                       |
+| ------------- | ------------------------- | ----------------------------------- |
+| **9443**      | 9443                      | Portainer (HTTPS) — gestao visual   |
+| **8181**      | 80                        | Metasploitable2 — HTTP (web legada) |
+| **2121**      | 21                        | Metasploitable2 — FTP               |
+| **2222**      | 22                        | Metasploitable2 — SSH               |
+| **8080**      | 80                        | DVWA                                |
+| **3000**      | 3000                      | Juice Shop                          |
+| **8888**      | 8080                      | Vulnerable API                      |
+
 
 **Exemplos de URL / cliente** (troque `<IP_DO_HOST_DOCKER>`):
 
@@ -295,7 +299,7 @@ Observacoes importantes:
 
 ---
 
-## 5. Exercicios praticos propostos
+## 🧪 5. Exercicios praticos propostos
 
 A estrutura baseada em containers permite simular cenarios modernos de ataque e movimentacao lateral.
 
@@ -346,7 +350,7 @@ Sequencia sugerida para a aula:
 
 ---
 
-## 6. Limitacoes conhecidas do laboratorio
+## ⚠️ 6. Limitacoes conhecidas do laboratorio
 
 - algumas imagens podem ficar desatualizadas ou indisponiveis temporariamente no Docker Hub;
 - diferencas de hardware podem impactar tempo de subida de servicos;
@@ -355,7 +359,7 @@ Sequencia sugerida para a aula:
 
 ---
 
-## 7. Diretriz metodologica
+## ⚖️ 7. Diretriz metodologica
 
 Todos os exercicios devem observar:
 
@@ -366,7 +370,7 @@ Todos os exercicios devem observar:
 
 ---
 
-## 8. Resultado esperado
+## 🔥 8. Resultado esperado
 
 Ao final, o aluno devera ser capaz de:
 
@@ -375,10 +379,12 @@ Ao final, o aluno devera ser capaz de:
 - executar testes de forma estruturada;
 - documentar tecnicamente os achados.
 
----
 
-> [!CAUTION]
-> **AVISO DE ETICA E RESPONSABILIDADE**
+
+
+
+> [!CAUTION]  
+> **AVISO DE ETICA E RESPONSABILIDADE**  
 > Este ambiente foi projetado exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
 >
 > **Nao utilizar em ambiente produtivo.**
@@ -391,4 +397,3 @@ Ao final, o aluno devera ser capaz de:
 >
 > Execucao permitida apenas em laboratorio isolado (VM dedicada, Docker Lab ou rede segregada).
 
----
