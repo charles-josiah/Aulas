@@ -12,7 +12,11 @@
 
 ---
 
-[Topologia do laboratorio](imagens/topologia_lab_virtualbox-01.png)
+## Topologia CAOS
+
+<p align="center">
+  <img src="imagens/topologia_lab_virtualbox-01.png" alt="Topologia do laboratorio">
+</p>
 
 --- 
 
