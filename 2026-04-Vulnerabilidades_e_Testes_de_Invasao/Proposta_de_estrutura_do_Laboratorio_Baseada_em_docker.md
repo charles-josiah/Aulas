@@ -34,7 +34,7 @@ O Kali Linux atuara como maquina atacante, explorando uma rede virtual interna c
 Para garantir isolamento e simulacao realista, sera utilizada uma rede Docker do tipo `bridge`.
 
 Sugestao visual:
-![Topologia sugerida](https://github.com/user-attachments/assets/452d876f-cbb4-430e-b92d-605a2466b896)
+Topologia sugerida
 
 ### 1.1 Estrutura logica
 
@@ -63,9 +63,11 @@ Sugestao visual:
 
 ### 2.1 Maquina atacante (fora da rede Docker)
 
-| Componente | Funcao | Acesso a rede |
-| :--- | :--- | :--- |
+
+| Componente              | Funcao                              | Acesso a rede                   |
+| ----------------------- | ----------------------------------- | ------------------------------- |
 | **Kali Linux / Parrot** | Varredura, exploracao e ataques web | Deve pingar o IP do Host Docker |
+
 
 Observacoes:
 
@@ -78,13 +80,15 @@ Cada servico roda isoladamente em container.
 
 Caracteristica importante: estado nao persistente (reset automatico ao reiniciar).
 
-| Alvo | Imagem Docker | Portas (Host:Container) | Foco principal | Nivel didatico |
-| :--- | :--- | :--- | :--- | :--- |
-| **Metasploitable2** | `tleemcjr/metasploitable2` | `2121:21`, `2222:22`, `8181:80` | Servicos de rede legados | Iniciante |
-| **DVWA** | `vulnerables/web-dvwa` | `8080:80` | Vulnerabilidades web classicas (PHP/MySQL) | Iniciante |
-| **Juice Shop** | `bkimminich/juice-shop` | `3000:3000` | Falhas web modernas (API/JS) | Intermediario |
-| **Vulnerable API** | `roottusk/vulnerable-api` | `8888:8080` | OWASP API Security Top 10 | Intermediario |
-| **ImageMagick** | `vulhub/imagemagick:7.0.1-10` | N/A | Exploracao de CVEs de sistema | Intermediario |
+
+| Alvo                | Imagem Docker                 | Portas (Host:Container)         | Foco principal                             | Nivel didatico |
+| ------------------- | ----------------------------- | ------------------------------- | ------------------------------------------ | -------------- |
+| **Metasploitable2** | `tleemcjr/metasploitable2`    | `2121:21`, `2222:22`, `8181:80` | Servicos de rede legados                   | Iniciante      |
+| **DVWA**            | `vulnerables/web-dvwa`        | `8080:80`                       | Vulnerabilidades web classicas (PHP/MySQL) | Iniciante      |
+| **Juice Shop**      | `bkimminich/juice-shop`       | `3000:3000`                     | Falhas web modernas (API/JS)               | Intermediario  |
+| **Vulnerable API**  | `roottusk/vulnerable-api`     | `8888:8080`                     | OWASP API Security Top 10                  | Intermediario  |
+| **ImageMagick**     | `vulhub/imagemagick:7.0.1-10` | N/A                             | Exploracao de CVEs de sistema              | Intermediario  |
+
 
 ---
 
@@ -186,10 +190,10 @@ docker compose restart dvwa
 
 ### 4.4 Validacao pos-subida (checklist rapido)
 
-- [ ] `docker compose ps` mostra os servicos como `running`;
-- [ ] `http://<IP_DO_HOST_DOCKER>:8080` abre a DVWA;
-- [ ] `http://<IP_DO_HOST_DOCKER>:3000` abre a Juice Shop;
-- [ ] `http://<IP_DO_HOST_DOCKER>:8888` responde a API vulneravel.
+- `docker compose ps` mostra os servicos como `running`;
+- `http://<IP_DO_HOST_DOCKER>:8080` abre a DVWA;
+- `http://<IP_DO_HOST_DOCKER>:3000` abre a Juice Shop;
+- `http://<IP_DO_HOST_DOCKER>:8888` responde a API vulneravel.
 
 ### 4.5 Acesso as aplicacoes
 
@@ -286,3 +290,4 @@ Ao final, o aluno devera ser capaz de:
 - correlacionar vulnerabilidades com impacto pratico;
 - executar testes de forma estruturada;
 - documentar tecnicamente os achados.
+

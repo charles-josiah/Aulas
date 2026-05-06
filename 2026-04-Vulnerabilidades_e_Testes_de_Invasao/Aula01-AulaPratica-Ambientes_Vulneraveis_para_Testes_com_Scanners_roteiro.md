@@ -26,11 +26,9 @@ A execucao de testes de seguranca deve observar, obrigatoriamente:
 - autorizacao expressa para realizacao dos testes;
 - segregacao de rede (Host-Only, NAT ou VLAN isolada).
 
-> Testes sem autorizacao configuram infracao legal.
-
 ---
 
-## 🧠 2. Estrutura do laboratorio 
+## 🧠 2. Estrutura do laboratorio
 
 ### 2.1 Topologia recomendada
 
@@ -40,10 +38,7 @@ A execucao de testes de seguranca deve observar, obrigatoriamente:
 
 ### 2.2 Sugestao de topologia
 
-Topologia sugerida 1
-Topologia sugerida 2
-
----
+## [Topologia sugerida](https://github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Proposta_de_estrutura_do_Laboratorio_Baseada_em_docker.md)
 
 ## 🔍 3. Fase 1 - Analise com scanners
 
@@ -108,7 +103,7 @@ Somente em ambiente controlado e autorizado.
 
 ---
 
-## 🌐 6. Seguranca em ambientes modernos 
+## 🌐 6. Seguranca em ambientes modernos
 
 ### 6.1 APIs
 
@@ -186,7 +181,7 @@ Reduzir a superficie de ataque antes, durante e apos os testes.
 
 ---
 
-## 📎 10. Evidencias esperadas do aluno
+## 📎 10. Evidencias esperadas
 
 Cada achado deve conter obrigatoriamente:
 
