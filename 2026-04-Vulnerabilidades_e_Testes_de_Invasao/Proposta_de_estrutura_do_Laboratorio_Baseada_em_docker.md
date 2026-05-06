@@ -1,4 +1,4 @@
-# 🐳 Proposta de Estrutura do Laboratorio Baseada em Docker
+# Proposta de Estrutura do Laboratorio Baseada em Docker
 
 ---
 
@@ -18,7 +18,7 @@
 
 ---
 
-## 📌 Visao geral
+## Visao geral
 
 O laboratorio deixa de ser baseado em multiplas VMs e passa a utilizar:
 
@@ -29,13 +29,15 @@ O Kali Linux atuara como maquina atacante, explorando uma rede virtual interna c
 
 ---
 
-## 🧠 1. Topologia recomendada (logica e rede)
+## 1. Topologia recomendada (logica e rede)
 
 Para garantir isolamento e simulacao realista, sera utilizada uma rede Docker do tipo `bridge`.
 
 Sugestao:
 
 Topologia do laboratorio Docker recomendada
+
+[![Topologia do laboratorio Docker recomendada](imagens/topologia_lab_docker.png)](imagens/topologia_lab_docker.png)
 
 ### 1.1 Estrutura logica
 
@@ -60,7 +62,7 @@ Topologia do laboratorio Docker recomendada
 
 ---
 
-## ⚙️ 2. Detalhamento dos componentes
+## 2. Detalhamento dos componentes
 
 ### 2.1 Maquina atacante (fora da rede Docker)
 
@@ -93,9 +95,9 @@ Caracteristica importante: estado nao persistente (reset automatico ao reiniciar
 
 ---
 
-## 🧩 3. Implementacao com Docker Compose
+## 3. Implementacao com Docker Compose
 
-Para padronizar e facilitar o uso, utilize o ficheiro `[lab-seguranca/docker-compose.yml](https://github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml)` (inclui **Portainer** para gestao visual dos containers).
+Para padronizar e facilitar o uso, utilize o ficheiro [`lab-seguranca/docker-compose.yml`](lab-seguranca/docker-compose.yml) (inclui **Portainer** para gestao visual dos containers).
 
 ### 3.1 Pre-requisitos minimos
 
@@ -203,7 +205,7 @@ services:
 
 ---
 
-## 🚀 4. Guia operacional
+## 4. Guia operacional
 
 Apos configurar o Host Docker e obter o ficheiro `docker-compose.yml` (pasta de trabalho = diretorio onde o ficheiro esta), execute os comandos abaixo.
 
@@ -256,13 +258,15 @@ Substitua `<IP_DO_HOST_DOCKER>` pelo endereco IP da VM ou maquina onde o Docker 
 
 **Exemplos de URL / cliente** (troque `<IP_DO_HOST_DOCKER>`):
 
-- Gestao: `https://<IP_DO_HOST_DOCKER>:9443` (HTTPS; certificado autoassinado — aceitar excecao em laboratorio; criar admin na primeira vez).
-- Metasploitable2 web: `http://<IP_DO_HOST_DOCKER>:8181` (equivale ao HTTP na porta 80 **dentro** do container).
-- Metasploitable2 FTP: `ftp://<IP_DO_HOST_DOCKER>:2121` ou `ftp <IP_DO_HOST_DOCKER> 2121` (servico na porta 21 **dentro** do container).
-- Metasploitable2 SSH: `ssh <usuario>@<IP_DO_HOST_DOCKER> -p 2222` (SSH na porta 22 **dentro** do container).
-- DVWA: `http://<IP_DO_HOST_DOCKER>:8080`
-- Juice Shop: `http://<IP_DO_HOST_DOCKER>:3000`
-- Vulnerable API: `http://<IP_DO_HOST_DOCKER>:8888`
+| Uso | Exemplo | Notas |
+| --- | --- | --- |
+| Gestao (Portainer) | `https://<IP_DO_HOST_DOCKER>:9443` | HTTPS; certificado autoassinado — aceitar excecao em laboratorio; criar admin na primeira vez |
+| Metasploitable2 (web) | `http://<IP_DO_HOST_DOCKER>:8181` | Equivale ao HTTP na porta 80 **dentro** do container |
+| Metasploitable2 (FTP) | `ftp://<IP_DO_HOST_DOCKER>:2121` | Alternativa: `ftp <IP_DO_HOST_DOCKER> 2121` |
+| Metasploitable2 (SSH) | `ssh <usuario>@<IP_DO_HOST_DOCKER> -p 2222` | SSH na porta 22 **dentro** do container |
+| DVWA | `http://<IP_DO_HOST_DOCKER>:8080` |  |
+| Juice Shop | `http://<IP_DO_HOST_DOCKER>:3000` |  |
+| Vulnerable API | `http://<IP_DO_HOST_DOCKER>:8888` |  |
 
 #### Como obter o IP de cada container (rede interna Docker)
 
@@ -299,7 +303,7 @@ Observacoes importantes:
 
 ---
 
-## 🧪 5. Exercicios praticos propostos
+## 5. Exercicios praticos propostos
 
 A estrutura baseada em containers permite simular cenarios modernos de ataque e movimentacao lateral.
 
@@ -350,7 +354,7 @@ Sequencia sugerida para a aula:
 
 ---
 
-## ⚠️ 6. Limitacoes conhecidas do laboratorio
+## 6. Limitacoes conhecidas do laboratorio
 
 - algumas imagens podem ficar desatualizadas ou indisponiveis temporariamente no Docker Hub;
 - diferencas de hardware podem impactar tempo de subida de servicos;
@@ -359,7 +363,7 @@ Sequencia sugerida para a aula:
 
 ---
 
-## ⚖️ 7. Diretriz metodologica
+## 7. Diretriz metodologica
 
 Todos os exercicios devem observar:
 
@@ -370,7 +374,7 @@ Todos os exercicios devem observar:
 
 ---
 
-## 🔥 8. Resultado esperado
+## 8. Resultado esperado
 
 Ao final, o aluno devera ser capaz de:
 
