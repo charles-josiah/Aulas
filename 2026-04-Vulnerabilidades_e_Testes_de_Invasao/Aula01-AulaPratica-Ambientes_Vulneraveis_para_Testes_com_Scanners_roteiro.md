@@ -3,18 +3,21 @@
 ---
 
 > [!CAUTION]
-> **AVISO DE ETICA E RESPONSABILIDADE**
-> Este conteudo foi elaborado exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
+> **AVISO DE ÉTICA E RESPONSABILIDADE**
+> Este conteúdo e ambiente foram elaborados exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
 >
-> **Nao utilizar em ambiente produtivo.**
+> **Uso estritamente proibido** em sistemas de terceiros ou redes de produção sem autorização formal. O uso deste material em qualquer contexto que viole normas legais é de inteira responsabilidade do executor.
 >
-> Uso vedado em:
->
-> - ambientes de producao;
-> - sistemas de terceiros sem autorizacao formal;
-> - qualquer contexto que viole normas legais.
->
-> Execucao permitida apenas em laboratorio isolado (VM dedicada, Docker Lab, NAT/Host-Only ou rede segregada).
+> **DISCLAIMER DE ESTABILIDADE E SUPORTE:**
+> Este laboratório foi testado e validado pelo instrutor. No entanto, o ecossistema de TI (versões de kernels, imagens Docker e provedores do Vagrant) evolui rapidamente. 
+> 
+> **Fique atento:**
+> - A execução é permitida apenas em laboratório isolado (VM dedicada, Docker Lab, NAT/Host-Only ou rede segregada).
+> - Ambientes de laboratório são sensíveis e dependentes de hardware.
+> - Falhas podem ocorrer devido a drivers, virtualização desativada (BIOS/VT-x) ou conflitos de rede local.
+> - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
+
+---
 
 ---
 
@@ -205,3 +208,21 @@ Cada achado deve conter obrigatoriamente:
 - Profissional comprova.  
 - Especialista documenta e resolve.
 
+---
+
+> [!CAUTION]
+> **AVISO DE ÉTICA E RESPONSABILIDADE**
+> Este conteúdo e ambiente foram elaborados exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
+>
+> **Uso estritamente proibido** em sistemas de terceiros ou redes de produção sem autorização formal. O uso deste material em qualquer contexto que viole normas legais é de inteira responsabilidade do executor.
+>
+> **DISCLAIMER DE ESTABILIDADE E SUPORTE:**
+> Este laboratório foi testado e validado pelo instrutor. No entanto, o ecossistema de TI (versões de kernels, imagens Docker e provedores do Vagrant) evolui rapidamente. 
+> 
+> **Fique atento:**
+> - A execução é permitida apenas em laboratório isolado (VM dedicada, Docker Lab, NAT/Host-Only ou rede segregada).
+> - Ambientes de laboratório são sensíveis e dependentes de hardware.
+> - Falhas podem ocorrer devido a drivers, virtualização desativada (BIOS/VT-x) ou conflitos de rede local.
+> - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
+
+---
