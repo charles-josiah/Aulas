@@ -41,7 +41,7 @@ A execucao de testes de seguranca deve observar, obrigatoriamente:
 
 ### 2.2 Sugestao de topologia
 
-## [Topologia sugerida](https://github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Aula 01 - 4 - Proposta_de_estrutura_do_Laboratorio_Baseada_em_docker.md)
+## [Topologia sugerida](https://github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Aula%2001%20-%204%20-%20Proposta_de_estrutura_do_Laboratorio_Baseada_em_docker.md)
 
 ## 🔍 3. Fase 1 - Analise com scanners
 
