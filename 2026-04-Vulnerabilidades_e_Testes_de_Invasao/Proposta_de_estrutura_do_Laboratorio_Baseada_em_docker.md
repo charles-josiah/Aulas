@@ -44,6 +44,8 @@ Topologia do laboratorio Docker recomendada
   <img src="imagens/topologia_lab_docker.png" alt="Topologia do laboratorio">
 </p>
 
+[Topologia do laboratorio Docker recomendada](imagens/topologia_lab_docker.png)
+
 ### 1.1 Estrutura logica
 
 - Host Docker (VM principal);
