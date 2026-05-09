@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# Wiki — Laboratório de DAST com OWASP ZAP contra OWASP Juice Shop
-=======
 # Laboratório de DAST com OWASP ZAP contra OWASP Juice Shop
->>>>>>> 48cb8f8 (updates)
 
 **Tema:** comparação prática entre scanner de infraestrutura e scanner DAST em aplicação web vulnerável.  
 **Ferramentas centrais:** Docker, OWASP Juice Shop, OWASP ZAP, curl e, opcionalmente, OpenVAS/Greenbone.  
