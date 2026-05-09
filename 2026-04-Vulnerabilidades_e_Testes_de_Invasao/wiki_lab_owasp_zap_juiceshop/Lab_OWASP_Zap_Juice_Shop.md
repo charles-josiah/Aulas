@@ -4,6 +4,26 @@
 **Ferramentas centrais:** Docker, OWASP Juice Shop, OWASP ZAP, curl e, opcionalmente, OpenVAS/Greenbone.  
 **Finalidade:** documentação acadêmica para reprodução controlada dos testes realizados em laboratório.
 
+---
+
+> [!CAUTION]
+> **AVISO DE ÉTICA E RESPONSABILIDADE**
+> Este conteúdo e ambiente foram elaborados exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
+>
+> **Uso estritamente proibido** em sistemas de terceiros ou redes de produção sem autorização formal. O uso deste material em qualquer contexto que viole normas legais é de inteira responsabilidade do executor.
+>
+> **DISCLAIMER DE ESTABILIDADE E SUPORTE:**
+> Este laboratório foi testado e validado pelo instrutor. No entanto, o ecossistema de TI (versões de kernels, imagens Docker e provedores do Vagrant) evolui rapidamente. 
+> 
+> **Fique atento:**
+> - A execução é permitida apenas em laboratório isolado (VM dedicada, Docker Lab, NAT/Host-Only ou rede segregada).
+> - Ambientes de laboratório são sensíveis e dependentes de hardware.
+> - Falhas podem ocorrer devido a drivers, virtualização desativada (BIOS/VT-x) ou conflitos de rede local.
+> - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
+
+---
+
+
 > **Aviso de escopo e ética:** este roteiro deve ser executado exclusivamente em ambiente próprio, isolado e autorizado, utilizando aplicações vulneráveis por desenho, como OWASP Juice Shop. A reprodução destes procedimentos contra sistemas de terceiros, sem autorização expressa, é indevida e pode gerar responsabilização técnica, acadêmica, civil e criminal.
 
 ---
@@ -537,3 +557,20 @@ A exploração controlada permitiu comprovar erro SQL, enumeração de tabelas, 
 - [ ] Redigiu conclusão técnica e recomendações.
 - [ ] Anexou prints e outputs relevantes.
 
+---
+> [!CAUTION]
+> **AVISO DE ÉTICA E RESPONSABILIDADE**
+> Este conteúdo e ambiente foram elaborados exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
+>
+> **Uso estritamente proibido** em sistemas de terceiros ou redes de produção sem autorização formal. O uso deste material em qualquer contexto que viole normas legais é de inteira responsabilidade do executor.
+>
+> **DISCLAIMER DE ESTABILIDADE E SUPORTE:**
+> Este laboratório foi testado e validado pelo instrutor. No entanto, o ecossistema de TI (versões de kernels, imagens Docker e provedores do Vagrant) evolui rapidamente. 
+> 
+> **Fique atento:**
+> - A execução é permitida apenas em laboratório isolado (VM dedicada, Docker Lab, NAT/Host-Only ou rede segregada).
+> - Ambientes de laboratório são sensíveis e dependentes de hardware.
+> - Falhas podem ocorrer devido a drivers, virtualização desativada (BIOS/VT-x) ou conflitos de rede local.
+> - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
+
+---
