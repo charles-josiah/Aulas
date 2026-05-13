@@ -1,6 +1,36 @@
-# Laboratorio didatico — rede isolada + alvos vulneraveis + Portainer (gestao via UI)
-# Uso: na pasta deste ficheiro, executar: docker compose up -d
-# Requisito: Docker Engine com plugin Compose; utilizador com permissao ao socket Docker.
+# Laboratorio didatico — rede isolada + alvos vulneraveis + Portainer + Greenbone/OpenVAS
+#--------------------------------
+# Ajuste os IPs no arquivo docker-compose.yml para o IP da sua maquina.
+# 
+#---
+#> [!CAUTION]
+#> **AVISO DE ÉTICA E RESPONSABILIDADE**
+#> Este conteúdo e ambiente foram elaborados exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
+#>
+#> **Uso estritamente proibido** em sistemas de terceiros ou redes de produção sem autorização formal. O uso deste material em qualquer contexto que viole normas legais é de inteira responsabilidade do executor.
+#>
+#> **DISCLAIMER DE ESTABILIDADE E SUPORTE:**
+#> Este laboratório foi testado e validado pelo instrutor. No entanto, o ecossistema de TI (versões de kernels, imagens Docker e provedores do Vagrant) evolui rapidamente. 
+#> 
+#> **Fique atento:**
+#> - A execução é permitida apenas em laboratório isolado (VM dedicada, Docker Lab, NAT/Host-Only ou rede segregada).
+#> - Ambientes de laboratório são sensíveis e dependentes de hardware.
+#> - Falhas podem ocorrer devido a drivers, virtualização desativada (BIOS/VT-x) ou conflitos de rede local.
+#> - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
+#---
+# Uso: docker compose up -d
+#
+# Acessos:
+# Portainer:              https://<IP_HOST>:9443
+# Metasploitable:         http://<IP_HOST>:8181
+# DVWA:                   http://<IP_HOST>:8080
+# Juice Shop:             http://<IP_HOST>:3000
+# VAPI:                   http://<IP_HOST>:8000
+# phpMyAdmin:             http://<IP_HOST>:8001
+# MySQL VAPI:             <IP_HOST>:3307
+# MySQL Metasploit:       <IP_HOST>:33306
+# Greenbone/OpenVAS HTTP: http://<IP_HOST>:9392
+# Greenbone/OpenVAS TLS:  https://<IP_HOST>:9444
 
 networks:
   lab_vulneravel:
@@ -11,9 +41,26 @@ networks:
 
 volumes:
   portainer_data:
+  persistent:
+  gpg_data_vol:
+  scap_data_vol:
+  cert_data_vol:
+  data_objects_vol:
+  gvmd_data_vol:
+  psql_data_vol:
+  vt_data_vol:
+  notus_data_vol:
+  psql_socket_vol:
+  gvmd_socket_vol:
+  ospd_openvas_socket_vol:
+  redis_socket_vol:
+  openvas_data_vol:
+  openvas_log_data_vol:
+  gsa_data_vol:
+  nginx_config_vol:
+  nginx_certificates_vol:
 
 services:
-  # Interface web para gerir containers, imagens e volumes (facilita o uso do laboratorio)
   portainer:
     image: portainer/portainer-ce:latest
     container_name: lab_portainer
@@ -22,14 +69,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     networks:
-      lab_vulneravel:
-        ipv4_address: 172.18.0.2
+      - lab_vulneravel
     ports:
       - "9443:9443"
 
-  # Alvo 1: Metasploitable2 (ambiente legado)
   metasploitable2:
-    image: tleemcjr/metasploitable2
+    image: tleemcjr/metasploitable2:latest
+    container_name: lab_metasploitable2
     networks:
       lab_vulneravel:
         ipv4_address: 172.18.0.10
@@ -37,11 +83,15 @@ services:
       - "2121:21"
       - "2222:22"
       - "8181:80"
+      - "33306:3306"
+    command: sh -c "/bin/services.sh && tail -f /dev/null"
+    stdin_open: true
+    tty: true
     restart: unless-stopped
 
-  # Alvo 2: DVWA (aplicacao web classica)
   dvwa:
     image: vulnerables/web-dvwa
+    container_name: lab_dvwa
     networks:
       lab_vulneravel:
         ipv4_address: 172.18.0.20
@@ -51,9 +101,9 @@ services:
       - DBMS_TYPE=MySQL
     restart: unless-stopped
 
-  # Alvo 3: OWASP Juice Shop (aplicacao moderna)
   juice-shop:
     image: bkimminich/juice-shop
+    container_name: lab_juice_shop
     networks:
       lab_vulneravel:
         ipv4_address: 172.18.0.30
@@ -61,12 +111,385 @@ services:
       - "3000:3000"
     restart: unless-stopped
 
-  # Alvo 4: Vulnerable API
-  vulnerable-api:
-    image: roottusk/vulnerable-api
+  vapi-www:
+    build: ./vapi/
+    container_name: lab_vapi_www
     networks:
       lab_vulneravel:
         ipv4_address: 172.18.0.40
     ports:
-      - "8888:8080"
+      - "8000:80"
+    volumes:
+      - ./vapi/vapi:/var/www/html/vapi
+    depends_on:
+      - vapi-db
+    environment:
+      APP_NAME: Laravel
+      APP_ENV: local
+      APP_KEY: "base64:JUXTsCKQubRlvxGv6sVwkFL2rJ/gSksD4B/68948Mww:"
+      APP_DEBUG: "true"
+      APP_URL: http://vapi.test
+      SERVER_PORT: 80
+      LOG_CHANNEL: errorlog
+      LOG_LEVEL: debug
+      DB_CONNECTION: mysql
+      DB_HOST: vapi-db
+      DB_PORT: 3306
+      DB_DATABASE: vapi
+      DB_USERNAME: root
+      DB_PASSWORD: vapi123456
+      PUSHER_APP_CLUSTER: mt1
+      MIX_PUSHER_APP_KEY: ""
+      MIX_PUSHER_APP_CLUSTER: mt1
     restart: unless-stopped
+
+  vapi-db:
+    image: mysql:8.0
+    container_name: lab_vapi_db
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      lab_vulneravel:
+        ipv4_address: 172.18.0.41
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: vapi
+      MYSQL_USER: vapi
+      MYSQL_PASSWORD: vapi123456
+      MYSQL_ROOT_PASSWORD: vapi123456
+    volumes:
+      - ./vapi/database:/docker-entrypoint-initdb.d
+      - ./vapi/conf:/etc/mysql/conf.d
+      - persistent:/var/lib/mysql
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: lab_phpmyadmin
+    networks:
+      lab_vulneravel:
+        ipv4_address: 172.18.0.42
+    ports:
+      - "8001:80"
+    environment:
+      PMA_HOST: vapi-db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: vapi123456
+    depends_on:
+      - vapi-db
+    restart: unless-stopped
+
+  vulnerability-tests:
+    image: registry.community.greenbone.net/community/vulnerability-tests
+    environment:
+      FEED_RELEASE: "24.10"
+      KEEP_ALIVE: 1
+    volumes:
+      - vt_data_vol:/mnt
+    networks:
+      - lab_vulneravel
+
+  notus-data:
+    image: registry.community.greenbone.net/community/notus-data
+    environment:
+      KEEP_ALIVE: 1
+    volumes:
+      - notus_data_vol:/mnt
+    networks:
+      - lab_vulneravel
+
+  scap-data:
+    image: registry.community.greenbone.net/community/scap-data
+    environment:
+      KEEP_ALIVE: 1
+    volumes:
+      - scap_data_vol:/mnt
+    networks:
+      - lab_vulneravel
+
+  cert-bund-data:
+    image: registry.community.greenbone.net/community/cert-bund-data
+    environment:
+      KEEP_ALIVE: 1
+    volumes:
+      - cert_data_vol:/mnt
+    networks:
+      - lab_vulneravel
+
+  dfn-cert-data:
+    image: registry.community.greenbone.net/community/dfn-cert-data
+    environment:
+      KEEP_ALIVE: 1
+    volumes:
+      - cert_data_vol:/mnt
+    depends_on:
+      cert-bund-data:
+        condition: service_healthy
+    networks:
+      - lab_vulneravel
+
+  data-objects:
+    image: registry.community.greenbone.net/community/data-objects
+    environment:
+      FEED_RELEASE: "24.10"
+      KEEP_ALIVE: 1
+    volumes:
+      - data_objects_vol:/mnt
+    networks:
+      - lab_vulneravel
+
+  report-formats:
+    image: registry.community.greenbone.net/community/report-formats
+    environment:
+      FEED_RELEASE: "24.10"
+      KEEP_ALIVE: 1
+    volumes:
+      - data_objects_vol:/mnt
+    depends_on:
+      data-objects:
+        condition: service_healthy
+    networks:
+      - lab_vulneravel
+
+  gpg-data:
+    image: registry.community.greenbone.net/community/gpg-data
+    volumes:
+      - gpg_data_vol:/mnt
+    networks:
+      - lab_vulneravel
+
+  redis-server:
+    image: registry.community.greenbone.net/community/redis-server
+    volumes:
+      - redis_socket_vol:/run/redis/
+    networks:
+      - lab_vulneravel
+    restart: unless-stopped
+
+  pg-gvm-migrator:
+    image: registry.community.greenbone.net/community/pg-gvm-migrator:stable
+    volumes:
+      - psql_data_vol:/var/lib/postgresql
+      - psql_socket_vol:/var/run/postgresql
+    networks:
+      - lab_vulneravel
+
+  pg-gvm:
+    image: registry.community.greenbone.net/community/pg-gvm:stable
+    volumes:
+      - psql_data_vol:/var/lib/postgresql
+      - psql_socket_vol:/var/run/postgresql
+    depends_on:
+      pg-gvm-migrator:
+        condition: service_completed_successfully
+    networks:
+      - lab_vulneravel
+    restart: unless-stopped
+
+  gvmd:
+    image: registry.community.greenbone.net/community/gvmd:stable
+    volumes:
+      - gvmd_data_vol:/var/lib/gvm
+      - scap_data_vol:/var/lib/gvm/scap-data/
+      - cert_data_vol:/var/lib/gvm/cert-data
+      - data_objects_vol:/var/lib/gvm/data-objects/gvmd
+      - vt_data_vol:/var/lib/openvas/plugins
+      - psql_data_vol:/var/lib/postgresql
+      - gvmd_socket_vol:/run/gvmd
+      - ospd_openvas_socket_vol:/run/ospd
+      - psql_socket_vol:/var/run/postgresql
+    depends_on:
+      pg-gvm:
+        condition: service_started
+      scap-data:
+        condition: service_started
+      cert-bund-data:
+        condition: service_healthy
+      dfn-cert-data:
+        condition: service_healthy
+      data-objects:
+        condition: service_healthy
+      report-formats:
+        condition: service_healthy
+    networks:
+      - lab_vulneravel
+    restart: unless-stopped
+
+  gsa:
+    image: registry.community.greenbone.net/community/gsa:stable-slim
+    environment:
+      MOUNT_PATH: "/mnt/web"
+      KEEP_ALIVE: 1
+    healthcheck:
+      test: [ "CMD-SHELL", "test -e /run/gsa/copying.done" ]
+      start_period: 5s
+    volumes:
+      - gsa_data_vol:/mnt/web
+    networks:
+      - lab_vulneravel
+
+  gsad:
+    image: registry.community.greenbone.net/community/gsad:stable
+    environment:
+      GSAD_HTTP_ONLY: "true"
+      GSAD_API_ONLY: "true"
+      GSAD_FOREGROUND: "true"
+    volumes:
+      - gvmd_socket_vol:/run/gvmd
+    depends_on:
+      gvmd:
+        condition: service_started
+    networks:
+      - lab_vulneravel
+    restart: unless-stopped
+
+  gvm-config:
+    image: registry.community.greenbone.net/community/gvm-config:latest
+    environment:
+      ENABLE_NGINX_CONFIG: true
+      ENABLE_TLS_GENERATION: true
+      NGINX_HOST: "<IP_HOST>"
+      NGINX_HTTP_PORT: 80
+      NGINX_HTTPS_PORT: 443
+      NGINX_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER: "https://<IP_HOST>:9444"
+    volumes:
+      - nginx_config_vol:/mnt/nginx/configs
+      - nginx_certificates_vol:/mnt/nginx/certs
+    networks:
+      - lab_vulneravel
+
+  nginx:
+    image: registry.community.greenbone.net/community/nginx:latest
+    container_name: lab_openvas_nginx
+    ports:
+      - "9392:80"
+      - "9444:443"
+    volumes:
+      - nginx_config_vol:/etc/nginx/conf.d:ro
+      - nginx_certificates_vol:/etc/nginx/certs:ro
+      - gsa_data_vol:/usr/share/nginx/html:ro
+    depends_on:
+      gvm-config:
+        condition: service_completed_successfully
+      gsa:
+        condition: service_healthy
+      gsad:
+        condition: service_started
+    networks:
+      - lab_vulneravel
+    restart: unless-stopped
+
+  configure-openvas:
+    image: registry.community.greenbone.net/community/openvas-scanner:stable
+    volumes:
+      - openvas_data_vol:/mnt
+      - openvas_log_data_vol:/var/log/openvas
+    command:
+      - /bin/sh
+      - -c
+      - |
+        printf "table_driven_lsc = yes\nopenvasd_server = http://openvasd:80\n" > /mnt/openvas.conf
+        sed "s/127/128/" /etc/openvas/openvas_log.conf | sed 's/gvm/openvas/' > /mnt/openvas_log.conf
+        chmod 644 /mnt/openvas.conf
+        chmod 644 /mnt/openvas_log.conf
+        touch /var/log/openvas/openvas.log
+        chmod 666 /var/log/openvas/openvas.log
+    networks:
+      - lab_vulneravel
+
+  openvas:
+    image: registry.community.greenbone.net/community/openvas-scanner:stable
+    volumes:
+      - openvas_data_vol:/etc/openvas
+      - openvas_log_data_vol:/var/log/openvas
+    command:
+      - /bin/sh
+      - -c
+      - |
+        cat /etc/openvas/openvas.conf
+        tail -f /var/log/openvas/openvas.log
+    depends_on:
+      configure-openvas:
+        condition: service_completed_successfully
+    networks:
+      - lab_vulneravel
+
+  openvasd:
+    image: registry.community.greenbone.net/community/openvas-scanner:stable
+    environment:
+      OPENVASD_MODE: service_notus
+      GNUPGHOME: /etc/openvas/gnupg
+      LISTENING: 0.0.0.0:80
+    volumes:
+      - openvas_data_vol:/etc/openvas
+      - openvas_log_data_vol:/var/log/openvas
+      - gpg_data_vol:/etc/openvas/gnupg
+      - notus_data_vol:/var/lib/notus
+    depends_on:
+      vulnerability-tests:
+        condition: service_healthy
+      notus-data:
+        condition: service_healthy
+      configure-openvas:
+        condition: service_completed_successfully
+      gpg-data:
+        condition: service_completed_successfully
+    networks:
+      lab_vulneravel:
+        aliases:
+          - openvasd
+    restart: unless-stopped
+
+  ospd-openvas:
+    image: registry.community.greenbone.net/community/ospd-openvas:stable
+    hostname: ospd-openvas.local
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    security_opt:
+      - seccomp=unconfined
+      - apparmor=unconfined
+    command:
+      [
+        "ospd-openvas",
+        "-f",
+        "--config",
+        "/etc/gvm/ospd-openvas.conf",
+        "--notus-feed-dir",
+        "/var/lib/notus/advisories",
+        "-m",
+        "666",
+      ]
+    volumes:
+      - gpg_data_vol:/etc/openvas/gnupg
+      - vt_data_vol:/var/lib/openvas/plugins
+      - notus_data_vol:/var/lib/notus
+      - ospd_openvas_socket_vol:/run/ospd
+      - redis_socket_vol:/run/redis/
+      - openvas_data_vol:/etc/openvas/
+      - openvas_log_data_vol:/var/log/openvas
+    depends_on:
+      redis-server:
+        condition: service_started
+      gpg-data:
+        condition: service_completed_successfully
+      configure-openvas:
+        condition: service_completed_successfully
+      vulnerability-tests:
+        condition: service_healthy
+      notus-data:
+        condition: service_healthy
+    networks:
+      - lab_vulneravel
+    restart: unless-stopped
+
+  gvm-tools:
+    image: registry.community.greenbone.net/community/gvm-tools
+    volumes:
+      - gvmd_socket_vol:/run/gvmd
+      - ospd_openvas_socket_vol:/run/ospd
+    depends_on:
+      - gvmd
+      - ospd-openvas
+    networks:
+      - lab_vulneravel
