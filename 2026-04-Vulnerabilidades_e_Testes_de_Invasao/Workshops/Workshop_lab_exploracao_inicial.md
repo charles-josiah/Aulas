@@ -239,7 +239,9 @@ User user1 may run the following commands on srvdocker01:
     (ALL : ALL) ALL
 ```
 
-**Interpretação:** esse resultado não significa que `user1` já está executando como `root` no momento atual. Ele indica que `user1` possui autorização para elevar privilégios via `sudo`, mediante autenticação e conforme a política local. No contexto do laboratório, isso deve ser registrado como caminho administrativo legítimo e como ponto de atenção para auditoria de contas privilegiadas.
+**Interpretação:** esse resultado não significa que `user1` já está executando como `root` no momento atual. Ele indica que `user1` **possui autorização para elevar privilégios via `sudo`**, mediante autenticação e conforme a política local. No contexto do laboratório, isso deve ser registrado como caminho administrativo legítimo e como ponto de atenção para auditoria de contas privilegiadas.
+
+**Observação de auditoria:** um funcionário recém-chegado com caminho direto para privilégios de `root` via `sudo` é, no mínimo, um excelente convite para uma conversa desconfortável. Isso é uma prática formal da empresa, documentada e aprovada? Ou é uma falha de segurança disfarçada de conveniência operacional?
 
 #### Validar permissões de arquivos sensíveis, política de senha e PATH
 
@@ -287,6 +289,8 @@ Number of days of warning before password expires       : 7
 
 Um host de teste com acesso à rede corporativa não deve ser tratado como ambiente de menor risco apenas por ser “laboratório”. Se esse host possuir credenciais permanentes, contas sem expiração ou acesso a redes internas, ele pode se tornar um ponto frágil de entrada, movimentação lateral ou exposição indevida de ativos corporativos.
 
+**Reflexão adicional:** o risco aumenta consideravelmente quando esse host armazena chaves SSH reutilizadas, compartilhadas entre equipes ou configuradas para acesso sem senha a outros servidores. Nesse cenário, um novo usuário com acesso local, ou um invasor que comprometa essa conta, pode herdar caminhos de autenticação já estabelecidos e alcançar múltiplos sistemas sem passar novamente por controles fortes de identidade. Em uma auditoria madura, chaves SSH devem ser tratadas como credenciais privilegiadas: precisam ter dono, finalidade, escopo, rotação, proteção por passphrase quando aplicável e rastreabilidade.
+
 Para validar a ordem de busca de binários no shell, use:
 
 ```bash
@@ -299,7 +303,13 @@ echo "$PATH"
 /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 ```
 
-**Análise:** o `PATH` observado está saudável para este contexto. Não há diretórios como `/tmp`, `.`, `/home/user1/bin` ou outros caminhos graváveis pelo usuário antes dos diretórios de sistema. Essa validação ajuda a discutir risco de execução acidental de binários ou scripts posicionados em locais inseguros.
+**Análise:** o `PATH` observado está saudável para este contexto. Não foram identificados diretórios incomuns, caminhos temporários, diretórios graváveis pelo usuário ou a entrada `.` antes dos diretórios tradicionais do sistema, como `/usr/local/bin`, `/usr/bin`, `/bin`, `/usr/sbin` e `/sbin`. Em outras palavras, não há evidência, neste momento, de que o ambiente esteja priorizando comandos fora do caminho esperado ou preparando a execução de programas a partir de diretórios inseguros.
+
+**Reflexão de segurança:** o `PATH` é uma fronteira silenciosa de confiança. Quando ele aponta primeiro para diretórios inseguros, temporários ou graváveis pelo usuário, o sistema passa a confiar em locais onde um binário pode ser criado, substituído ou manipulado com facilidade.
+
+Em um cenário real, essa alteração pode não ser acidental. Um atacante pode modificar o ambiente para que comandos comuns, como `ls`, `cat`, `ssh`, `sudo` ou scripts internos, resolvam primeiro para versões adulteradas posicionadas em diretórios controlados. O usuário acredita estar executando um comando legítimo; o shell, obedientemente, executa o primeiro binário encontrado na ordem do `PATH`.
+
+Por isso, um `PATH` fora do padrão deve ser tratado como evidência relevante. Pode indicar erro operacional, automação mal desenhada, tentativa de persistência ou preparação para captura de credenciais, execução indevida de código e desvio de fluxo operacional.
 
 #### Identificar o kernel e arquitetura
 
@@ -327,6 +337,8 @@ Linux srvdocker01 7.0.0-15-generic #15-Ubuntu SMP PREEMPT_DYNAMIC Wed Apr 22 16:
 Versões antigas de kernel, builds customizados e arquiteturas específicas ajudam a entender compatibilidade de ferramentas, containers e módulos carregados.
 
 #### Identificar a distribuição Linux
+
+Identificar distribuição, versão do sistema, kernel e base de pacotes é uma etapa fundamental para qualquer profissional de segurança. Essas informações ajudam a avaliar compatibilidade de ferramentas, nível de atualização, superfície de exposição e comportamento esperado dos serviços. Com esses dados, também é possível consultar falhas documentadas, boletins de segurança e CVEs aplicáveis ao ambiente, priorizando validação, correção e mitigação. Também orientam a leitura de hardening, logs, paths, gerenciadores de pacotes e controles nativos do sistema.
 
 ```bash
 cat /etc/os-release
@@ -360,11 +372,143 @@ lsb_release -a
 
 `hostnamectl` pode mostrar sistema operacional, kernel, arquitetura, virtualização e hostname. `lsb_release` nem sempre está instalado em servidores mínimos.
 
+#### Identificar virtualização e recursos do host
+
+Entender se o host está em uma VM, container ou hardware físico ajuda a interpretar limitações do laboratório e sinais do ambiente. CPU, memória, disco e swap também indicam capacidade operacional, gargalos e riscos simples de disponibilidade. Para segurança da informação, esse inventário cria contexto antes de avaliar serviços, logs, desempenho e superfície exposta.
+
+```bash
+systemd-detect-virt
+```
+
+**Resultado validado no laboratório:**
+
+```text
+oracle
+```
+
+**Análise:** o retorno `oracle` indica virtualização associada ao ecossistema VirtualBox/Oracle. Se o comando retornar `none`, o sistema pode estar em hardware físico ou a virtualização pode não ter sido detectada por esse método.
+
+```bash
+hostnamectl
+```
+
+**Resultado validado no laboratório:**
+
+```text
+Static hostname: srvdocker01
+Chassis: vm
+Virtualization: oracle
+Operating System: Ubuntu 26.04 LTS
+Kernel: Linux 7.0.0-15-generic
+Architecture: x86-64
+Hardware Vendor: innotek GmbH
+Hardware Model: VirtualBox
+```
+
+**Análise:** `hostnamectl` confirma que o host é uma VM, mostra a virtualização detectada, o sistema operacional, kernel, arquitetura e indícios de VirtualBox.
+
+Para validar CPU e indícios alternativos de virtualização, use:
+
+```bash
+lscpu | grep -Ei 'hypervisor|vendor|model name|virtualization'
+```
+
+**Resultado validado no laboratório:**
+
+```text
+Vendor ID:                               GenuineIntel
+Model name:                              11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+Flags:                                   ... hypervisor ...
+Hypervisor vendor:                       KVM
+Virtualization type:                     full
+```
+
+**Análise:** a flag `hypervisor` confirma que o kernel percebe execução virtualizada. O campo `Hypervisor vendor` pode divergir de `hostnamectl` dependendo da pilha de virtualização, nested virtualization ou como o hypervisor expõe CPU para a VM.
+
+Para consultar informações DMI sem depender do `systemd-detect-virt`, use:
+
+```bash
+cat /sys/class/dmi/id/product_name 2>/dev/null
+cat /sys/class/dmi/id/sys_vendor 2>/dev/null
+```
+
+**Resultado validado no laboratório:**
+
+```text
+VirtualBox
+innotek GmbH
+```
+
+**Análise:** DMI é uma alternativa útil quando `systemd-detect-virt` não está disponível. Em muitos ambientes virtualizados, esses arquivos expõem fornecedor e modelo do hypervisor.
+
+Outra alternativa é procurar pistas no kernel ring buffer:
+
+```bash
+dmesg 2>/dev/null | grep -Ei 'hypervisor|virtual|kvm|vmware|virtualbox|qemu|xen|oracle' | head -20
+```
+
+**Resultado validado no laboratório como usuário comum:**
+
+```text
+sem saída
+```
+
+**Análise:** ausência de saída não prova ausência de virtualização. Em muitos sistemas, `dmesg` pode estar restrito para usuários comuns ou simplesmente não conter mensagens úteis para esse filtro.
+
+Quando o usuário possui privilégios administrativos via `sudoers`, a consulta pode ser repetida com `sudo`:
+
+```bash
+sudo dmesg 2>/dev/null | grep -Ei 'hypervisor|virtual|kvm|vmware|virtualbox|qemu|xen|oracle' | head -20
+```
+
+**Resultado validado no laboratório com privilégios:**
+
+```text
+Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+```
+
+**Observação:** esse comando exige `root` ou permissão via `sudoers`. No laboratório, a diferença entre a execução sem privilégios e com `sudo` reforça um ponto importante: algumas evidências do kernel só ficam visíveis quando o usuário tem autorização administrativa.
+
+Para inventariar CPU, memória, disco e swap, use:
+
+```bash
+lscpu | sed -n '1,25p'
+free -h
+df -h /
+swapon --show
+```
+
+**Resultados validados no laboratório:**
+
+```text
+CPU(s): 4
+Model name: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+Mem: 9.2Gi total
+Swap: 0B
+/dev/sda2 49G 38G 8.6G 82% /
+```
+
+**Análise:** o host possui 4 CPUs, aproximadamente 9.2 GiB de RAM, sem swap ativa e uso de disco elevado em `/`. Em laboratório isso ajuda a prever lentidão, falhas por falta de espaço e comportamento de ferramentas que consomem memória ou geram arquivos temporários.
+
+**Alternativa com `lshw`:**
+
+```bash
+command -v lshw >/dev/null && sudo lshw -class system -class processor -class memory -short || echo "lshw indisponivel"
+```
+
+**Observação:** `lshw` pode exigir `sudo` para exibir informações completas. Use apenas quando fizer sentido no roteiro e quando a autenticação estiver disponível.
+
 ---
 
 ### Passo 1.2: Superfície Local Privilegiada
 
-Depois de entender identidade e grupos, o próximo passo é inventariar mecanismos locais que podem executar com privilégios especiais. Esta etapa não executa esses binários; ela apenas mapeia superfície de auditoria para discussão defensiva.
+Antes de analisar processos e serviços, é essencial mapear mecanismos locais que podem executar com privilégios especiais. Bits SUID e SGID permitem que determinados binários rodem com o UID ou GID do dono, frequentemente `root` ou grupos sensíveis. Já Linux capabilities podem conceder privilégios específicos a binários sem usar SUID tradicional. Para um profissional de segurança, esses pontos representam uma superfície crítica: configurações indevidas, binários fora do padrão ou permissões excessivas podem ampliar impacto, burlar controles e criar caminhos administrativos não óbvios.
+
+**Reflexão de segurança:** SUID, SGID e capabilities existem para permitir operações legítimas que exigem privilégios especiais. O problema começa quando esses mecanismos aparecem em binários inesperados, mal configurados, graváveis por usuários comuns ou fora dos caminhos tradicionais do sistema. Em um cenário de ataque, esse tipo de falha pode ser usado para transformar uma conta comum em uma conta com maior capacidade de ação no host, acessar recursos protegidos ou contornar restrições locais.
+
+Por isso, o objetivo desta etapa não é apenas “listar arquivos”, mas identificar exceções perigosas ao modelo normal de permissões. Cada SUID, SGID ou capability deve responder a três perguntas: por que existe, quem precisa disso e qual seria o impacto se esse binário fosse abusado ou alterado?
+
+**Observação:** a exploração prática de SUID, SGID e Linux capabilities será tratada em outro workshop.
 
 #### Inventariar binários SUID
 
@@ -436,6 +580,10 @@ groups=27(sudo),983(docker),1000(user1)
 
 **Análise:** enquanto `getcap` olha para capabilities atribuídas a arquivos, este comando observa o contexto do processo atual. No resultado validado, `Current: =` indica que o shell de `user1` não está executando com capabilities efetivas no momento. O `Bounding set` lista capacidades que fazem parte do limite permitido pelo sistema para processos descendentes, mas isso não significa que todas estejam ativas no processo atual. Em auditoria, capabilities como `cap_sys_admin`, `cap_net_admin` e `cap_net_raw` merecem atenção quando aparecem como efetivas em processos ou binários específicos, pois ampliam significativamente o impacto de uma configuração incorreta.
 
+**Reflexão de segurança:** capabilities efetivas em processos de usuários comuns devem ser analisadas com muito cuidado, porque podem liberar ações que normalmente exigiriam `root`. Por exemplo, `cap_net_raw` pode permitir criar sockets brutos e capturar ou manipular pacotes; `cap_net_admin` pode permitir alterar configurações de rede, interfaces, rotas ou firewall; `cap_sys_admin` é especialmente sensível, pois abre acesso a várias operações administrativas do kernel, como montagem, namespaces e controle avançado do ambiente.
+
+Na prática, se um binário acessível por `user1` possuir uma dessas capabilities de forma efetiva, ele pode executar ações muito acima do que se espera de uma conta comum. Por isso, cada capability encontrada deve ser justificada: qual binário precisa dela, por qual motivo, quem autorizou e qual seria o impacto se esse binário fosse usado fora do propósito original?
+
 #### Inventariar diretórios graváveis pelo usuário atual
 
 ```bash
@@ -486,7 +634,7 @@ drwxrwxrwt root root /var/crash
 drwxrwxrwt root root /tmp
 ```
 
-**Análise:** os diretórios listados possuem sticky bit (`t`), comportamento esperado para diretórios temporários compartilhados. O sticky bit impede que um usuário comum remova ou renomeie arquivos de outro usuário dentro daquele diretório, reduzindo risco operacional.
+**Análise:** os diretórios listados possuem sticky bit (`t`), comum em diretórios temporários como `/tmp`. Isso permite que vários usuários criem arquivos no mesmo local, mas impede que um usuário comum apague ou renomeie arquivos de outro usuário. Por exemplo: se `user1` cria um arquivo em `/tmp`, `user2` não deve conseguir removê-lo; já o próprio `user1`, o dono do diretório ou `root` continuam podendo apagar esse arquivo.
 
 Para localizar diretórios graváveis por qualquer usuário sem sticky bit, use:
 
@@ -613,6 +761,14 @@ pgrep -a containerd
 ---
 
 ### Passo 1.4: Mapeamento de Portas, Sockets e Exposição SSH
+
+**Reflexão de segurança:** um servidor não “escuta portas por acaso”. Se existe uma porta aberta, existe um processo aceitando conexão, consumindo recurso e potencialmente expondo uma superfície de acesso. Ignorar isso é aceitar cegamente que tudo que está rodando deveria estar rodando.
+
+Portas em `127.0.0.1` contam uma história; portas em `0.0.0.0` ou `[::]` contam outra, bem mais perigosa. A primeira sugere exposição local. A segunda pode significar que o serviço está disponível para outras máquinas da rede, talvez para mais gente do que deveria.
+
+Portas abertas para a rede exigem uma pergunta objetiva: existe tratamento de segurança adequado para esse serviço? Há autenticação, controle de origem, firewall, logging, atualização, hardening e monitoramento? Se a resposta for “não sei”, já existe um problema de segurança.
+
+Em auditoria, porta aberta sem dono, sem justificativa e sem controle de origem não é “só um detalhe técnico”. É evidência de desorganização operacional, aumento desnecessário de superfície exposta e possível porta de entrada para abuso, vazamento ou movimentação lateral.
 
 #### Listar portas TCP e UDP em escuta
 
