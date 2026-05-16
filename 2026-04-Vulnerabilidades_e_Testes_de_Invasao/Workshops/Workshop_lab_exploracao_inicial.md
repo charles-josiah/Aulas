@@ -1,5 +1,25 @@
 # Workshop: Reconhecimento CLI e Descoberta de Ativos (srvdocker01)
 
+---
+
+> [!CAUTION]
+> **AVISO DE ÉTICA E RESPONSABILIDADE**
+> Este conteúdo e ambiente foram elaborados exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
+>
+> **Uso estritamente proibido** em sistemas de terceiros, redes públicas ou redes de produção sem autorização formal. O uso deste material em qualquer contexto que viole normas legais, políticas corporativas ou limites do laboratório é de inteira responsabilidade do executor.
+>
+> **DISCLAIMER DE ESTABILIDADE E SUPORTE:**
+> Este laboratório foi testado e validado pelo instrutor. No entanto, o ecossistema de TI (versões de kernel, distribuições Linux, imagens Docker, ferramentas de rede e provedores de virtualização) evolui rapidamente.
+>
+> **Fique atento:**
+> - A execução é permitida apenas em laboratório isolado (VM dedicada, Docker Lab, NAT/Host-Only ou rede segregada).
+> - As técnicas demonstradas envolvem reconhecimento de host, descoberta de rede e enumeração de serviços, devendo permanecer restritas ao escopo autorizado do laboratório.
+> - Ambientes de laboratório são sensíveis e dependentes de hardware, configuração de rede e versões de pacotes.
+> - Falhas podem ocorrer devido a drivers, virtualização desativada (BIOS/VT-x/AMD-V), firewall local, ausência de pacotes ou conflitos de rede.
+> - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
+
+---
+
 ## 1. Contexto do Cenário
 
 Você está no primeiro dia de trabalho em um ambiente técnico controlado e recebeu acesso via SSH ao servidor `srvdocker01` com um usuário comum, sem privilégios administrativos diretos. O ambiente é puramente CLI, sem interface gráfica, e o objetivo do laboratório é aprender a mapear o host local, identificar sinais de serviços ativos, reconhecer evidências de containerização e descobrir hosts adjacentes na rede interna.
