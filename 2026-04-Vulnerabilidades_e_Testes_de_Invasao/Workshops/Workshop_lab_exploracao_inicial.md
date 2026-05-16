@@ -1,5 +1,11 @@
 # Workshop: Reconhecimento CLI e Descoberta de Ativos (srvdocker01)
 
+**Autor:** Charles Alandt
+
+**Contato:** `echo "Y2hhcmxlcy5hbGFuZHRAZ21haWwuY29tCg==" | base64 -d`
+
+**Uso e atribuição:** este material pode ser copiado, adaptado e utilizado livremente para fins educacionais, desde que a fonte e o autor sejam referenciados.
+
 ---
 
 > [!CAUTION]
@@ -40,7 +46,7 @@
 
 ## 1. Contexto do Cenário
 
-Você está no primeiro dia de trabalho em um ambiente técnico controlado e recebeu acesso via SSH ao servidor `srvdocker01` com um usuário comum, sem privilégios administrativos diretos. O ambiente é puramente CLI, sem interface gráfica, e o objetivo do laboratório é aprender a mapear o host local, identificar sinais de serviços ativos, reconhecer evidências de containerização e descobrir hosts adjacentes na rede interna.
+Você está no primeiro dia de trabalho em um ambiente técnico controlado e recebeu acesso via SSH ao servidor `srvdocker01` com um usuário comum, sem privilégios administrativos diretos (será?). O ambiente é puramente CLI, sem interface gráfica, e o objetivo do laboratório é aprender a mapear o host local, identificar sinais de serviços ativos, reconhecer evidências de containerização e descobrir hosts adjacentes na rede interna.
 
 Neste workshop, cada comando deve ser executado individualmente, observado e validado antes de avançar para o próximo passo.
 
@@ -58,6 +64,28 @@ Nesta fase, o foco é responder perguntas iniciais de reconhecimento local:
 - O host tem sinais de Docker, containerização ou exposição de sockets sensíveis?
 
 ### Passo 1.1: Identificação do Ambiente, Usuário e Contas Locais
+
+#### Conectar ao servidor via SSH
+
+Antes de iniciar o reconhecimento, conecte-se ao servidor `srvdocker01` via SSH:
+
+```bash
+ssh user1@192.168.56.101
+```
+
+**Componentes do comando:**
+
+- `ssh`: cliente de acesso remoto seguro.
+- `user1`: usuário recebido para o laboratório.
+- `192.168.56.101`: IP do servidor `srvdocker01` na rede interna do laboratório. Esse IP pode variar conforme a configuração do lab; ajuste o endereço ao seu ambiente antes de executar o comando.
+
+**Resultado esperado:** após autenticar, o prompt deve ser semelhante a:
+
+```text
+user1@srvdocker01:~$
+```
+
+**Análise:** a partir desse ponto, todos os comandos do workshop devem ser executados dentro da sessão SSH. O objetivo é simular o ponto de vista de um usuário comum recém-conectado ao host e validar, passo a passo, quais informações são visíveis a partir desse contexto.
 
 #### Identificar o usuário atual
 
@@ -95,9 +123,15 @@ uid=1000(user1) gid=1000(user1) groups=1000(user1),27(sudo),983(docker)
 - `gid`: grupo primário.
 - `groups`: grupos adicionais.
 
-Se o usuário estiver no grupo `sudo`, isso é um indicativo de potencial privilégio administrativo, pois o usuário pode conseguir executar comandos com elevação mediante autenticação e política local do `sudoers`.
+**Ponto de atenção:** já existe um achado interessante neste primeiro levantamento. O usuário `user1` aparece associado aos grupos `sudo` e `docker`, dois grupos que merecem análise cuidadosa em qualquer auditoria Linux.
 
-Se o usuário estiver no grupo `docker`, isso também é uma informação crítica. Em muitos ambientes Linux, acesso ao socket Docker pode permitir controle administrativo indireto sobre containers e, dependendo da configuração, sobre o host.
+A presença no grupo `sudo` indica um possível caminho administrativo legítimo: dependendo da política definida no `sudoers`, esse usuário pode executar comandos com elevação de privilégio mediante autenticação.
+
+A presença no grupo `docker` também é sensível. Em muitos ambientes Linux, usuários com acesso ao socket do Docker podem interagir diretamente com o daemon, controlar containers e, dependendo da configuração, obter impacto administrativo relevante sobre o host.
+
+**Reflexão de auditoria:** para um usuário recém-criado ou para um colaborador no primeiro dia de acesso, a presença simultânea nos grupos `sudo` e `docker` deve levantar questionamentos. Esse nível de permissão está alinhado à função real do usuário? Existe uma justificativa operacional documentada? A política de acesso segue o princípio do menor privilégio?
+
+Em uma revisão de segurança, esse achado não deve ser tratado automaticamente como erro, mas como evidência que precisa ser validada com o responsável pelo ambiente. O ponto central é confirmar se a permissão é necessária, proporcional e auditável.
 
 #### Inspecionar contas locais e usuários com UID 0
 
@@ -121,7 +155,7 @@ user1:x:1000:1000:User One:/home/user1:/bin/bash
 usuario:senha:UID:GID:comentario:diretorio_home:shell
 ```
 
-**Análise:** o campo mais importante nesta etapa é o `UID`. Em Linux, o usuário efetivamente administrativo é identificado pelo `UID 0`, não apenas pelo nome `root`. Em um sistema saudável, normalmente apenas a conta `root` possui `UID 0`. Se outra conta aparecer com `UID 0`, isso deve ser tratado como achado crítico de auditoria.
+**Análise:** o campo mais importante nesta etapa é o `UID`. Em Linux, o usuário efetivamente administrativo é identificado pelo `UID 0`, não apenas pelo nome `root`. Em um sistema saudável, normalmente apenas a conta `root` possui `UID 0`. Se outra conta aparecer com `UID 0`, **isso deve ser tratado como achado crítico de auditoria.**
 
 Para listar somente contas com `UID 0`, use:
 
@@ -182,7 +216,9 @@ sudo:x:27:user1
 docker:x:983:user1
 ```
 
-**Análise:** membros de `sudo`, `admin` ou `wheel` podem ter capacidade administrativa dependendo da política local. Membros de `docker` podem interagir com o Docker Engine caso o socket esteja acessível. Esses grupos não significam necessariamente `UID 0`, mas indicam caminhos legítimos de elevação administrativa controlados por política.
+**Análise:** membros de `sudo`, `admin` ou `wheel` podem ter **capacidade administrativa dependendo da política local.** Membros de `docker` podem interagir com o Docker Engine caso o socket esteja acessível. Esses grupos não significam necessariamente `UID 0`, mas indicam caminhos legítimos de elevação administrativa controlados por política.
+
+**Observação:** a exploração prática desse tipo de permissão de acesso ao socket do Docker será tratada em um workshop específico, com foco em impacto, evidências, detecção e mitigação.
 
 Se o usuário tiver permissão para consultar sua própria política sudo, valide com:
 
@@ -247,7 +283,9 @@ Maximum number of days between password change          : 99999
 Number of days of warning before password expires       : 7
 ```
 
-**Análise:** a senha de `user1` não expira, a conta não expira e o valor `99999` em `Maximum number of days` indica uma política praticamente sem rotação obrigatória. Em ambiente de laboratório isso pode ser aceitável por simplicidade operacional, mas em ambientes corporativos deve gerar discussão sobre governança de identidade, validade de contas, MFA, chaves SSH e ciclo de vida de acessos.
+**Análise:** a senha de `user1` não expira, a conta não expira e o valor `99999` em `Maximum number of days` indica uma política praticamente sem rotação obrigatória. Em ambiente de laboratório isso pode ser aceitável por simplicidade operacional, mas em ambientes corporativos esse padrão deve gerar discussão imediata sobre governança de identidade, validade de contas, MFA, chaves SSH e ciclo de vida de acessos.
+
+Um host de teste com acesso à rede corporativa não deve ser tratado como ambiente de menor risco apenas por ser “laboratório”. Se esse host possuir credenciais permanentes, contas sem expiração ou acesso a redes internas, ele pode se tornar um ponto frágil de entrada, movimentação lateral ou exposição indevida de ativos corporativos.
 
 Para validar a ordem de busca de binários no shell, use:
 
