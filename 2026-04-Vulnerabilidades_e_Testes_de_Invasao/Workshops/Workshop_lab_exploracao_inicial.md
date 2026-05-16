@@ -20,6 +20,24 @@
 
 ---
 
+## Índice
+
+- [1. Contexto do Cenário](#1-contexto-do-cenário)
+- [2. Fase 1: Reconhecimento Interno do Host](#2-fase-1-reconhecimento-interno-do-host-mapeando-o-srvdocker01)
+  - [Passo 1.1: Identificação do Ambiente, Usuário e Contas Locais](#passo-11-identificação-do-ambiente-usuário-e-contas-locais)
+  - [Passo 1.2: Superfície Local Privilegiada](#passo-12-superfície-local-privilegiada)
+  - [Passo 1.3: Auditoria de Processos Ativos](#passo-13-auditoria-de-processos-ativos)
+  - [Passo 1.4: Mapeamento de Portas, Sockets e Exposição SSH](#passo-14-mapeamento-de-portas-sockets-e-exposição-ssh)
+  - [Passo 1.5: Evidências de Containerização Docker](#passo-15-evidências-de-containerização-docker)
+- [3. Fase 2: Descoberta de Rede e Hosts Adjacentes](#3-fase-2-descoberta-de-rede-e-hosts-adjacentes-pivoting-e-varredura)
+  - [Passo 2.1: Descoberta de Subredes e Interfaces](#passo-21-descoberta-de-subredes-e-interfaces)
+  - [Passo 2.2: Varredura de Ping](#passo-22-varredura-de-ping-host-discovery)
+  - [Passo 2.3: Varredura de Serviços e Banners](#passo-23-varredura-de-serviços-e-banners-port-scan)
+- [4. Mitigação e Hardening do srvdocker01](#4-mitigação-e-hardening-do-srvdocker01)
+- [Checklist de Validação do Aluno](#checklist-de-validação-do-aluno)
+
+---
+
 ## 1. Contexto do Cenário
 
 Você está no primeiro dia de trabalho em um ambiente técnico controlado e recebeu acesso via SSH ao servidor `srvdocker01` com um usuário comum, sem privilégios administrativos diretos. O ambiente é puramente CLI, sem interface gráfica, e o objetivo do laboratório é aprender a mapear o host local, identificar sinais de serviços ativos, reconhecer evidências de containerização e descobrir hosts adjacentes na rede interna.
@@ -30,14 +48,16 @@ Neste workshop, cada comando deve ser executado individualmente, observado e val
 
 ## 2. Fase 1: Reconhecimento Interno do Host (Mapeando o srvdocker01)
 
-Nesta fase, o foco é responder quatro perguntas iniciais:
+Nesta fase, o foco é responder perguntas iniciais de reconhecimento local:
 
 - Quem sou eu dentro do sistema?
+- Que contas locais, grupos e políticas de privilégio são visíveis?
 - Qual sistema operacional e kernel estão em execução?
+- Quais mecanismos locais executam com privilégios especiais?
 - Quais processos e serviços estão ativos?
 - O host tem sinais de Docker, containerização ou exposição de sockets sensíveis?
 
-### Passo 1.1: Identificação do Ambiente e Usuário
+### Passo 1.1: Identificação do Ambiente, Usuário e Contas Locais
 
 #### Identificar o usuário atual
 
@@ -50,7 +70,7 @@ whoami
 **Resultado esperado:** o comando retorna apenas o nome do usuário atual, por exemplo:
 
 ```text
-aluno
+user1
 ```
 
 **Análise:** esse é o contexto de execução inicial. Se o retorno for `root`, o laboratório está com privilégio administrativo direto. Se o retorno for um usuário comum, as próximas etapas ajudam a entender quais informações ainda são visíveis sem `sudo`.
@@ -66,7 +86,7 @@ id
 **Resultado esperado:** saída semelhante a:
 
 ```text
-uid=1000(aluno) gid=1000(aluno) groups=1000(aluno),27(sudo),999(docker)
+uid=1000(user1) gid=1000(user1) groups=1000(user1),27(sudo),983(docker)
 ```
 
 **Análise:** observe:
@@ -75,7 +95,173 @@ uid=1000(aluno) gid=1000(aluno) groups=1000(aluno),27(sudo),999(docker)
 - `gid`: grupo primário.
 - `groups`: grupos adicionais.
 
-Se o usuário estiver no grupo `docker`, isso é uma informação crítica. Em muitos ambientes Linux, acesso ao socket Docker pode permitir controle administrativo indireto sobre containers e, dependendo da configuração, sobre o host.
+Se o usuário estiver no grupo `sudo`, isso é um indicativo de potencial privilégio administrativo, pois o usuário pode conseguir executar comandos com elevação mediante autenticação e política local do `sudoers`.
+
+Se o usuário estiver no grupo `docker`, isso também é uma informação crítica. Em muitos ambientes Linux, acesso ao socket Docker pode permitir controle administrativo indireto sobre containers e, dependendo da configuração, sobre o host.
+
+#### Inspecionar contas locais e usuários com UID 0
+
+```bash
+cat /etc/passwd
+```
+
+**Flags utilizadas:** nenhuma.
+
+**Resultado esperado:** lista de contas locais no formato:
+
+```text
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+user1:x:1000:1000:User One:/home/user1:/bin/bash
+```
+
+**Formato dos campos:** cada linha segue o padrão:
+
+```text
+usuario:senha:UID:GID:comentario:diretorio_home:shell
+```
+
+**Análise:** o campo mais importante nesta etapa é o `UID`. Em Linux, o usuário efetivamente administrativo é identificado pelo `UID 0`, não apenas pelo nome `root`. Em um sistema saudável, normalmente apenas a conta `root` possui `UID 0`. Se outra conta aparecer com `UID 0`, isso deve ser tratado como achado crítico de auditoria.
+
+Para listar somente contas com `UID 0`, use:
+
+```bash
+awk -F: '$3 == 0 {print $1 ": UID=" $3 ": GID=" $4 ": HOME=" $6 ": SHELL=" $7}' /etc/passwd
+```
+
+**Flags e componentes utilizados:**
+
+- `awk`: processa texto por campos.
+- `-F:`: define `:` como separador de campos.
+- `$3 == 0`: filtra linhas em que o terceiro campo, o UID, é igual a `0`.
+- `$1`: nome do usuário.
+- `$4`: GID primário.
+- `$6`: diretório home.
+- `$7`: shell de login.
+- `/etc/passwd`: base local de contas do sistema.
+
+**Resultado esperado em sistema normal:**
+
+```text
+root: UID=0: GID=0: HOME=/root: SHELL=/bin/bash
+```
+
+**Resultado que exige investigação:**
+
+```text
+root: UID=0: GID=0: HOME=/root: SHELL=/bin/bash
+suporte: UID=0: GID=0: HOME=/home/suporte: SHELL=/bin/bash
+```
+
+**Análise:** a segunda linha indica uma conta adicional com privilégios equivalentes ao `root`. Em laboratório, isso é uma evidência importante para discutir controle de identidade, persistência administrativa indevida, trilhas de auditoria e revisão de contas privilegiadas.
+
+Para listar usuários com shell interativo, use:
+
+```bash
+awk -F: '$7 ~ /(bash|sh|zsh)$/ {print $1 ": UID=" $3 ": SHELL=" $7}' /etc/passwd
+```
+
+**Análise:** contas com shell como `/bin/bash`, `/bin/sh` ou `/bin/zsh` podem iniciar sessão interativa. Contas com `/usr/sbin/nologin` ou `/bin/false` normalmente são contas de serviço sem login interativo.
+
+Para verificar grupos administrativos conhecidos, use:
+
+```bash
+getent group sudo admin wheel docker
+```
+
+**Componentes utilizados:**
+
+- `getent`: consulta bases do sistema, incluindo arquivos locais e fontes externas configuradas como LDAP/SSSD.
+- `group`: seleciona a base de grupos.
+- `sudo admin wheel docker`: nomes de grupos administrativos comuns em distribuições Linux.
+
+**Resultado esperado:**
+
+```text
+sudo:x:27:user1
+docker:x:983:user1
+```
+
+**Análise:** membros de `sudo`, `admin` ou `wheel` podem ter capacidade administrativa dependendo da política local. Membros de `docker` podem interagir com o Docker Engine caso o socket esteja acessível. Esses grupos não significam necessariamente `UID 0`, mas indicam caminhos legítimos de elevação administrativa controlados por política.
+
+Se o usuário tiver permissão para consultar sua própria política sudo, valide com:
+
+```bash
+sudo -l
+```
+
+**Flags utilizadas:**
+
+- `-l`: lista comandos que o usuário atual pode executar via `sudo`, conforme a política local.
+
+**Análise:** esse comando pode solicitar senha. O objetivo é entender autorização administrativa, não executar comandos privilegiados. Uma saída com `(ALL : ALL) ALL` indica permissão ampla; entradas específicas indicam comandos limitados.
+
+**Resultado validado no laboratório:**
+
+```text
+User user1 may run the following commands on srvdocker01:
+    (ALL : ALL) ALL
+```
+
+**Interpretação:** esse resultado não significa que `user1` já está executando como `root` no momento atual. Ele indica que `user1` possui autorização para elevar privilégios via `sudo`, mediante autenticação e conforme a política local. No contexto do laboratório, isso deve ser registrado como caminho administrativo legítimo e como ponto de atenção para auditoria de contas privilegiadas.
+
+#### Validar permissões de arquivos sensíveis, política de senha e PATH
+
+```bash
+ls -l /etc/passwd /etc/shadow /etc/sudoers
+```
+
+**Flags utilizadas:**
+
+- `-l`: exibe permissões, dono, grupo, tamanho, data de modificação e caminho.
+
+**Resultado validado no laboratório:**
+
+```text
+-rw-r--r-- 1 root root   1788 May 12 01:51 /etc/passwd
+-rw-r----- 1 root shadow  967 May 12 01:51 /etc/shadow
+-r--r----- 1 root root   1800 Jan 21 15:09 /etc/sudoers
+```
+
+**Análise:** `/etc/passwd` está legível para todos, o que é esperado em Linux porque contém metadados de contas, não hashes de senha. `/etc/shadow` está restrito ao usuário `root` e ao grupo `shadow`, protegendo os hashes de senha. `/etc/sudoers` está em modo somente leitura e restrito, reduzindo risco de alteração indevida da política de privilégios.
+
+Para verificar a política de expiração da conta atual, use:
+
+```bash
+chage -l user1
+```
+
+**Flags utilizadas:**
+
+- `-l`: lista informações de aging e expiração da conta.
+
+**Resultado validado no laboratório:**
+
+```text
+Last password change                                    : May 12, 2026
+Password expires                                        : never
+Password inactive                                       : never
+Account expires                                         : never
+Minimum number of days between password change          : 0
+Maximum number of days between password change          : 99999
+Number of days of warning before password expires       : 7
+```
+
+**Análise:** a senha de `user1` não expira, a conta não expira e o valor `99999` em `Maximum number of days` indica uma política praticamente sem rotação obrigatória. Em ambiente de laboratório isso pode ser aceitável por simplicidade operacional, mas em ambientes corporativos deve gerar discussão sobre governança de identidade, validade de contas, MFA, chaves SSH e ciclo de vida de acessos.
+
+Para validar a ordem de busca de binários no shell, use:
+
+```bash
+echo "$PATH"
+```
+
+**Resultado validado no laboratório:**
+
+```text
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+```
+
+**Análise:** o `PATH` observado está saudável para este contexto. Não há diretórios como `/tmp`, `.`, `/home/user1/bin` ou outros caminhos graváveis pelo usuário antes dos diretórios de sistema. Essa validação ajuda a discutir risco de execução acidental de binários ou scripts posicionados em locais inseguros.
 
 #### Identificar o kernel e arquitetura
 
@@ -90,13 +276,13 @@ uname -a
 **Resultado esperado:** saída semelhante a:
 
 ```text
-Linux srvdocker01 6.1.0-18-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.76-1 x86_64 GNU/Linux
+Linux srvdocker01 7.0.0-15-generic #15-Ubuntu SMP PREEMPT_DYNAMIC Wed Apr 22 16:06:43 UTC 2026 x86_64 GNU/Linux
 ```
 
 **Análise:** campos importantes:
 
 - `srvdocker01`: hostname.
-- `6.1.0-18-amd64`: versão do kernel.
+- `7.0.0-15-generic`: versão do kernel.
 - `x86_64`: arquitetura.
 - `GNU/Linux`: família do sistema.
 
@@ -113,11 +299,13 @@ cat /etc/os-release
 **Resultado esperado:** conteúdo com variáveis como:
 
 ```text
-PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
-NAME="Debian GNU/Linux"
-VERSION_ID="12"
-VERSION_CODENAME=bookworm
-ID=debian
+PRETTY_NAME="Ubuntu 26.04 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04 (Resolute Raccoon)"
+VERSION_CODENAME=resolute
+ID=ubuntu
+ID_LIKE=debian
 ```
 
 **Análise:** `PRETTY_NAME`, `VERSION_ID` e `ID` indicam a distribuição base. Isso ajuda a prever nomes de pacotes, caminhos padrão, versão do systemd, comportamento do firewall e disponibilidade de comandos como `ss`, `ip`, `ps` e `nmap`.
@@ -136,7 +324,166 @@ lsb_release -a
 
 ---
 
-### Passo 1.2: Auditoria de Processos Ativos
+### Passo 1.2: Superfície Local Privilegiada
+
+Depois de entender identidade e grupos, o próximo passo é inventariar mecanismos locais que podem executar com privilégios especiais. Esta etapa não executa esses binários; ela apenas mapeia superfície de auditoria para discussão defensiva.
+
+#### Inventariar binários SUID
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+**Flags e componentes utilizados:**
+
+- `find /`: inicia a busca a partir da raiz do filesystem.
+- `-perm -4000`: localiza arquivos com o bit SUID ativo.
+- `-type f`: limita o resultado a arquivos regulares.
+- `2>/dev/null`: oculta erros de permissão esperados para usuário comum.
+
+**Análise:** binários SUID executam com o UID efetivo do dono do arquivo, frequentemente `root`. Isso é necessário para ferramentas legítimas como `passwd`, `su`, `sudo`, `mount` e utilitários similares, mas também representa uma superfície sensível que deve ser inventariada. Em auditoria, procure por binários incomuns, caminhos fora de `/usr/bin`, `/usr/sbin`, `/bin` e `/sbin`, ou arquivos SUID recentemente alterados.
+
+#### Inventariar binários SGID
+
+```bash
+find / -perm -2000 -type f 2>/dev/null
+```
+
+**Flags e componentes utilizados:**
+
+- `-perm -2000`: localiza arquivos com o bit SGID ativo.
+- `-type f`: limita o resultado a arquivos regulares.
+- `2>/dev/null`: oculta erros de permissão.
+
+**Análise:** binários SGID executam com o GID efetivo do grupo dono do arquivo. Eles podem ser legítimos para tarefas que exigem acesso a grupos específicos, mas devem ser revisados quando aparecem em caminhos não padronizados ou associados a grupos sensíveis.
+
+#### Inventariar Linux capabilities
+
+```bash
+getcap -r / 2>/dev/null
+```
+
+**Flags e componentes utilizados:**
+
+- `getcap`: lista capabilities atribuídas a arquivos.
+- `-r /`: executa busca recursiva a partir da raiz.
+- `2>/dev/null`: oculta erros de permissão.
+
+**Análise:** capabilities permitem conceder privilégios específicos a binários sem usar SUID completo. Exemplos comuns incluem capacidades para manipulação de rede, binding em portas privilegiadas ou operações administrativas específicas. Em auditoria, capabilities devem ser revisadas porque representam exceções finas ao modelo tradicional de permissões Unix.
+
+**Alternativa técnica:** se `getcap` não estiver instalado, registre a ausência da ferramenta e siga para os próximos passos. Em Debian/Ubuntu, ela costuma fazer parte do pacote `libcap2-bin`.
+
+#### Verificar capabilities do processo atual
+
+```bash
+capsh --print 2>/dev/null || grep Cap /proc/self/status
+```
+
+**Componentes utilizados:**
+
+- `capsh --print`: mostra, quando disponível, os conjuntos de capabilities do processo atual em formato legível.
+- `2>/dev/null`: oculta erro caso `capsh` não esteja instalado.
+- `grep Cap /proc/self/status`: alternativa nativa que exibe os campos de capabilities do processo atual em hexadecimal.
+
+**Resultado validado no laboratório:**
+
+```text
+Current: =
+Bounding set =cap_chown,cap_dac_override,...,cap_net_admin,cap_net_raw,...,cap_sys_admin,...
+Ambient set =
+uid=1000(user1) euid=1000(user1)
+gid=1000(user1)
+groups=27(sudo),983(docker),1000(user1)
+```
+
+**Análise:** enquanto `getcap` olha para capabilities atribuídas a arquivos, este comando observa o contexto do processo atual. No resultado validado, `Current: =` indica que o shell de `user1` não está executando com capabilities efetivas no momento. O `Bounding set` lista capacidades que fazem parte do limite permitido pelo sistema para processos descendentes, mas isso não significa que todas estejam ativas no processo atual. Em auditoria, capabilities como `cap_sys_admin`, `cap_net_admin` e `cap_net_raw` merecem atenção quando aparecem como efetivas em processos ou binários específicos, pois ampliam significativamente o impacto de uma configuração incorreta.
+
+#### Inventariar diretórios graváveis pelo usuário atual
+
+```bash
+find / -xdev -type d -writable 2>/dev/null | grep -vE '^/(proc|sys|run|dev)' | head -30
+```
+
+**Flags e componentes utilizados:**
+
+- `-xdev`: evita atravessar para outros filesystems montados.
+- `-type d`: limita a busca a diretórios.
+- `-writable`: lista diretórios onde o usuário atual possui permissão de escrita.
+- `grep -vE '^/(proc|sys|run|dev)'`: reduz ruído de filesystems virtuais e diretórios voláteis.
+- `head -30`: limita a saída para facilitar validação em sala.
+
+**Resultado validado no laboratório:**
+
+```text
+/var/tmp
+/var/crash
+/tmp
+/home/user1
+/home/user1/.config
+/home/user1/.cache
+/home/user1/.ssh
+/docker
+/docker/vapi
+/docker/vapi/database
+```
+
+**Análise:** este comando não procura necessariamente diretórios graváveis por todos; ele lista o que é gravável pelo usuário atual. No laboratório, os diretórios pessoais são esperados. Já a presença de caminhos como `/docker` e `/docker/vapi` é relevante para discussão, pois indica que `user1` consegue alterar áreas usadas pelo ambiente de containers/aplicação. Isso pode ser legítimo em laboratório, mas em ambiente corporativo exigiria revisão de ownership, grupos e fluxo de deploy.
+
+#### Inventariar diretórios graváveis por qualquer usuário
+
+```bash
+find / -xdev -type d -perm -0002 -printf '%M %u %g %p\n' 2>/dev/null | head -30
+```
+
+**Flags e componentes utilizados:**
+
+- `-perm -0002`: filtra diretórios com permissão de escrita para `others`.
+- `-printf '%M %u %g %p\n'`: imprime permissões, dono, grupo e caminho.
+
+**Resultado validado no laboratório:**
+
+```text
+drwxrwxrwt root root /var/tmp
+drwxrwxrwt root root /var/crash
+drwxrwxrwt root root /tmp
+```
+
+**Análise:** os diretórios listados possuem sticky bit (`t`), comportamento esperado para diretórios temporários compartilhados. O sticky bit impede que um usuário comum remova ou renomeie arquivos de outro usuário dentro daquele diretório, reduzindo risco operacional.
+
+Para localizar diretórios graváveis por qualquer usuário sem sticky bit, use:
+
+```bash
+find / -xdev -type d -perm -0002 ! -perm -1000 -printf '%M %u %g %p\n' 2>/dev/null | head -30
+```
+
+**Resultado validado no laboratório:**
+
+```text
+sem saída
+```
+
+**Análise:** ausência de saída é o resultado desejável. Diretórios world-writable sem sticky bit costumam ser achados relevantes, pois permitem interferência entre usuários locais.
+
+#### Inventariar arquivos executáveis graváveis pelo usuário atual
+
+```bash
+find / -xdev -type f -writable -executable -printf '%M %u %g %p\n' 2>/dev/null | head -30
+```
+
+**Resultado validado no laboratório:**
+
+```text
+-rwxr-xr-x user1 docker /docker/vapi/vendor/spatie/array-to-xml/composer.json
+-rwxr-xr-x user1 docker /docker/vapi/vendor/spatie/array-to-xml/README.md
+-rwxr-xr-x user1 docker /docker/vapi/vendor/spatie/array-to-xml/LICENSE.md
+-rwxr-xr-x user1 docker /docker/vapi/vendor/spatie/array-to-xml/CHANGELOG.md
+-rwxr-xr-x user1 docker /docker/vapi/vapi/bootstrap/cache/services.php
+-rwxr-xr-x user1 docker /docker/vapi/vapi/bootstrap/cache/packages.php
+```
+
+**Análise:** arquivos executáveis e graváveis pelo usuário atual merecem revisão porque combinam capacidade de alteração com possibilidade de execução. No laboratório, os achados estão sob `/docker/vapi`, pertencem a `user1:docker` e parecem relacionados à aplicação vulnerável do ambiente. Em uma auditoria real, o próximo passo seria entender se algum processo, serviço ou rotina automatizada executa esses arquivos.
+
+### Passo 1.3: Auditoria de Processos Ativos
 
 #### Listar todos os processos em formato BSD
 
@@ -157,7 +504,7 @@ USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 root           1  0.0  0.5 167000 11800 ?        Ss   09:00   0:01 /sbin/init
 root         721  0.1  2.1 1450000 45000 ?       Ssl  09:01   0:05 /usr/bin/dockerd -H fd://
 root         891  0.0  1.0 1200000 21000 ?       Ssl  09:01   0:02 containerd
-aluno       2100  0.0  0.1   8200  3200 pts/0    Ss   09:20   0:00 -bash
+user1       2100  0.0  0.1   8200  3200 pts/0    Ss   09:20   0:00 -bash
 ```
 
 **Análise:** procure por processos relacionados a Docker e containerização:
@@ -227,7 +574,7 @@ pgrep -a containerd
 
 ---
 
-### Passo 1.3: Mapeamento de Portas e Sockets Locais
+### Passo 1.4: Mapeamento de Portas, Sockets e Exposição SSH
 
 #### Listar portas TCP e UDP em escuta
 
@@ -261,7 +608,41 @@ tcp   LISTEN 0      4096            [::]:22           [::]:*     users:(("sshd",
 - `[::]:PORTA`: serviço escutando em todas as interfaces IPv6.
 - `IP_INTERNO:PORTA`: serviço escutando especificamente em uma interface de rede.
 
-**Interpretação prática:** um banco em `127.0.0.1:5432` sugere exposição local. Um serviço em `0.0.0.0:5432` sugere exposição em todas as interfaces, o que aumenta a superfície de ataque dentro da rede.
+**Interpretação prática:** um banco em `127.0.0.1:5432` sugere exposição local. Um serviço em `0.0.0.0:5432` sugere exposição em todas as interfaces, o que aumenta a superfície exposta dentro da rede.
+
+#### Revisar exposição e política efetiva do SSH
+
+```bash
+sshd -T | grep -Ei 'permitrootlogin|passwordauthentication|pubkeyauthentication|allowusers|allowgroups'
+```
+
+**Flags e componentes utilizados:**
+
+- `sshd -T`: imprime a configuração efetiva do servidor SSH após aplicar padrões e arquivos de configuração.
+- `grep -E`: habilita expressão regular estendida.
+- `grep -i`: ignora maiúsculas e minúsculas.
+- `permitrootlogin`: indica se login SSH direto como `root` é permitido.
+- `passwordauthentication`: indica se autenticação por senha está habilitada.
+- `pubkeyauthentication`: indica se autenticação por chave pública está habilitada.
+- `allowusers` e `allowgroups`: indicam restrições explícitas de usuários ou grupos autorizados.
+
+**Resultado esperado:** a saída varia conforme a configuração do laboratório, mas pode aparecer como:
+
+```text
+permitrootlogin prohibit-password
+passwordauthentication yes
+pubkeyauthentication yes
+```
+
+**Análise:** esta validação conecta identidade e rede. Se `passwordauthentication` estiver habilitado, a segurança depende fortemente de senha, política de bloqueio, MFA quando disponível e exposição da porta SSH. Se `permitrootlogin` estiver como `yes`, há maior risco operacional porque permite tentativa direta contra a conta administrativa. Restrições com `allowusers` ou `allowgroups` reduzem a superfície de login remoto.
+
+**Alternativas técnicas:**
+
+```bash
+grep -Ei '^[[:space:]]*(PermitRootLogin|PasswordAuthentication|PubkeyAuthentication|AllowUsers|AllowGroups)' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null
+```
+
+Esta alternativa lê arquivos de configuração diretamente. Ela pode não refletir todos os padrões efetivos, mas ajuda quando `sshd -T` não estiver disponível ou exigir permissões específicas.
 
 #### Listar conexões TCP estabelecidas e em escuta
 
@@ -335,7 +716,7 @@ Essa opção não é amigável, mas funciona em praticamente qualquer Linux com 
 
 ---
 
-### Passo 1.4: Evidências de Containerização (Docker)
+### Passo 1.5: Evidências de Containerização Docker
 
 O objetivo é descobrir indícios de Docker sem executar o comando `docker`.
 
@@ -350,7 +731,7 @@ groups
 **Resultado esperado:** saída semelhante a:
 
 ```text
-aluno sudo docker
+user1 sudo docker
 ```
 
 **Análise:** presença no grupo `docker` indica que o usuário pode ter permissão para interagir com o Docker Engine, caso o socket esteja acessível.
@@ -456,14 +837,14 @@ ip addr show
 
 ```text
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500
-    inet 192.168.56.20/24 brd 192.168.56.255 scope global eth0
+    inet 192.168.56.101/24 brd 192.168.56.255 scope global eth0
        valid_lft forever preferred_lft forever
 ```
 
 **Análise:**
 
 - `eth0`: nome da interface.
-- `inet 192.168.56.20/24`: IP e prefixo CIDR.
+- `inet 192.168.56.101/24`: IP e prefixo CIDR.
 - `/24`: máscara equivalente a `255.255.255.0`.
 - `brd 192.168.56.255`: endereço de broadcast.
 
@@ -488,7 +869,7 @@ ip -br addr
 
 ```text
 lo               UNKNOWN        127.0.0.1/8 ::1/128
-eth0             UP             192.168.56.20/24 fe80::a00:27ff:fe00:1234/64
+eth0             UP             192.168.56.101/24 fe80::a00:27ff:fe00:1234/64
 docker0          DOWN           172.17.0.1/16
 ```
 
@@ -504,7 +885,7 @@ ip route show
 
 ```text
 default via 192.168.56.1 dev eth0
-192.168.56.0/24 dev eth0 proto kernel scope link src 192.168.56.20
+192.168.56.0/24 dev eth0 proto kernel scope link src 192.168.56.101
 172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1
 ```
 
@@ -527,7 +908,7 @@ ifconfig -a
 
 #### Como calcular a subrede
 
-Se o IP for `192.168.56.20/24`, o `/24` significa que os 24 primeiros bits são rede. A subrede é:
+Se o IP for `192.168.56.101/24`, o `/24` significa que os 24 primeiros bits são rede. A subrede é:
 
 ```text
 192.168.56.0/24
@@ -569,7 +950,7 @@ nmap -sn -v 192.168.56.0/24
 ```text
 Nmap scan report for 192.168.56.1
 Host is up (0.0010s latency).
-Nmap scan report for 192.168.56.20
+Nmap scan report for 192.168.56.101
 Host is up (0.00015s latency).
 Nmap scan report for 192.168.56.30
 Host is up (0.0021s latency).
@@ -605,7 +986,7 @@ for i in $(seq 1 254); do ping -c 1 -W 1 192.168.56.$i >/dev/null 2>&1 && echo "
 
 ```text
 Host ativo: 192.168.56.1
-Host ativo: 192.168.56.20
+Host ativo: 192.168.56.101
 Host ativo: 192.168.56.30
 ```
 
@@ -639,7 +1020,7 @@ nmap -sV -Pn --top-ports 20 192.168.56.30
 
 ```text
 PORT     STATE SERVICE VERSION
-22/tcp   open  ssh     OpenSSH 9.2p1 Debian 2
+22/tcp   open  ssh     OpenSSH 10.x Ubuntu
 80/tcp   open  http    nginx 1.22.1
 3306/tcp open  mysql   MariaDB 10.11.6
 ```
@@ -660,10 +1041,10 @@ Com esses dados, o aluno pode inferir papéis do host:
 
 #### Varredura em múltiplos IPs
 
-Se os hosts ativos forem `192.168.56.10`, `192.168.56.20` e `192.168.56.30`, use:
+Se os hosts ativos forem `192.168.56.10`, `192.168.56.101` e `192.168.56.30`, use:
 
 ```bash
-nmap -sV -Pn --top-ports 20 192.168.56.10 192.168.56.20 192.168.56.30
+nmap -sV -Pn --top-ports 20 192.168.56.10 192.168.56.101 192.168.56.30
 ```
 
 #### Salvar resultado para análise posterior
@@ -725,13 +1106,13 @@ ls -l /var/run/docker.sock
 Remover usuários não administrativos do grupo `docker`:
 
 ```bash
-sudo gpasswd -d aluno docker
+sudo gpasswd -d user1 docker
 ```
 
 Reiniciar a sessão do usuário afetado para aplicar a mudança de grupo:
 
 ```bash
-id aluno
+id user1
 ```
 
 **Análise:** pertencer ao grupo `docker` normalmente equivale a um privilégio administrativo relevante. O ideal é limitar esse grupo a operadores autorizados e, quando possível, exigir fluxo auditável com `sudo`, RBAC externo ou orquestrador.
@@ -818,9 +1199,11 @@ sudo ausearch -k docker_socket_access
 
 ## Checklist de Validação do Aluno
 
-- Identifiquei usuário, grupos e distribuição do sistema.
+- Identifiquei usuário, grupos, contas locais e usuários com UID 0.
+- Validei permissões de arquivos sensíveis, política de senha, PATH e política sudo.
+- Inventariei SUID, SGID e capabilities como superfície local privilegiada.
 - Listei processos e reconheci sinais de Docker ou serviços relevantes.
-- Mapeei portas locais e diferenciei `127.0.0.1`, `0.0.0.0` e IPs específicos.
+- Mapeei portas locais, revisei exposição SSH e diferenciei `127.0.0.1`, `0.0.0.0` e IPs específicos.
 - Encontrei evidências de Docker sem usar o comando `docker`.
 - Identifiquei IP, máscara, subrede e rotas do `srvdocker01`.
 - Executei descoberta de hosts com `nmap -sn` ou alternativa em Bash.
