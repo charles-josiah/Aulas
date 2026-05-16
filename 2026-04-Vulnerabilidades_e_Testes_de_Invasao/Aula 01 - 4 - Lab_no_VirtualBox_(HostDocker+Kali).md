@@ -56,7 +56,7 @@ Os alvos (DVWA, Juice Shop, etc.) rodam em **containers**, dentro do Host Docker
 Recomendacao de hardware (para uma experiencia ok):
 
 - **CPU**: 4 vCPU
-- **RAM**: 8 GB (minimo 4 GB)
+- **RAM**: 12 GB (minimo 8 GB)
 - **Disco**: 30 GB livres
 
 ---
@@ -149,7 +149,7 @@ O Vagrant é uma ferramenta que automatiza a criação e configuração de máqu
 
  - Instale o [Vagrant](https://www.vagrantup.com/downloads) e o [VirtualBox](https://www.virtualbox.org/wiki/Downloads) .
 
-Crie uma pasta para a aula e salve o código abaixo em um arquivo chamado ```Vagrantfile``` (sem extensão .txt).
+Crie uma pasta para a aula e salve o código abaixo em um arquivo chamado ```Vagrantfile``` (sem extensão .txt), arquivo exemplo, pode precisar de ajustes.
 
 ```vagrantfile 
 # -*- mode: ruby -*-
@@ -226,8 +226,6 @@ No terminal, dentro da pasta onde salvou o arquivo, utilize os comandos:
 
 
 ---
-
-
 
 
 ## Passo a passo — configurar IPs na rede do laboratorio (Adapter 2)
