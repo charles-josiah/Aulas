@@ -31,15 +31,36 @@
 - [1. Contexto do Cenário](#1-contexto-do-cenário)
 - [2. Fase 1: Reconhecimento Interno do Host](#2-fase-1-reconhecimento-interno-do-host-mapeando-o-srvdocker01)
   - [Passo 1.1: Identificação do Ambiente, Usuário e Contas Locais](#passo-11-identificação-do-ambiente-usuário-e-contas-locais)
+    - [Conectar ao servidor via SSH](#conectar-ao-servidor-via-ssh)
+    - [Identificar usuário, UID, GID e grupos](#identificar-uid-gid-e-grupos)
+    - [Inspecionar contas locais e usuários com UID 0](#inspecionar-contas-locais-e-usuários-com-uid-0)
+    - [Validar arquivos sensíveis, política de senha e PATH](#validar-permissões-de-arquivos-sensíveis-política-de-senha-e-path)
+    - [Identificar kernel, distribuição, virtualização e recursos](#identificar-o-kernel-e-arquitetura)
   - [Passo 1.2: Superfície Local Privilegiada](#passo-12-superfície-local-privilegiada)
+    - [Inventariar SUID, SGID e Linux capabilities](#inventariar-binários-suid)
+    - [Verificar capabilities do processo atual](#verificar-capabilities-do-processo-atual)
+    - [Inventariar diretórios e arquivos graváveis](#inventariar-diretórios-graváveis-pelo-usuário-atual)
   - [Passo 1.3: Auditoria de Processos Ativos](#passo-13-auditoria-de-processos-ativos)
+    - [Listar processos e filtrar evidências de Docker](#listar-todos-os-processos-em-formato-bsd)
   - [Passo 1.4: Mapeamento de Portas, Sockets e Exposição SSH](#passo-14-mapeamento-de-portas-sockets-e-exposição-ssh)
+    - [Listar portas TCP/UDP em escuta](#listar-portas-tcp-e-udp-em-escuta)
+    - [Revisar exposição e política efetiva do SSH](#revisar-exposição-e-política-efetiva-do-ssh)
+    - [Listar conexões TCP e alternativas nativas](#listar-conexões-tcp-estabelecidas-e-em-escuta)
   - [Passo 1.5: Evidências de Containerização Docker](#passo-15-evidências-de-containerização-docker)
+    - [Verificar grupos, cgroups, socket e diretórios Docker](#verificar-grupos-do-usuário)
 - [3. Fase 2: Descoberta de Rede e Hosts Adjacentes](#3-fase-2-descoberta-de-rede-e-hosts-adjacentes-pivoting-e-varredura)
   - [Passo 2.1: Descoberta de Subredes e Interfaces](#passo-21-descoberta-de-subredes-e-interfaces)
+    - [Identificar IP, rotas e cálculo de subrede](#listar-interfaces-e-endereços-ip)
   - [Passo 2.2: Varredura de Ping](#passo-22-varredura-de-ping-host-discovery)
+    - [Descobrir hosts ativos com nmap ou Bash](#descobrir-hosts-ativos-com-nmap)
   - [Passo 2.3: Varredura de Serviços e Banners](#passo-23-varredura-de-serviços-e-banners-port-scan)
+    - [Mapear serviços, banners e salvar evidências](#varredura-em-múltiplos-ips)
 - [4. Mitigação e Hardening do srvdocker01](#4-mitigação-e-hardening-do-srvdocker01)
+  - [4.1 Ocultar processos com hidepid](#41-ocultar-processos-de-outros-usuários-com-hidepid)
+  - [4.2 Restringir acesso ao socket Docker](#42-restringir-acesso-ao-socket-docker)
+  - [4.3 Reduzir exposição de serviços em rede](#43-reduzir-exposição-de-serviços-em-rede)
+  - [4.4 Restringir binários de varredura](#44-restringir-binários-de-varredura-por-política-operacional)
+  - [4.5 Telemetria recomendada para detecção](#45-telemetria-recomendada-para-detecção)
 - [Checklist de Validação do Aluno](#checklist-de-validação-do-aluno)
 
 ---
@@ -339,6 +360,13 @@ Versões antigas de kernel, builds customizados e arquiteturas específicas ajud
 #### Identificar a distribuição Linux
 
 Identificar distribuição, versão do sistema, kernel e base de pacotes é uma etapa fundamental para qualquer profissional de segurança. Essas informações ajudam a avaliar compatibilidade de ferramentas, nível de atualização, superfície de exposição e comportamento esperado dos serviços. Com esses dados, também é possível consultar falhas documentadas, boletins de segurança e CVEs aplicáveis ao ambiente, priorizando validação, correção e mitigação. Também orientam a leitura de hardening, logs, paths, gerenciadores de pacotes e controles nativos do sistema.
+
+**Links úteis para consulta de CVEs e boletins:**
+
+- [CVE.org](https://www.cve.org/): consulta ao catálogo oficial de CVEs.
+- [NVD - NIST](https://nvd.nist.gov/search): base do NIST para pesquisa de vulnerabilidades, severidade, CPE, CWE e metadados técnicos.
+- [Ubuntu CVEs](https://ubuntu.com/security/cve): consulta de CVEs acompanhados pela Canonical para pacotes Ubuntu.
+- [Ubuntu Security Notices](https://ubuntu.com/security/notices): boletins de segurança publicados quando correções são disponibilizadas para pacotes oficiais Ubuntu.
 
 ```bash
 cat /etc/os-release
@@ -784,6 +812,12 @@ ss -tulpn
 - `-p`: tenta mostrar o processo associado ao socket.
 - `-n`: não resolve nomes; exibe IPs e portas em formato numérico.
 
+**Observação sobre privilégios:** executar `ss -tulpn` como usuário comum pode listar portas e endereços, mas a associação com processos pode aparecer incompleta ou ausente por restrições de permissão. Com `sudo`, a coluna `Process` tende a mostrar o binário, PID e file descriptor com mais precisão. Essa diferença é importante em auditoria: sem privilégio você enxerga a superfície de rede; com privilégio você consegue atribuir dono técnico ao serviço.
+
+```bash
+sudo ss -tulpn
+```
+
 **Resultado esperado:** saída semelhante a:
 
 ```text
@@ -808,6 +842,12 @@ tcp   LISTEN 0      4096            [::]:22           [::]:*     users:(("sshd",
 
 ```bash
 sshd -T | grep -Ei 'permitrootlogin|passwordauthentication|pubkeyauthentication|allowusers|allowgroups'
+```
+
+**Observação sobre privilégios:** em alguns sistemas, executar `sshd -T` como usuário comum pode retornar uma visão parcial, falhar ao ler arquivos incluídos ou não conseguir validar toda a configuração efetiva do daemon. Com `sudo`, a leitura tende a representar melhor a política real aplicada pelo serviço SSH, incluindo arquivos em `/etc/ssh/sshd_config.d/` e permissões de leitura restritas.
+
+```bash
+sudo sshd -T | grep -Ei 'permitrootlogin|passwordauthentication|pubkeyauthentication|allowusers|allowgroups'
 ```
 
 **Flags e componentes utilizados:**
@@ -844,6 +884,12 @@ Esta alternativa lê arquivos de configuração diretamente. Ela pode não refle
 ss -antp
 ```
 
+**Observação sobre privilégios:** assim como em `ss -tulpn`, executar `ss -antp` sem `sudo` pode mostrar conexões TCP, mas ocultar ou limitar a identificação do processo associado. Com `sudo`, a relação entre conexão, PID e processo tende a ficar mais completa, o que facilita diferenciar tráfego legítimo, sessão administrativa, conexão de aplicação e comunicação inesperada.
+
+```bash
+sudo ss -antp
+```
+
 **Flags utilizadas:**
 
 - `-a`: mostra sockets em todos os estados.
@@ -859,6 +905,12 @@ ss -antp
 
 ```bash
 netstat -tulpn
+```
+
+**Observação sobre privilégios:** em sistemas onde `netstat` está disponível, a mesma lógica de privilégio se aplica: sem `sudo`, a listagem pode mostrar portas, mas omitir detalhes de processos; com `sudo`, a associação entre porta, PID e programa tende a ser mais completa.
+
+```bash
+sudo netstat -tulpn
 ```
 
 **Flags utilizadas:**
@@ -932,6 +984,8 @@ user1 sudo docker
 
 #### Verificar cgroups do processo init
 
+Antes de procurar evidências diretas de Docker, vale entender rapidamente o papel dos cgroups. No Linux, cgroups são mecanismos do kernel usados para agrupar processos e controlar recursos como CPU, memória, I/O e rede. Containers dependem fortemente de cgroups para isolar e limitar processos, por isso caminhos em `/proc/*/cgroup` podem revelar se o processo está no host, dentro de um container ou associado a runtimes como Docker, containerd ou Kubernetes.
+
 ```bash
 cat /proc/1/cgroup
 ```
@@ -997,19 +1051,9 @@ ls -ld /var/lib/docker /etc/docker /run/docker /var/run/docker.sock 2>/dev/null
 
 **Análise:** usuários comuns normalmente não conseguem ler `/var/lib/docker`, mas a existência do diretório já é um indicador de containerização no host.
 
-#### Verificar pistas de container no ambiente atual
+**Reflexão de segurança:** a comunicação com o Docker via socket pode ser legítima e até necessária em alguns cenários, como ferramentas de monitoramento, inventário, automação, pipelines de CI/CD e plataformas de orquestração. O problema é que esse mesmo canal concentra um nível alto de controle sobre o ambiente de containers. Em mãos erradas, acesso indevido ao socket pode permitir manipulação de containers, imagens, volumes, redes e integrações com o host.
 
-```bash
-test -f /.dockerenv && echo "Possivel container Docker" || echo "Arquivo /.dockerenv nao encontrado"
-```
-
-**Componentes do comando:**
-
-- `test -f /.dockerenv`: verifica se o arquivo existe.
-- `&&`: executa o próximo comando se o teste for verdadeiro.
-- `||`: executa o próximo comando se o teste falhar.
-
-**Análise:** `/.dockerenv` costuma existir dentro de containers Docker, mas não é garantia absoluta. A ausência dele também não prova que não há containerização.
+Por isso, o socket Docker deve ser tratado como uma interface administrativa sensível, não como um arquivo comum do sistema. Quem pode acessá-lo, por qual motivo e com qual rastreabilidade são perguntas obrigatórias em auditoria. A exploração prática desse risco será tratada em um workshop específico sobre Docker socket.
 
 ---
 
@@ -1403,3 +1447,8 @@ sudo ausearch -k docker_socket_access
 - Executei descoberta de hosts com `nmap -sn` ou alternativa em Bash.
 - Executei varredura de serviços com `nmap -sV -Pn --top-ports 20`.
 - Relacionei pelo menos três medidas de hardening aplicáveis ao cenário.
+
+<p align="right">
+  <sub></sub><br>
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Workshops/Workshop_lab_exploracao_inicial.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+</p>
