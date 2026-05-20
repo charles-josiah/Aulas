@@ -28,44 +28,46 @@
 
 ## Índice
 
-- [1. Instalação do Docker](#1-instalação-do-docker)
-  - [1.1 O que é Docker](#11-o-que-é-docker)
-  - [1.2 Histórico: de dotCloud ao Docker](#12-histórico-de-dotcloud-ao-docker)
-  - [1.3 Padronização: OCI, runc e containerd](#13-padronização-oci-runc-e-containerd)
-  - [1.4 Para onde vai: tendências técnicas](#14-para-onde-vai-tendências-técnicas)
-  - [1.5 Docker e Kubernetes: relação real](#15-docker-e-kubernetes-relação-real)
-  - [1.6 Atualização e dependências](#16-atualização-e-dependências)
-  - [1.7 Adicionando chave GPG e repositório Docker](#17-adicionando-chave-gpg-e-repositório-docker)
-  - [1.8 Instalação e habilitação do serviço](#18-instalação-e-habilitação-do-serviço)
-  - [1.9 Alterar a rede padrão do Docker (opcional)](#19-alterar-a-rede-padrão-do-docker-opcional)
-  - [1.10 Verificação](#110-verificação)
-- [2. Comandos Básicos](#2-comandos-básicos)
-  - [2.1 Visualização](#21-visualização)
-  - [2.2 Remoção](#22-remoção)
-  - [2.3 Rodando containers](#23-rodando-containers)
-  - [2.4 Baixando imagens](#24-baixando-imagens)
-- [3. Volumes no Docker](#3-volumes-no-docker)
-  - [3.1 Tipos principais](#31-tipos-principais)
-  - [3.2 Comparativo rápido](#32-comparativo-rápido)
-  - [3.3 Dicas](#33-dicas)
-  - [3.4 Exemplos de uso](#34-exemplos-de-uso)
-- [4. Redes no Docker](#4-redes-no-docker)
-  - [4.1 Tipos de rede no Docker](#41-tipos-de-rede-no-docker)
-  - [4.2 Criar e conectar redes](#42-criar-e-conectar-redes)
-  - [4.3 Exemplo de topologia DMZ com Docker](#43-exemplo-de-topologia-dmz-com-docker)
-  - [4.4 Dicas](#44-dicas)
-- [5. Docker Compose](#5-docker-compose)
-  - [5.1 O que é](#51-o-que-é)
-  - [5.2 Instalação](#52-instalação)
-  - [5.3 Exemplo de `docker-compose.yml`](#53-exemplo-de-docker-composeyml)
-  - [5.4 Comandos](#54-comandos)
-  - [5.5 Exemplos práticos com volumes](#55-exemplos-práticos-com-volumes)
-  - [5.6 Dica final](#56-dica-final)
+- [1. Instalação do Docker](#toc-1-instalacao-do-docker)
+  - [1.1 O que é Docker](#toc-1-1-o-que-e-docker)
+  - [1.2 Histórico: de dotCloud ao Docker](#toc-1-2-historico-de-dotcloud-ao-docker)
+  - [1.3 Padronização: OCI, runc e containerd](#toc-1-3-padronizacao-oci-runc-e-containerd)
+  - [1.4 Para onde vai: tendências técnicas](#toc-1-4-para-onde-vai-tendencias-tecnicas)
+  - [1.5 Docker e Kubernetes: relação real](#toc-1-5-docker-e-kubernetes-relacao-real)
+  - [1.6 Atualização e dependências](#toc-1-6-atualizacao-e-dependencias)
+  - [1.7 Adicionando chave GPG e repositório Docker](#toc-1-7-adicionando-chave-gpg-e-repositorio-docker)
+  - [1.8 Instalação e habilitação do serviço](#toc-1-8-instalacao-e-habilitacao-do-servico)
+  - [1.9 Alterar a rede padrão do Docker (opcional)](#toc-1-9-alterar-a-rede-padrao-do-docker-opcional)
+  - [1.10 Verificação](#toc-1-10-verificacao)
+- [2. Comandos Básicos](#toc-2-comandos-basicos)
+  - [2.1 Visualização](#toc-2-1-visualizacao)
+  - [2.2 Remoção](#toc-2-2-remocao)
+  - [2.3 Rodando containers](#toc-2-3-rodando-containers)
+  - [2.4 Baixando imagens](#toc-2-4-baixando-imagens)
+- [3. Volumes no Docker](#toc-3-volumes-no-docker)
+  - [3.1 Tipos principais](#toc-3-1-tipos-principais)
+  - [3.2 Comparativo rápido](#toc-3-2-comparativo-rapido)
+  - [3.3 Dicas](#toc-3-3-dicas)
+  - [3.4 Exemplos de uso](#toc-3-4-exemplos-de-uso)
+- [4. Redes no Docker](#toc-4-redes-no-docker)
+  - [4.1 Tipos de rede no Docker](#toc-4-1-tipos-de-rede-no-docker)
+  - [4.2 Criar e conectar redes](#toc-4-2-criar-e-conectar-redes)
+  - [4.3 Exemplo de topologia DMZ com Docker](#toc-4-3-exemplo-de-topologia-dmz-com-docker)
+  - [4.4 Dicas](#toc-4-4-dicas)
+- [5. Docker Compose](#toc-5-docker-compose)
+  - [5.1 O que é](#toc-5-1-o-que-e)
+  - [5.2 Instalação](#toc-5-2-instalacao)
+  - [5.3 Exemplo de `docker-compose.yml`](#toc-5-3-exemplo-de-docker-composeyml)
+  - [5.4 Comandos](#toc-5-4-comandos)
+  - [5.5 Exemplos práticos com volumes](#toc-5-5-exemplos-praticos-com-volumes)
+  - [5.6 Dica final](#toc-5-6-dica-final)
 
 ---
 
+<a name="toc-1-instalacao-do-docker"></a>
 ## 1. Instalação do Docker
 
+<a name="toc-1-1-o-que-e-docker"></a>
 ### 1.1 O que é Docker
 
 Docker é um conjunto de ferramentas para **construir**, **distribuir** e **executar** aplicações empacotadas como **containers**. Em Linux, um container **não** é uma VM: containers compartilham o **mesmo kernel** do host e são isolados principalmente por mecanismos do kernel, como **namespaces** (visibilidade e isolamento) e **cgroups** (limites e contabilização de recursos).
@@ -78,12 +80,14 @@ Uma forma objetiva de enxergar o Docker em camadas:
 
 Em segurança e pentest, isso importa porque "rodar em container" não elimina risco. Ele muda a fronteira de isolamento, a superfície de ataque (capabilities, mounts, namespaces, sockets) e a forma de auditar.
 
+<a name="toc-1-2-historico-de-dotcloud-ao-docker"></a>
 ### 1.2 Histórico: de dotCloud ao Docker
 
 O Docker surgiu como uma tecnologia interna na **dotCloud** (PaaS) e foi demonstrado publicamente em 2013, sendo aberto como projeto open source em março de 2013. As primeiras versões usavam **LXC** como base de execução; em 2014 (Docker 0.9), o projeto passou a manipular diretamente APIs do kernel via **libcontainer**, reduzindo dependências externas e consolidando um modelo mais previsível de execução.
 
 Resultado prático dessa trajetória: o Docker popularizou o modelo de "build once, run anywhere" para aplicações, junto com um ecossistema de imagens, registries e pipelines.
 
+<a name="toc-1-3-padronizacao-oci-runc-e-containerd"></a>
 ### 1.3 Padronização: OCI, runc e containerd
 
 Com a popularização dos containers, emergiu a necessidade de padronização. Em 2015 foi criada a **Open Container Initiative (OCI)** para definir especificações abertas de **formato de imagem** e **runtime**. A partir desse movimento, consolidou-se uma separação mais clara entre:
@@ -93,6 +97,7 @@ Com a popularização dos containers, emergiu a necessidade de padronização. E
 
 Essa padronização é o que torna viável trocar runtime sem "quebrar" imagens e fluxos de deploy.
 
+<a name="toc-1-4-para-onde-vai-tendencias-tecnicas"></a>
 ### 1.4 Para onde vai: tendências técnicas
 
 No ecossistema moderno, o Docker tende a aparecer como **ferramenta de desenvolvimento e empacotamento** (build, imagens, registries) e como **Engine** em ambientes mais simples. Ao mesmo tempo, há tendências fortes em:
@@ -101,33 +106,39 @@ No ecossistema moderno, o Docker tende a aparecer como **ferramenta de desenvolv
 - **Menos privilégio:** `rootless` e isolamento adicional (ex.: runtimes sandboxed em cenários sensíveis).
 - **Formato como contrato:** OCI como base para distribuição de artefatos além de imagens tradicionais (incluindo workloads emergentes).
 
+<a name="toc-1-5-docker-e-kubernetes-relacao-real"></a>
 ### 1.5 Docker e Kubernetes: relação real
 
 Kubernetes é um **orquestrador** de containers. Ele não "depende" do Docker, mas depende de um runtime compatível com a **CRI** (Container Runtime Interface), como `containerd` ou `CRI-O`. Historicamente, Kubernetes conversava com o Docker Engine via `dockershim`; isso mudou e o `dockershim` foi removido do Kubernetes a partir da versão 1.24.
 
 O ponto importante para o laboratório: **imagens construídas com Docker continuam válidas** (padrões OCI), mas o runtime no node pode não ser o Docker Engine. Na prática, o Docker segue central na "esteira" de build e testes locais, enquanto Kubernetes domina a orquestração em clusters.
 
+<a name="toc-1-6-atualizacao-e-dependencias"></a>
 ### 1.6 Atualização e dependências
 ```bash
 sudo apt update
-sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+sudo apt install ca-certificates curl -y
 ```
 
+<a name="toc-1-7-adicionando-chave-gpg-e-repositorio-docker"></a>
 ### 1.7 Adicionando chave GPG e repositório Docker
 ```bash
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
 echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
-  https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo \"${UBUNTU_CODENAME:-$VERSION_CODENAME}\") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 sudo apt update
 ```
 
+<a name="toc-1-8-instalacao-e-habilitacao-do-servico"></a>
 ### 1.8 Instalação e habilitação do serviço
 ```bash
-sudo apt install docker-ce docker-ce-cli containerd.io -y
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker $USER   # usuario que estou usando para instalar o Docker
@@ -137,6 +148,7 @@ sudo usermod -aG docker $USER   # usuario que estou usando para instalar o Docke
 > [!WARNING]
 > **Nota de segurança (grupo `docker`):** adicionar um usuário ao grupo `docker` normalmente equivale a conceder capacidade administrativa no host, pois o Docker Engine pode criar containers, montar volumes e interagir com recursos do sistema via daemon. Em ambientes corporativos, trate essa permissão como privilegiada e conceda apenas quando houver necessidade real e rastreabilidade.
 
+<a name="toc-1-9-alterar-a-rede-padrao-do-docker-opcional"></a>
 ### 1.9 Alterar a rede padrão do Docker (opcional)
 Crie ou edite o arquivo:
 ```bash
@@ -153,6 +165,7 @@ Reinicie o serviço:
 sudo systemctl restart docker
 ```
 
+<a name="toc-1-10-verificacao"></a>
 ### 1.10 Verificação
 ```bash
 docker version
@@ -161,8 +174,10 @@ docker info
 
 ---
 
+<a name="toc-2-comandos-basicos"></a>
 ## 2. Comandos Básicos
 
+<a name="toc-2-1-visualizacao"></a>
 ### 2.1 Visualização
 - Ver containers em execução:
 ```bash
@@ -185,6 +200,7 @@ docker network ls
 docker volume ls
 ``` 
 
+<a name="toc-2-2-remocao"></a>
 ### 2.2 Remoção
 - Remover container parado:
 ```bash
@@ -203,6 +219,7 @@ docker network rm <nome>
 docker volume rm <nome>
 ```
 
+<a name="toc-2-3-rodando-containers"></a>
 ### 2.3 Rodando containers
 #### 2.3.1 Testando container simples
 ```bash
@@ -225,6 +242,7 @@ docker run -it alpine /bin/sh
 docker exec -it <nome ou id> /bin/sh
 ```
 
+<a name="toc-2-4-baixando-imagens"></a>
 ### 2.4 Baixando imagens
 ```bash
 docker pull ubuntu
@@ -233,10 +251,12 @@ docker pull nginx
 
 ---
 
+<a name="toc-3-volumes-no-docker"></a>
 ## 3. Volumes no Docker
 
 Volumes são usados para **armazenamento persistente** de dados em containers. Eles ficam fora do sistema de arquivos do container, permitindo que os dados sobrevivam à sua reinicialização ou exclusão.
 
+<a name="toc-3-1-tipos-principais"></a>
 ### 3.1 Tipos principais
 
 #### 3.1.1 Volumes nomeados
@@ -276,6 +296,7 @@ docker run --rm --tmpfs /dados alpine sh -c "echo 'temporario' > /dados/t.txt &&
 - Ao finalizar o container, os dados são descartados.
 
 
+<a name="toc-3-2-comparativo-rapido"></a>
 ### 3.2 Comparativo rápido
 
 | Tipo de Volume  | Persistência | Uso Ideal                   |
@@ -285,6 +306,7 @@ docker run --rm --tmpfs /dados alpine sh -c "echo 'temporario' > /dados/t.txt &&
 | Bind mount      | ✅ (host)    | Desenvolvimento local       |
 | Efêmero (`tmpfs`)| ❌          | Execuções descartáveis      |
 
+<a name="toc-3-3-dicas"></a>
 ### 3.3 Dicas
 - Sempre prefira volumes nomeados para dados que precisam persistir.
 - Evite bind mounts em produção: segurança e permissões são mais difíceis de controlar.
@@ -294,6 +316,7 @@ docker run --rm --tmpfs /dados alpine sh -c "echo 'temporario' > /dados/t.txt &&
 docker run --rm -v meu-volume:/volume -v $(pwd):/backup alpine \
   tar czf /backup/volume.tar.gz -C /volume .
 ```
+<a name="toc-3-4-exemplos-de-uso"></a>
 ### 3.4 Exemplos de uso
 
 #### 3.4.1 Persistência de conteúdo web com volume nomeado (Nginx)
@@ -378,10 +401,12 @@ http://localhost:8081
 > **Resultado**: o Nginx vai servir diretamente o arquivo `index.html` do diretório local `html-site`.
 
 
+<a name="toc-4-redes-no-docker"></a>
 ## 4. Redes no Docker
 
 ---
 
+<a name="toc-4-1-tipos-de-rede-no-docker"></a>
 ### 4.1 Tipos de rede no Docker
 
 Em Linux, o Docker implementa networking combinando **network namespaces** (cada container com sua pilha de rede), pares **veth** (interfaces virtuais conectando namespace do container ao host), bridges Linux e regras de firewall/NAT (iptables/nftables). A escolha do driver de rede define **o nível de isolamento**, **o caminho de tráfego** e **a forma de exposição** de portas.
@@ -412,6 +437,7 @@ Abaixo estão os drivers mais comuns em ambientes de laboratório e produção:
 
 ---
 
+<a name="toc-4-2-criar-e-conectar-redes"></a>
 ### 4.2 Criar e conectar redes
 
 #### 4.2.1 Criar rede personalizada
@@ -439,6 +465,7 @@ Agora `nginx-front` está tanto em `frontend-net` (exposição) quanto em `backe
 
 ---
 
+<a name="toc-4-3-exemplo-de-topologia-dmz-com-docker"></a>
 ### 4.3 Exemplo de topologia DMZ com Docker
 
 #### 4.3.1 Objetivo
@@ -477,12 +504,17 @@ docker inspect nginx-front | grep -i network
 
 4. (Opcional) Testar comunicação:
 ```bash
-docker exec -it nginx-front ping api1
-docker exec -it nginx-front ping api2
+# A imagem oficial do nginx pode não incluir ferramentas como `ping`.
+# Para validar DNS e conectividade sem depender do que existe dentro do nginx,
+# use um container de diagnóstico temporário na mesma rede.
+docker run --rm --network backend-net busybox ping -c 1 api1
+docker run --rm --network backend-net busybox ping -c 1 api2
+docker run --rm --network backend-net busybox ping -c 1 nginx-front
 ```
 
 ---
 
+<a name="toc-4-4-dicas"></a>
 ### 4.4 Dicas
 
 - Use `--subnet` e `--gateway` no `docker network create` para segmentar IPs:
@@ -497,8 +529,10 @@ docker network create --subnet=192.168.100.0/24 --gateway=192.168.100.1 dmz-net
 ---
 
 
+<a name="toc-5-docker-compose"></a>
 ## 5. Docker Compose
 
+<a name="toc-5-1-o-que-e"></a>
 ### 5.1 O que é
 O **Docker Compose** é uma ferramenta oficial do Docker que permite definir e executar **aplicações multicontainer** de forma simples e organizada, usando um único arquivo de configuração chamado `docker-compose.yml`.
 
@@ -513,11 +547,13 @@ Com ele, você descreve:
 
 
 
+<a name="toc-5-2-instalacao"></a>
 ### 5.2 Instalação
 ```bash
 sudo apt install docker-compose-plugin -y
 ```
 
+<a name="toc-5-3-exemplo-de-docker-composeyml"></a>
 ### 5.3 Exemplo de `docker-compose.yml`
 ```yaml
 version: '3'
@@ -531,6 +567,7 @@ services:
     command: tail -f /dev/null
 ```
 
+<a name="toc-5-4-comandos"></a>
 ### 5.4 Comandos
 
 - Subir os containers:
@@ -553,6 +590,7 @@ services:
   docker compose logs -f
   ```
 
+<a name="toc-5-5-exemplos-praticos-com-volumes"></a>
 ### 5.5 Exemplos práticos com volumes
 
 #### 5.5.1 Bind mount para desenvolvimento web
@@ -620,6 +658,7 @@ volumes:
 
 > Dois containers compartilham o mesmo volume: um escreve, o outro lê.
 
+<a name="toc-5-6-dica-final"></a>
 ### 5.6 Dica final
 
 - O Docker Compose simplifica a orquestração local e pode ser estendido com **perfis**, **overrides**, e integração com **Docker Swarm**.
