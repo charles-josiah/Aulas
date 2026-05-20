@@ -1170,6 +1170,8 @@ Para o laboratório, prefira validar primeiro redes `/24`, pois são menores e m
 
 ### Passo 2.2: Varredura de Ping (Host Discovery)
 
+**Reflexão de segurança:** descobrir "quem são seus vizinhos" não é curiosidade, é reduzir incerteza. Em redes internas, boa parte do risco está na adjacência: serviços expostos sem necessidade, controles de segmentação frouxos e confiança implícita entre hosts. Para um atacante, isso define caminho de pivô e movimentação lateral. Para um defensor, isso vira inventário rápido: se você não sabe quais hosts deveriam estar aqui, fica difícil detectar os que não deveriam.
+
 #### Descobrir hosts ativos com nmap
 
 Substitua `192.168.56.0/24` pela subrede identificada no passo anterior.
