@@ -82,18 +82,7 @@ O objetivo nao e "rodar todos os scripts contra tudo". Isso e barulhento, lento 
 
 ---
 
-## 2. Escopo Operacional e Tempo Previsto
-
-Este workshop foi planejado para aproximadamente **1h30**.
-
-| Bloco | Tempo sugerido | Objetivo |
-|---|---:|---|
-| Contexto e inventario Docker | 10 min | Confirmar ambiente, containers e rede |
-| Descoberta com Nmap | 15 min | Mapear hosts e corrigir erros comuns de sintaxe |
-| NSE por perfil de servico | 25 min | Testar Redis, MySQL e HTTP de forma seletiva |
-| Evidencia manual HTTP | 10 min | Confirmar Juice Shop com `curl` |
-| Exploracao controlada | 20 min | Executar login bypass no Juice Shop |
-| Mitigacao e fechamento | 10 min | Discutir reducao de risco e deteccao |
+## 2. Escopo Operacional
 
 No ambiente validado para esta aula, foram observados:
 
