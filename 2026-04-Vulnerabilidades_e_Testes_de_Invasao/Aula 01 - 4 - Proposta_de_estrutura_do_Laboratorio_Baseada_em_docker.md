@@ -18,7 +18,6 @@
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
-
 ## Visao geral
 
 O laboratorio deixa de ser baseado em multiplas VMs e passa a utilizar:
@@ -410,3 +409,8 @@ Ao final, o aluno devera ser capaz de:
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
+
+<p align="right">
+  <sub></sub><br>
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Aula%2001%20-%204%20-%20Proposta_de_estrutura_do_Laboratorio_Baseada_em_docker.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+</p>

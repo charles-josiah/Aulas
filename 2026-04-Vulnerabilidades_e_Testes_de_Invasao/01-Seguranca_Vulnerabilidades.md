@@ -18,7 +18,6 @@
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
-
 ## 1. Finalidade da Segurança de Redes
 
 A segurança de redes consiste no conjunto de princípios, controles, processos e tecnologias destinados a proteger dados, serviços, sistemas e fluxos de comunicação contra acessos indevidos, alterações não autorizadas, indisponibilidade, fraudes, vazamentos e comprometimentos operacionais.
@@ -1152,3 +1151,8 @@ mindmap
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
+
+<p align="right">
+  <sub></sub><br>
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/01-Seguranca_Vulnerabilidades.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+</p>

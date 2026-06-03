@@ -18,7 +18,6 @@
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
-
 ## Topologia CAOS
 
 <p align="center">
@@ -408,3 +407,8 @@ docker compose up -d
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
+
+<p align="right">
+  <sub></sub><br>
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Aula%2001%20-%204%20-%20Lab_no_VirtualBox_(HostDocker%2BKali).md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+</p>

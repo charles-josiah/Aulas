@@ -22,8 +22,6 @@
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
-
-
 > **Aviso de escopo e ética:** este roteiro deve ser executado exclusivamente em ambiente próprio, isolado e autorizado, utilizando aplicações vulneráveis por desenho, como OWASP Juice Shop. A reprodução destes procedimentos contra sistemas de terceiros, sem autorização expressa, é indevida e pode gerar responsabilização técnica, acadêmica, civil e criminal.
 
 ---
@@ -127,13 +125,14 @@ HTTP/1.1 200 OK
 Para uso em laboratório local, foi utilizada a imagem com interface gráfica via navegador:
 
 ```bash
-docker run -u zap -d \
-  --name zap \
-  --network lab-dast \
+
+docker run -d \
+  --name zaproxy \
   -p 8080:8080 \
-  -p 8443:8443 \
-  ghcr.io/zaproxy/zaproxy:full \
-  zap-webswing.sh --webswing-disable-auth
+  -v "$(pwd):/zap/wrk:rw" \
+  ghcr.io/zaproxy/zaproxy:stable \
+  zap-webswing.sh
+
 ```
 
 Acesso à interface:
@@ -311,7 +310,7 @@ Tabelas identificadas no retorno JSON:
 | Challenges | Desafios internos do Juice Shop |
 | sqlite_sequence | Controle interno do SQLite |
 
-### 8.2. Exfiltração acadêmica de dados da tabela `Users`
+### 8.2. Analisar a saída de dados da tabela `Users`
 
 Comando utilizado em laboratório:
 
@@ -340,7 +339,7 @@ Exemplos de registros retornados:
 Interpretação: a consulta manipulada permitiu projetar valores da tabela `Users` dentro do JSON originalmente destinado à busca de produtos. No contexto acadêmico, isso caracteriza demonstração controlada de exfiltração de dados via SQL Injection.
 
 
-### 8.3. Validação acadêmica de hash MD5 com CrackStation
+### 8.3. Validação de hash MD5 com CrackStation
 
 Após a extração controlada de registros da tabela `Users`, foi selecionado o hash associado ao usuário administrativo do laboratório para demonstrar o risco decorrente do uso de algoritmos de hash fracos, sem salt e sem fator de custo adequado.
 
@@ -574,3 +573,8 @@ A exploração controlada permitiu comprovar erro SQL, enumeração de tabelas, 
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
+
+<p align="right">
+  <sub></sub><br>
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Workshops/Workshop_lab_owasp_zap_juiceshop/Lab_OWASP_Zap_Juice_Shop.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+</p>

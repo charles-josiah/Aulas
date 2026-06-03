@@ -18,7 +18,6 @@
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
-
 ---
 
 ## ⚖️ 1. Premissas e responsabilidade
@@ -226,3 +225,8 @@ Cada achado deve conter obrigatoriamente:
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
+
+<p align="right">
+  <sub></sub><br>
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Aula%2001%20-%203%20-%20AulaPratica-Ambientes_Vulneraveis_para_Testes_com_Scanners_roteiro.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+</p>

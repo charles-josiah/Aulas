@@ -666,6 +666,7 @@ volumes:
 - Mais exemplos: https://github.com/charles-josiah/docker
 
 ---
+
 <p align="right">
   <sub></sub><br>
   <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Introducao_Docker_para_ambientes.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">

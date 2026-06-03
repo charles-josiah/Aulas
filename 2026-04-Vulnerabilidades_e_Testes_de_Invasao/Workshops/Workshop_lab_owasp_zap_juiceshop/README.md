@@ -648,3 +648,8 @@ Ao final do laboratório, recomenda-se remover os containers e a rede criada:
 docker rm -f zap juice-shop
 docker network rm lab-dast
 ```
+
+<p align="right">
+  <sub></sub><br>
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/Workshops/Workshop_lab_owasp_zap_juiceshop/README.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+</p>
