@@ -28,48 +28,91 @@
 
 ## Indice
 
-- [1. Contexto e Objetivo da Aula](#1-contexto-e-objetivo-da-aula)
-- [2. Escopo Operacional](#2-escopo-operacional)
-  - [Passo 2.1: Confirmar host, Docker e container atacante](#passo-21-confirmar-host-docker-e-container-atacante)
-  - [Passo 2.2: Instalar e validar ferramentas no atacante_kali](#passo-22-instalar-e-validar-ferramentas-no-atacante_kali)
-  - [Passo 2.3: Mapear alvo e criar diretorio de evidencias](#passo-23-mapear-alvo-e-criar-diretorio-de-evidencias)
-- [3. Fase 1: Panorama Metodologico dos Scanners CLI](#3-fase-1-panorama-metodologico-dos-scanners-cli)
-  - [3.1 Papel de cada ferramenta](#31-papel-de-cada-ferramenta)
-  - [3.2 Diferenca entre este workshop e o OWASP ZAP](#32-diferenca-entre-este-workshop-e-o-owasp-zap)
-- [4. Fase 2: Enumeracao de Superficie com Amass](#4-fase-2-enumeracao-de-superficie-com-amass)
-  - [Passo 4.1: Identificar dominio ficticio do alvo](#passo-41-identificar-dominio-ficticio-do-alvo)
-  - [Passo 4.2: Executar enumeracao passiva](#passo-42-executar-enumeracao-passiva)
-  - [Passo 4.3: Interpretar resultados em laboratorio isolado](#passo-43-interpretar-resultados-em-laboratorio-isolado)
-  - [Passo 4.4: OSINT real (hackertarget + crt.sh)](#passo-44-osint-real-hackertarget--crtsh)
-  - [Passo 4.5 (opcional): Amass em dominio real](#passo-45-opcional-amass-em-dominio-real)
-  - [Checklist da Fase 4](#checklist-da-fase-4)
-- [5. Fase 3: Reconhecimento Web com WhatWeb e Dirb](#5-fase-3-reconhecimento-web-com-whatweb-e-dirb)
-  - [Passo 5.1: Fingerprint da aplicacao com WhatWeb](#passo-51-fingerprint-da-aplicacao-com-whatweb)
-  - [Passo 5.2: Descoberta de diretorios com Dirb](#passo-52-descoberta-de-diretorios-com-dirb)
-  - [Passo 5.3: Analisar robots.txt e caminhos sensiveis](#passo-53-analisar-robotstxt-e-caminhos-sensiveis)
-  - [Painel resumo — Fase 3](#painel-resumo--fase-3)
-- [6. Fase 4: Varredura DAST com Nikto](#6-fase-4-varredura-dast-com-nikto)
-  - [Passo 6.1: Executar Nikto contra o Juice Shop](#passo-61-executar-nikto-contra-o-juice-shop)
-  - [Passo 6.2: Interpretar achados e falsos positivos](#passo-62-interpretar-achados-e-falsos-positivos)
-  - [Passo 6.3 (opcional): Provar impacto em 5 minutos](#passo-63-opcional-provar-impacto-em-5-minutos--o-que-vale-da-coleta)
-- [7. Fase 5: Testes Complementares com Uniscan](#7-fase-5-testes-complementares-com-uniscan)
-  - [Passo 7.1: Entender limites do Uniscan em SPAs](#passo-71-entender-limites-do-uniscan-em-spas)
-  - [Passo 7.2: Executar testes web e estaticos em endpoint REST](#passo-72-executar-testes-web-e-estaticos-em-endpoint-rest)
-- [8. Fase 6: Validacao Manual e Exploracao Controlada](#8-fase-6-validacao-manual-e-exploracao-controlada)
-  - [Passo 8.1: Exposicao de informacao em /ftp](#passo-81-exposicao-de-informacao-em-ftp)
-  - [Passo 8.2: Validar SQL Injection no endpoint de busca](#passo-82-validar-sql-injection-no-endpoint-de-busca)
-  - [Passo 8.3: Demonstrar impacto com login bypass](#passo-83-demonstrar-impacto-com-login-bypass)
-  - [Passo 8.4: Encadear achados dos scanners com exploracao](#passo-84-encadear-achados-dos-scanners-com-exploracao)
-- [9. Fase 7: Matriz de Evidencias e Leitura Profissional](#9-fase-7-matriz-de-evidencias-e-leitura-profissional)
-  - [9.1 Matriz minima de evidencias](#91-matriz-minima-de-evidencias)
-  - [9.2 Oportunidades de melhoria no processo](#92-oportunidades-de-melhoria-no-processo)
-- [10. Mitigacao, Deteccao e Hardening](#10-mitigacao-deteccao-e-hardening)
-  - [10.1 Correcoes na aplicacao](#101-correcoes-na-aplicacao)
-  - [10.2 Correcoes operacionais e de scanner](#102-correcoes-operacionais-e-de-scanner)
-  - [10.3 Deteccao de varredura e exploracao](#103-deteccao-de-varredura-e-exploracao)
-- [11. Encerramento e Criterios de Avaliacao](#11-encerramento-e-criterios-de-avaliacao)
-- [Checklist de Validacao da Aula](#checklist-de-validacao-da-aula)
+> **Convencao de numeracao:** **Secao** = titulo numerado do documento (1–12). **Fase** = etapa metodologica da investigacao (Fase 1–7). Os **Passos** (ex.: 4.1, 5.2) seguem o numero da secao em que aparecem.
 
+| Secao | Fase metodologica | Conteudo principal |
+|:---:|:---:|---|
+| 1 | — | Contexto e objetivo |
+| 2 | — | Escopo operacional (Passos 2.1–2.3) |
+| 3 | Fase 1 | Panorama dos scanners CLI |
+| 4 | Fase 2 | Amass e OSINT (Passos 4.1–4.5) |
+| 5 | Fase 3 | WhatWeb e Dirb (Passos 5.1–5.3) |
+| 6 | Fase 4 | Nikto (Passos 6.1–6.3) |
+| 7 | Fase 5 | Uniscan (Passos 7.1–7.2) |
+| 8 | Fase 6 | Validacao manual e exploracao (Passos 8.1–8.4) |
+| 9 | Fase 7 | Matriz de evidencias |
+| 10 | — | Mitigacao e hardening |
+| 11 | — | Encerramento e criterios |
+| 12 | — | Checklist de validacao da aula |
+
+1. [Contexto e Objetivo da Aula](#1-contexto-e-objetivo-da-aula)
+2. [Escopo Operacional](#2-escopo-operacional)
+   - 2.1 [Passo 2.1: Confirmar host, Docker e container atacante](#passo-2-1-confirmar-host-docker-e-container-atacante)
+   - 2.2 [Passo 2.2: Instalar e validar ferramentas no atacante_kali](#passo-2-2-instalar-e-validar-ferramentas-no-atacante_kali)
+   - 2.3 [Passo 2.3: Mapear alvo e criar diretorio de evidencias](#passo-2-3-mapear-alvo-e-criar-diretorio-de-evidencias)
+3. [Fase 1: Panorama Metodologico dos Scanners CLI](#3-fase-1-panorama-metodologico-dos-scanners-cli)
+   - 3.1 [Papel de cada ferramenta](#3-1-papel-de-cada-ferramenta)
+   - 3.2 [Diferenca entre este workshop e o OWASP ZAP](#3-2-diferenca-entre-este-workshop-e-o-owasp-zap)
+4. [Fase 2: Enumeracao de Superficie com Amass](#4-fase-2-enumeracao-de-superficie-com-amass)
+   - 4.1 [Passo 4.1: Identificar dominio ficticio do alvo](#passo-4-1-identificar-dominio-ficticio-do-alvo)
+     - 4.1.1 [Confirmar que o alvo responde](#4-1-1-confirmar-que-o-alvo-responde)
+     - 4.1.2 [Coletar dominios nos artefatos expostos](#4-1-2-coletar-dominios-nos-artefatos-expostos)
+     - 4.1.3 [Registrar dominio alvo do Amass](#4-1-3-registrar-dominio-alvo-do-amass)
+   - 4.2 [Passo 4.2: Executar enumeracao passiva](#passo-4-2-executar-enumeracao-passiva)
+     - 4.2.1 [Pre-validacao do Amass](#4-2-1-pre-validacao-do-amass)
+     - 4.2.2 [Executar enumeracao passiva](#4-2-2-executar-enumeracao-passiva)
+     - 4.2.3 [Por que a enumeracao passiva veio vazia?](#4-2-3-por-que-a-enumeracao-passiva-veio-vazia)
+   - 4.3 [Passo 4.3: Interpretar resultados em laboratorio isolado](#passo-4-3-interpretar-resultados-em-laboratorio-isolado)
+   - 4.4 [Passo 4.4: OSINT real (hackertarget + crt.sh)](#passo-4-4-osint-real-hackertarget-crt-sh)
+     - 4.4.1 [Confirmar conectividade](#4-4-1-confirmar-conectividade)
+     - 4.4.2 [Coletar subdominios via hackertarget (obrigatorio)](#4-4-2-coletar-subdominios-via-hackertarget-obrigatorio)
+     - 4.4.3 [Coletar via crt.sh (opcional)](#4-4-3-coletar-via-crt-sh-opcional-certificate-transparency)
+     - 4.4.4 [Comparar Amass (vazio) vs OSINT (com dados)](#4-4-4-comparar-amass-vazio-vs-osint-com-dados)
+   - 4.5 [Passo 4.5 (opcional): Amass passivo em dominio real](#passo-4-5-opcional-amass-passivo-em-dominio-real)
+     - 4.5.1 [Confirmar que o dominio existe na internet](#4-5-1-confirmar-que-o-dominio-existe-na-internet)
+     - 4.5.2 [Executar Amass passivo em owasp-juice.shop](#4-5-2-executar-amass-passivo-em-owasp-juice-shop)
+     - 4.5.3 [Amass passivo em owasp.org](#4-5-3-amass-passivo-em-owasp-org-comparar-com-crt-sh)
+   - 4.6 [Checklist da Fase 2 (Amass)](#checklist-da-fase-2-amass)
+5. [Fase 3: Reconhecimento Web com WhatWeb e Dirb](#5-fase-3-reconhecimento-web-com-whatweb-e-dirb)
+   - 5.1 [Passo 5.1: Fingerprint da aplicacao com WhatWeb](#passo-5-1-fingerprint-da-aplicacao-com-whatweb)
+   - 5.2 [Passo 5.2: Descoberta de diretorios com Dirb](#passo-5-2-descoberta-de-diretorios-com-dirb)
+   - 5.3 [Passo 5.3: Analisar robots.txt e caminhos sensiveis](#passo-5-3-analisar-robots-txt-e-caminhos-sensiveis)
+     - 5.3.2 [Ler /ftp logo apos o robots.txt](#5-3-2-ler-ftp-logo-apos-o-robots-txt-confirmacao-manual)
+   - 5.4 [Painel resumo — Fase 3](#painel-resumo-fase-3)
+6. [Fase 4: Varredura DAST com Nikto](#6-fase-4-varredura-dast-com-nikto)
+   - 6.0 [Como o Nikto detecta padroes](#como-o-nikto-sabe-que-falta-cabecalho-arquivo-ou-misconfiguracao)
+   - 6.0 [O que o Nikto pode testar](#o-que-o-nikto-pode-testar-visao-geral)
+   - 6.0 [Onde e quando usar o Nikto](#onde-e-quando-usar-o-nikto)
+   - 6.0 [Severidade tipica dos achados Nikto](#severidade-tipica-dos-achados-nikto-como-ler-no-relatorio)
+   - 6.1 [Passo 6.1: Executar Nikto (varredura completa, sem filtro)](#passo-6-1-executar-nikto-contra-o-juice-shop-varredura-completa-sem-filtro)
+   - 6.2 [Passo 6.2: Interpretar achados e falsos positivos](#passo-6-2-interpretar-achados-e-falsos-positivos)
+     - 6.2.1 [Exploracao: .bash_history, .sh_history e PasswordsData.json](#6-2-1-exploracao-bash_history-sh_history-e-passwordsdata-json)
+   - 6.3 [Passo 6.3 (opcional): Provar impacto em 5 minutos](#passo-6-3-opcional-provar-impacto-em-5-minutos-o-que-vale-da-coleta)
+7. [Fase 5: Testes Complementares com Uniscan](#7-fase-5-testes-complementares-com-uniscan)
+   - 7.0 [Como o Uniscan testa (e limites em SPA)](#como-o-uniscan-testa-e-por-que-falha-em-spa)
+   - 7.0 [O que o Uniscan faz / nao faz](#o-que-o-uniscan-faz-bem-e-o-que-nao-faz)
+   - 7.0 [Onde e quando usar o Uniscan](#onde-e-quando-usar-o-uniscan)
+   - 7.0 [Severidade tipica e validacao](#severidade-tipica-e-validacao)
+   - 7.1 [Passo 7.1: Entender limites do Uniscan em SPAs](#passo-7-1-entender-limites-do-uniscan-em-spas)
+   - 7.2 [Passo 7.2: Executar testes web e estaticos em endpoint REST](#passo-7-2-executar-testes-web-e-estaticos-em-endpoint-rest)
+   - 7.3 [Painel resumo — Fase 5](#painel-resumo-fase-5)
+8. [Fase 6: Validacao Manual e Exploracao Controlada](#8-fase-6-validacao-manual-e-exploracao-controlada)
+   - 8.1 [Passo 8.1: Exposicao de informacao em /ftp](#passo-8-1-exposicao-de-informacao-em-ftp)
+   - 8.2 [Passo 8.2: Validar SQL Injection no endpoint de busca](#passo-8-2-validar-sql-injection-no-endpoint-de-busca)
+   - 8.3 [Passo 8.3: Demonstrar impacto com login bypass](#passo-8-3-demonstrar-impacto-com-login-bypass)
+   - 8.4 [Passo 8.4: Encadear achados dos scanners com exploracao](#passo-8-4-encadear-achados-dos-scanners-com-exploracao)
+9. [Fase 7: Matriz de Evidencias e Leitura Profissional](#9-fase-7-matriz-de-evidencias-e-leitura-profissional)
+   - 9.1 [Matriz minima de evidencias](#9-1-matriz-minima-de-evidencias)
+   - 9.2 [Oportunidades de melhoria no processo](#9-2-oportunidades-de-melhoria-no-processo)
+10. [Mitigacao, Deteccao e Hardening](#10-mitigacao-deteccao-e-hardening)
+    - 10.1 [Correcoes na aplicacao](#10-1-correcoes-na-aplicacao)
+    - 10.2 [Correcoes operacionais e de scanner](#10-2-correcoes-operacionais-e-de-scanner)
+    - 10.3 [Deteccao de varredura e exploracao](#10-3-deteccao-de-varredura-e-exploracao)
+11. [Encerramento e Criterios de Avaliacao](#11-encerramento-e-criterios-de-avaliacao)
+    - 11.1 [Modelo minimo de relatorio do aluno](#11-1-modelo-minimo-de-relatorio-do-aluno)
+    - 11.2 [Criterios de avaliacao sugeridos](#11-2-criterios-de-avaliacao-sugeridos)
+    - 11.3 [Sintese final do workshop](#11-3-sintese-final-do-workshop)
+12. [Checklist de Validacao da Aula](#12-checklist-de-validacao-da-aula)
 ---
 
 ## 1. Contexto e Objetivo da Aula
@@ -135,13 +178,14 @@ No host `srvdocker01`:
 ```bash
 hostname
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "kali|juice"
-docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}={{$v.IPAddress}} {{end}}' atacante_kali lab_juice_shop
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} {{.Name}}' $(docker ps -q)
 ```
 
 **Componentes dos comandos:**
 
-- `docker ps`: confirma containers ativos.
-- `docker inspect -f`: exibe rede e IP interno de cada container.
+- `hostname`: confirma que voce esta no host correto (`srvdocker01`).
+- `docker ps`: confirma que `atacante_kali` e `lab_juice_shop` estao `Up`.
+- `docker inspect -f ... $(docker ps -q)`: com **um comando** voce ja sabe o **IP interno de cada container** — procure a linha `/lab_juice_shop` e use esse IP nos scanners.
 
 **Resultado esperado:**
 
@@ -149,10 +193,13 @@ docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}={{$v.IPAdd
 srvdocker01
 atacante_kali    Up ...
 lab_juice_shop   Up ...   0.0.0.0:3000->3000/tcp
-docker_lab_vulneravel=172.18.0.21 docker_lab_vulneravel=172.18.0.30
+172.18.0.21 /atacante_kali
+172.18.0.30 /lab_juice_shop
 ```
 
-**Analise:** o atacante e o alvo devem estar na mesma rede Docker (`docker_lab_vulneravel`). Todos os testes desta aula partem do `atacante_kali` e usam o IP interno `172.18.0.30`.
+**Como ler a saida:** o numero antes de `/lab_juice_shop` e o IP do alvo (`http://172.18.0.30:3000` neste lab). O antes de `/atacante_kali` e o IP do container de ataque. Se os valores forem diferentes dos exemplos desta aula, **substitua `172.18.0.30`** em todos os comandos seguintes — nao e necessario outro `inspect`.
+
+**Analise:** atacante e alvo devem aparecer na mesma faixa de IP (`172.18.0.x` no ambiente de referencia). Todos os testes partem do `atacante_kali` contra o IP do `lab_juice_shop`.
 
 ### Passo 2.2: Instalar e validar ferramentas no atacante_kali
 
@@ -327,7 +374,7 @@ Cada passo tem comandos, explicacao e criterio de validacao. Avance somente quan
 | **4.4** | Sim | OSINT real via `hackertarget` em `owasp.org` (coleta que funciona no lab) |
 | **4.5** | Opcional | Amass passivo em dominio real (pode vir vazio no Amass v5.1.1) |
 
-**Pre-requisitos da Fase 4:** Passos 2.1 (rede e IP do alvo), 2.2 (Amass + libpostal) e 2.3 (diretorio `/tmp/evidencias/workshop-05`).
+**Pre-requisitos da Fase 2:** Passos 2.1 (rede e IP do alvo), 2.2 (Amass + libpostal) e 2.3 (diretorio `/tmp/evidencias/workshop-05`).
 
 ### Passo 4.1: Identificar dominio ficticio do alvo
 
@@ -605,7 +652,7 @@ O Amass passivo do Passo 4.2 pode retornar vazio — no lab, ate em dominios rea
 
 #### Saida de referencia: quando o OSINT passivo encontra ativos (dominio real)
 
-O bloco abaixo **nao e o que voce deve obter** no Passo 4.2 com `juice-sh.op`. E um exemplo de subdominios que o **Passo 4.4** (`crt.sh`) coleta de `owasp.org`:
+O bloco abaixo **nao e o que voce deve obter** no Passo 4.2 com `juice-sh.op`. E um exemplo de subdominios que o **Passo 4.4** (`hackertarget` / `osint-owasp-org.txt`) coleta de `owasp.org`:
 
 ```text
                                                                       v5.1.1
@@ -639,7 +686,7 @@ Cada linha com `(FQDN)` representa um nome encontrado em fonte externa que pode 
 
 ### Passo 4.3: Interpretar resultados em laboratorio isolado
 
-**Objetivo:** decidir se o Amass expandiu o escopo no laboratorio e encaminhar para o Passo 4.4 (coleta OSINT via `crt.sh`).
+**Objetivo:** decidir se o Amass expandiu o escopo no laboratorio e encaminhar para o Passo 4.4 (coleta OSINT via `hackertarget`).
 
 **Comando — revisar evidencias gravadas**
 
@@ -651,7 +698,7 @@ docker exec atacante_kali sh -lc 'echo "=== LOG ==="; tail -5 /tmp/evidencias/wo
 
 | O que voce observou | Significa falha? | Proximo passo |
 |---|---|---|
-| `EXIT:0` + `No assets were discovered` | Nao | **Passo 4.4** (crt.sh) — coleta real; depois Fase 3 |
+| `EXIT:0` + `No assets were discovered` | Nao | **Passo 4.4** (`hackertarget`) — coleta real; depois Fase 3 |
 | `EXIT:0` + linhas em `_subdomains.txt` | Nao | Revisar cada host e expandir escopo de testes |
 | `EXIT:1` + `libpostal_data: command not found` | Sim | Corrigir Passo 2.2 |
 | `flag provided but not defined: -o` | Sim | Usar `-dir` + `-oA` (sintaxe v5) |
@@ -665,7 +712,7 @@ EXIT:0 no Passo 4.2?
               |
              sim --> documentar hosts e seguir para Fase 3
               |
-             nao --> Passo 4.4 (crt.sh — coleta OSINT real)
+             nao --> Passo 4.4 (hackertarget — coleta OSINT real)
                    --> Fase 3 (WhatWeb)
 ```
 
@@ -941,7 +988,7 @@ As linhas `wc -l` e `cat` nao imprimiram nada alem do `0` — o arquivo `_subdom
 
 #### Por que `owasp-juice.shop` pode voltar vazio no Amass passivo?
 
-Isso confunde muitos alunos porque o dominio **existe** na internet — o Passo 4.5.1 confirma com `getent` e `curl`. A coleta que funciona nesta aula esta no **Passo 4.4** (`crt.sh`). A diferenca e:
+Isso confunde muitos alunos porque o dominio **existe** na internet — o Passo 4.5.1 confirma com `getent` e `curl`. A coleta que funciona nesta aula esta no **Passo 4.4** (`hackertarget`). A diferenca e:
 
 | O que voce testou | O que o Amass `-passive` consulta |
 |---|---|
@@ -954,7 +1001,7 @@ Dominio existe no DNS?  ----sim---->  getent/curl funcionam (Passo 4.5.1)
         |
         nao e a mesma coisa que
         |
-Amass v5 passivo retorna dados?  ----no lab, frequentemente nao---->  use Passo 4.4 (crt.sh)
+Amass v5 passivo retorna dados?  ----no lab, frequentemente nao---->  use Passo 4.4 (hackertarget)
 ```
 
 **Conclusao:** resultado vazio com `EXIT:0` aqui e esperado no `srvdocker01`. A evidencia de coleta real e o arquivo `osint-owasp-org.txt` do Passo 4.4.
@@ -976,7 +1023,7 @@ docker exec atacante_kali sh -lc 'amass enum -passive -d owasp.org -dir /tmp/evi
 | `osint-owasp-org.txt` | hackertarget (Passo 4.4) | **~50 subdominios** |
 | `amass-owasp-org_subdomains.txt` | Amass v5 passivo (Passo 4.5.3) | **0 linhas** (frequente) |
 
-### Checklist da Fase 4
+### Checklist da Fase 2 (Amass)
 
 | Item | Passo | Criterio de conclusao |
 |---|---|---|
@@ -984,9 +1031,9 @@ docker exec atacante_kali sh -lc 'amass enum -passive -d owasp.org -dir /tmp/evi
 | Amass passivo sem erro | 4.2 | `EXIT:0` + `amass-execucao.txt` gravado |
 | Resultado interpretado | 4.3 | Decisao documentada (vazio = ok no lab) |
 | **OSINT com coleta real** | **4.4** | **`osint-owasp-org.txt` com 40+ subdominios** |
-| Amass em dominio real (opcional) | 4.5 | `EXIT:0`; comparar vazio do Amass com dados do crt.sh |
+| Amass em dominio real (opcional) | 4.5 | `EXIT:0`; comparar vazio do Amass com dados do `hackertarget` |
 
-**Analise da Fase 4:** o Amass ensina o **fluxo** da ferramenta; o **crt.sh** entrega a **coleta OSINT** que funciona neste laboratorio. A Fase 3 (WhatWeb/Dirb) inicia apos o Passo 4.4.
+**Analise da Fase 2:** o Amass ensina o **fluxo** da ferramenta; o **`hackertarget`** entrega a **coleta OSINT** que funciona neste laboratorio. A Fase 3 (WhatWeb/Dirb) inicia apos o Passo 4.4.
 
 ---
 
@@ -1072,7 +1119,7 @@ UncommonHeaders[access-control-allow-origin,x-content-type-options,feature-polic
 
 O fingerprint **nao diz** "voce tem SQLi". Ele diz **como atacar com mais inteligencia**:
 
-1. **SPA + Script module** → a aplicacao real esta nas **APIs**; SQLi e login bypass desta aula aparecem em `/rest/products/search` e `/rest/user/login` (Fases 7 e 8), nao necessariamente na URL `/`.
+1. **SPA + Script module** → a aplicacao real esta nas **APIs**; SQLi e login bypass desta aula aparecem em `/rest/products/search` e `/rest/user/login` (Secao 8 / Fase 6), nao necessariamente na URL `/`.
 2. **CORS aberto** → em apps reais, mapear APIs como `/rest/user/whoami` e `/rest/basket/{id}` e testar se um origem externa consegue ler respostas autenticadas.
 3. **Cabecalhos de seguranca mistos** → alguns controles existem; o trabalho do pentester e achar **onde faltam** (outras rotas, respostas de erro, uploads).
 
@@ -1145,7 +1192,7 @@ DOWNLOADED: 4612 - FOUND: 9
 
 | Caminho | Codigo | O que provavelmente e | Acao do analista | Risco / categoria OWASP (hipotese a validar) |
 |---|---|---|---|---|
-| `/ftp` | 200 | Listagem ou pagina com **arquivos expostos** | Abrir no navegador ou `curl`; listar links; baixar arquivos `.md`, `.kdbx` | **A01 Broken Access Control** / **exposicao de informacao** — **prioridade alta** (Fase 8.1) |
+| `/ftp` | 200 | Listagem ou pagina com **arquivos expostos** | Abrir no navegador ou `curl`; listar links; baixar arquivos `.md`, `.kdbx` | **A01 Broken Access Control** / **exposicao de informacao** — **prioridade alta** (Passo 8.1 / Fase 6) |
 | `/robots.txt` | 200 | Arquivo que **sugere** o que o site nao quer indexar | Ler conteudo; cruzar com Dirb (`Disallow: /ftp` vs `/ftp` 200) | **Security misconfiguration** — indica caminho sensivel |
 | `/profile` | 500 | Rota existe; **erro de servidor** sem contexto (sessao? parametro?) | Testar logado/no browser; ler corpo do erro; nao descartar | Possivel **information disclosure** em stack trace; **auth/session** |
 | `/redirect` | 500 | Rota de redirecionamento mal parametrizada | Testar `?to=`, `?url=` com URLs externas | **Open redirect** (phishing); **injection** em parametro |
@@ -1157,7 +1204,7 @@ DOWNLOADED: 4612 - FOUND: 9
 O Dirb **nao executa exploits**. Ele **expande a superficie de teste**. No Juice Shop, o achado que **mais abre porta** para impacto nesta trilha e:
 
 ```text
-/ftp (200)  -->  arquivos internos  -->  vazamento de credenciais/dados  -->  Fase 8.1
+/ftp (200)  -->  arquivos internos  -->  vazamento de credenciais/dados  -->  Passo 8.1 (Fase 6)
 robots.txt  -->  confirma que /ftp e "escondido" mas acessivel  -->  misconfiguration
 ```
 
@@ -1203,7 +1250,7 @@ Disallow: /ftp
 | Elemento | Significado | Proximo passo na trilha |
 |---|---|---|
 | `Disallow: /ftp` | O proprio site marca `/ftp` como area sensivel | Tratar como **alvo prioritario** de investigacao |
-| Dirb encontrou `/ftp` com `200 OK` | Contradicao: "nao indexar" ≠ "bloquear acesso" | Fase 8.1 — listar e baixar arquivos com `curl` |
+| Dirb encontrou `/ftp` com `200 OK` | Contradicao: "nao indexar" ≠ "bloquear acesso" | Passo 8.1 (Fase 6) — listar e baixar arquivos com `curl` |
 | Correlacao WhatWeb + Dirb | SPA moderna + caminho oculto com arquivos | Nao parar no fingerprint; **seguir o caminho** ate ter evidencia de impacto |
 
 > [!TIP]
@@ -1272,7 +1319,7 @@ docker exec atacante_kali sh -lc 'curl -s http://172.18.0.30:3000/ftp/acquisitio
 |---|---|---|
 | Pagina `/ftp` sem login | **Controle de acesso ausente** em area que o proprio site marca como sensivel | Registrar como exposicao de informacao; citar `robots.txt` + Dirb + `curl` no relatorio |
 | Arquivos `.md`, `.yml`, `.kdbx` | Documentos internos, possiveis **credenciais**, erros, dados de negocio | Priorizar `.kdbx` (cofre KeePass), `.yml` (config/erros), `.md` (planejamento/confidencial) |
-| Texto "confidential" no corpo | Prova de **impacto de negocio**, nao so "achei uma pasta" | Fase 8.1 aprofunda; Nikto pode reforcar o mesmo caminho |
+| Texto "confidential" no corpo | Prova de **impacto de negocio**, nao so "achei uma pasta" | Passo 8.1 (Fase 6) aprofunda; Nikto pode reforcar o mesmo caminho |
 
 **Frase-modelo para o aluno explicar em sala:**
 
@@ -1281,7 +1328,7 @@ docker exec atacante_kali sh -lc 'curl -s http://172.18.0.30:3000/ftp/acquisitio
 **Como validar o Passo 5.3:** `robots.txt` com `Disallow: /ftp` + `ftp-listing.txt` com pelo menos **3 links** + um arquivo (ex.: `ftp-acquisitions.txt`) mostrando conteudo confidencial.
 
 > [!NOTE]
-> Os mesmos comandos sao reutilizados na **Fase 8.1** com foco em impacto e mitigacao. Aqui o objetivo e fechar o encadeamento **Dirb → robots.txt → leitura manual** ainda na fase de reconhecimento.
+> Os mesmos comandos sao reutilizados no **Passo 8.1** (Fase 6) com foco em impacto e mitigacao. Aqui o objetivo e fechar o encadeamento **Dirb → robots.txt → leitura manual** ainda na fase de reconhecimento.
 
 ### Painel resumo — Fase 3
 
@@ -1304,7 +1351,7 @@ curl/ftp -->  vazamento de informacao (sem login)
 | Conclusao rapida | Proximo passo |
 |---|---|
 | Reconhecimento **nao provou** SQLi nem bypass — **priorizou** onde testar | **Fase 4 (Nikto):** misconfiguracoes e caminhos conhecidos em escala |
-| Melhor achado ate aqui: **`/ftp` aberto** + conteudo confidencial | **Fases 7–8:** SQLi, login bypass e exploracao de `/ftp` com impacto |
+| Melhor achado ate aqui: **`/ftp` aberto** + conteudo confidencial | **Secao 8 (Fase 6):** SQLi, login bypass e exploracao de `/ftp` com impacto |
 
 **Criterio para seguir:** pelo menos `whatweb-juice.txt`, `dirb-juice.txt`, `robots.txt` e um arquivo em `/ftp` gravados em `/tmp/evidencias/workshop-05/`.
 
@@ -1430,7 +1477,7 @@ Fase 3 (WhatWeb/Dirb)  -->  voce ja achou /ftp e entendeu que e SPA
 Fase 4 (Nikto)         -->  confirma em escala: robots.txt, users.json, cabecalhos, caminhos "interessantes"
         |
         v
-Fases 7–8 (curl)       -->  so o que importa vira vulnerabilidade com impacto demonstrado
+Secao 8 / Fase 6 (curl) -->  so o que importa vira vulnerabilidade com impacto demonstrado
 ```
 
 ### O que o Nikto pode testar (visao geral)
@@ -1723,7 +1770,7 @@ Nao ha comandos de administrador para reutilizar, nem base de senhas para extrai
 Confirmados / uteis     -->  /ftp, robots.txt, cabecalhos ausentes, CORS *
 Provaveis falso + SPA   -->  *.json, /.htpasswd, /.bash_history (confirmado 6.2.1), JAMonAdmin.jsp
 Validar se sobrou tempo -->  /public/
-Impacto desta aula      -->  Fase 3 (/ftp) + Fases 7-8 (SQLi, bypass) — nao os 25 itens crus
+Impacto desta aula      -->  Fase 3 (/ftp) + Secao 8 / Fase 6 (SQLi, bypass) — nao os 25 itens crus
 ```
 
 **Analise:** o valor do Nikto **sem filtro** e mostrar ao aluno a **diferenca entre triagem automatizada e verdade no alvo**. O scanner levanta 25 linhas; o analista fecha com `curl` e leva para o relatorio **so o que sobrevive a validacao**.
@@ -2089,7 +2136,7 @@ Padroes compativeis com a aula:
 
 ## 11. Encerramento e Criterios de Avaliacao
 
-### Modelo minimo de relatorio do aluno
+### 11.1 Modelo minimo de relatorio do aluno
 
 | Secao | Conteudo esperado |
 |---|---|
@@ -2102,7 +2149,7 @@ Padroes compativeis com a aula:
 | Mitigacao | Correcoes tecnicas e operacionais |
 | Conclusao | Limites dos scanners e aprendizados |
 
-### Criterios de avaliacao sugeridos
+### 11.2 Criterios de avaliacao sugeridos
 
 | Criterio | Peso sugerido |
 |---|---:|
@@ -2112,7 +2159,7 @@ Padroes compativeis com a aula:
 | Validacao manual e exploracao controlada | 25% |
 | Qualidade das evidencias e relatorio | 15% |
 
-### Sintese final do workshop
+### 11.3 Sintese final do workshop
 
 Esta aula demonstra que DAST nao se resume a uma unica ferramenta grafica. A linha de comando com **Amass**, **Dirb**, **Nikto** e **Uniscan** permite construir uma investigacao modular, auditavel e facilmente automatizavel.
 
@@ -2127,7 +2174,7 @@ Especialista documenta e resolve.
 
 ---
 
-## Checklist de Validacao da Aula
+## 12. Checklist de Validacao da Aula
 
 - Confirmei que estou no host `srvdocker01`.
 - Confirmei o container `atacante_kali` na rede `docker_lab_vulneravel`.
