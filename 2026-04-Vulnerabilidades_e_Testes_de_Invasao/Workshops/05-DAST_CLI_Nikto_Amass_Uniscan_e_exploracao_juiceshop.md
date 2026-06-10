@@ -404,6 +404,38 @@ O dominio ficticio (`juice-sh.op`) fica na **configuracao interna** da aplicacao
 
 Em pentest, quando so temos um IP, o analista procura **pistas de dominio** em superficies que a aplicacao expoe. Nem todo caminho e “adivinhado no escuro”: alguns seguem **padroes da industria** (vale testar em qualquer alvo); outros sao **especificos da aplicacao** (exigem enumeracao, documentacao ou leitura de codigo).
 
+**Comando inicial — testar caminhos candidatos (varredura rapida)**
+
+Antes de abrir cada artefato, confira quais URLs respondem no alvo. Use o IP obtido no **Passo 2.1** (`172.18.0.30` no lab de referencia):
+
+```bash
+docker exec atacante_kali sh -lc 'BASE=http://172.18.0.30:3000; for p in /.well-known/security.txt /security.txt /api-docs /rest/admin/application-configuration; do printf "%-45s " "$p"; curl -s -o /dev/null -w "HTTP %{http_code}\n" "$BASE$p"; done'
+```
+
+| Parte | Funcao |
+|---|---|
+| `BASE=http://172.18.0.30:3000` | URL do alvo (ajuste se o seu `docker inspect` mostrou outro IP) |
+| `for p in ...` | Lista de caminhos **candidatos** a artefato — padrao da industria + superficie do Juice Shop |
+| `curl -s -o /dev/null -w "HTTP %{http_code}"` | So o codigo HTTP, sem baixar o corpo inteiro |
+
+**Como validar:** caminhos com `HTTP 200` merecem leitura com `curl` no passo seguinte (4.1.2). `404` ou `403` indicam que aquele artefato nao esta exposto (ou esta bloqueado) neste alvo.
+
+**Saida observada no `srvdocker01`:**
+
+```text
+/.well-known/security.txt                     HTTP 200
+/security.txt                                 HTTP 404
+/api-docs                                     HTTP 200
+/rest/admin/application-configuration         HTTP 200
+```
+
+```text
+Caminho retorna 200?  -->  abrir com curl e extrair dominios (4.1.2)
+Caminho retorna 404?  -->  descartar neste alvo (ou anotar para Dirb/Nikto depois)
+```
+
+Os artefatos que importam nesta aula (`/.well-known/security.txt` e `/rest/admin/application-configuration`) aparecem com `200`. O `/api-docs` tambem responde — util para mapear outras rotas depois. Os blocos abaixo explicam **o que cada um e** e **por que testamos esse caminho**.
+
 ##### Artefato 1 — `/.well-known/security.txt` (padrao da industria)
 
 **O que e `/.well-known/`?** pasta padrao da web (RFC 8615) onde servidores publicam recursos em **URLs fixas e conhecidas** — sem precisar adivinhar caminhos. **Nao e exclusiva de certificados SSL**, embora seja muito usada nesse contexto.
@@ -428,12 +460,50 @@ Neste workshop, consultamos `security.txt` — um dos arquivos dessa familia. Em
 
 **O que e:** endpoint REST do OWASP Juice Shop que devolve a configuracao da aplicacao em JSON — incluindo `application.domain` (`juice-sh.op`). No codigo-fonte do projeto, a rota e registrada **sem exigir autenticacao** (comportamento intencional de laboratorio / falha de configuracao).
 
+**Como encontramos esse caminho — buscar rotas no JavaScript da SPA**
+
+O dominio **nao** aparece no HTML da pagina `/`, mas o front-end Angular precisa chamar a API de configuracao ao carregar — o caminho fica **embutido no bundle `.js`**. A varredura inicial ja mostrou `/api-docs` com `200`; o passo abaixo localiza rotas `/rest/admin/...` sem adivinhar o nome completo:
+
+```bash
+docker exec atacante_kali sh -lc 'BASE=http://172.18.0.30:3000; JS=$(curl -s "$BASE/" | grep -oE "main[^\"]*\.js" | head -1); echo "Bundle: $JS"; curl -s "$BASE/$JS" | grep -oE "/rest/admin/[a-zA-Z0-9_-]+" | sort -u'
+```
+
+| Parte | Funcao |
+|---|---|
+| `grep -oE "main[^\"]*\.js"` | Acha o arquivo JavaScript principal referenciado no HTML da SPA |
+| `grep -oE "/rest/admin/..."` | Extrai strings de rotas administrativas que o front usa em runtime |
+| `sort -u` | Remove duplicatas — cada linha e um endpoint candidato |
+
+**Como validar:** aparece pelo menos `/rest/admin/application-configuration`. Confirme que responde antes de extrair o dominio:
+
+```bash
+docker exec atacante_kali sh -lc 'curl -s -o /dev/null -w "HTTP %{http_code}\n" http://172.18.0.30:3000/rest/admin/application-configuration'
+```
+
+**Saida observada no `srvdocker01`:**
+
+```text
+Bundle: main-XXXXXXXX.js
+/rest/admin/application-configuration
+HTTP 200
+```
+
+```text
+/api-docs com 200 (varredura inicial)
+        |
+        v
+Buscar /rest/admin/... no bundle .js da SPA
+        |
+        v
+/rest/admin/application-configuration  -->  HTTP 200  -->  extrair dominio (4.1.2)
+```
+
 **Por que testamos esse caminho:** **nao e padrao de todas as aplicacoes.** Chegamos a ele porque:
 
 1. O Juice Shop expoe APIs sob o prefixo `/rest/` (padrao **desta** aplicacao).
-2. Rotas administrativas costumam ficar em `/admin/` — combinacao tipica em apps Node/Express.
-3. Em enumeracao posterior (Dirb, Nikto, Swagger em `/api-docs`), esse endpoint tambem pode ser listado.
-4. O workshop ja validou esse caminho no `srvdocker01` como forma confiavel de obter `juice-sh.op` quando o HTML da SPA nao ajuda.
+2. O proprio front-end referencia `/rest/admin/application-configuration` no JavaScript — nao precisamos adivinhar no escuro.
+3. Rotas administrativas costumam ficar em `/admin/` — combinacao tipica em apps Node/Express.
+4. Em enumeracao posterior (Dirb, Nikto), o mesmo caminho pode reaparecer; o `/api-docs` desta versao documenta sobretudo a API B2B (`/b2b/v2`), nao todas as rotas `/rest/`.
 
 **O que revela aqui:** o dominio ficticio interno (`juice-sh.op`) — este sim e o alvo do Amass no Passo 4.2.
 
@@ -451,9 +521,11 @@ Neste laboratorio, a cadeia que funciona e:
 
 ```text
 1. Confirmar que o alvo responde (4.1.1)
-2. Consultar security.txt          --> dominio publico da marca (owasp-juice.shop)
-3. Consultar API de configuracao --> dominio interno da aplicacao (juice-sh.op)
-4. Gravar juice-sh.op em dominio-alvo.txt --> alvo do Amass (4.1.3)
+2. Varredura rapida de caminhos (security.txt, api-docs, etc.)
+3. Descobrir /rest/admin/application-configuration no bundle .js da SPA
+4. Consultar security.txt          --> dominio publico da marca (owasp-juice.shop)
+5. Consultar API de configuracao --> dominio interno da aplicacao (juice-sh.op)
+6. Gravar juice-sh.op em dominio-alvo.txt --> alvo do Amass (4.1.3)
 ```
 
 O dominio que alimenta o Amass neste workshop e **`juice-sh.op`** — e o que a aplicacao usa internamente. O `owasp-juice.shop` aparece em contatos publicos, mas o escopo do Amass no Passo 4.2 segue o dominio da config (`juice-sh.op`).
