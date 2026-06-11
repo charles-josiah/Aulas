@@ -26,93 +26,48 @@
 
 ---
 
-## Indice
+## Índice
 
-> **Convencao de numeracao:** **Secao** = titulo numerado do documento (1–12). **Fase** = etapa metodologica da investigacao (Fase 1–7). Os **Passos** (ex.: 4.1, 5.2) seguem o numero da secao em que aparecem.
+- [1. Contexto e Objetivo da Aula](#1-contexto-e-objetivo-da-aula)
+- [2. Escopo Operacional](#2-escopo-operacional)
+  - [Passo 2.1: Confirmar host, Docker e container atacante](#passo-21-confirmar-host-docker-e-container-atacante)
+  - [Passo 2.2: Instalar e validar ferramentas no atacante_kali](#passo-22-instalar-e-validar-ferramentas-no-atacante_kali)
+  - [Passo 2.3: Mapear alvo e criar diretorio de evidencias](#passo-23-mapear-alvo-e-criar-diretorio-de-evidencias)
+- [3. Fase 1: Panorama Metodologico dos Scanners CLI](#3-fase-1-panorama-metodologico-dos-scanners-cli)
+  - [3.1 Papel de cada ferramenta](#31-papel-de-cada-ferramenta)
+  - [3.2 Diferenca entre este workshop e o OWASP ZAP](#32-diferenca-entre-este-workshop-e-o-owasp-zap)
+- [4. Fase 2: Enumeracao de Superficie com Amass](#4-fase-2-enumeracao-de-superficie-com-amass)
+  - [Passo 4.1: Identificar dominio ficticio do alvo](#passo-41-identificar-dominio-ficticio-do-alvo)
+  - [Passo 4.2: Executar enumeracao passiva](#passo-42-executar-enumeracao-passiva)
+  - [Passo 4.3: Interpretar resultados em laboratorio isolado](#passo-43-interpretar-resultados-em-laboratorio-isolado)
+  - [Passo 4.4: OSINT real com hackertarget e crt.sh](#passo-44-osint-real-com-hackertarget-e-crtsh)
+  - [Passo 4.5: Amass passivo em dominio real (opcional)](#passo-45-amass-passivo-em-dominio-real-opcional)
+  - [Checklist da Fase 2](#checklist-da-fase-2-amass)
+- [5. Fase 3: Reconhecimento Web com WhatWeb e Dirb](#5-fase-3-reconhecimento-web-com-whatweb-e-dirb)
+  - [Passo 5.1: Fingerprint da aplicacao com WhatWeb](#passo-51-fingerprint-da-aplicacao-com-whatweb)
+  - [Passo 5.2: Descoberta de diretorios com Dirb](#passo-52-descoberta-de-diretorios-com-dirb)
+  - [Passo 5.3: Analisar robots.txt e caminhos sensiveis](#passo-53-analisar-robotstxt-e-caminhos-sensiveis)
+  - [Painel resumo da Fase 3](#painel-resumo-da-fase-3)
+- [6. Fase 4: Varredura DAST com Nikto](#6-fase-4-varredura-dast-com-nikto)
+  - [Fundamentos do Nikto antes do scan](#fundamentos-do-nikto-antes-do-scan)
+  - [Passo 6.1: Executar Nikto contra o Juice Shop](#passo-61-executar-nikto-contra-o-juice-shop-varredura-completa-sem-filtro)
+  - [Passo 6.2: Interpretar achados e falsos positivos](#passo-62-interpretar-achados-e-falsos-positivos)
+  - [Passo 6.3: Provar impacto em 5 minutos (opcional)](#passo-63-provar-impacto-em-5-minutos-opcional)
+- [7. Fase 5: Testes Complementares com Uniscan](#7-fase-5-testes-complementares-com-uniscan)
+  - [Fundamentos do Uniscan antes do scan](#fundamentos-do-uniscan-antes-do-scan)
+  - [Passo 7.1: Entender limites do Uniscan em SPAs](#passo-71-entender-limites-do-uniscan-em-spas)
+  - [Passo 7.2: Executar testes de arquivo e estaticos em endpoint REST](#passo-72-executar-testes-de-arquivo-e-estaticos-em-endpoint-rest)
+  - [Painel resumo da Fase 5](#painel-resumo-da-fase-5)
+- [8. Fase 6: Validacao Manual e Exploracao Controlada](#8-fase-6-validacao-manual-e-exploracao-controlada)
+  - [Passo 8.1: Exposicao de informacao em /ftp](#passo-81-exposicao-de-informacao-em-ftp)
+  - [Passo 8.2: Validar SQL Injection no endpoint de busca](#passo-82-validar-sql-injection-no-endpoint-de-busca)
+  - [Passo 8.3: Demonstrar impacto com login bypass](#passo-83-demonstrar-impacto-com-login-bypass)
+  - [Passo 8.4: Encadear achados dos scanners com exploracao](#passo-84-encadear-achados-dos-scanners-com-exploracao)
+- [9. Fase 7: Matriz de Evidencias e Leitura Profissional](#9-fase-7-matriz-de-evidencias-e-leitura-profissional)
+- [10. Mitigacao, Deteccao e Hardening](#10-mitigacao-deteccao-e-hardening)
+- [11. Encerramento e Criterios de Avaliacao](#11-encerramento-e-criterios-de-avaliacao)
+- [12. Checklist de Validacao da Aula](#12-checklist-de-validacao-da-aula)
 
-| Secao | Fase metodologica | Conteudo principal |
-|:---:|:---:|---|
-| 1 | — | Contexto e objetivo |
-| 2 | — | Escopo operacional (Passos 2.1–2.3) |
-| 3 | Fase 1 | Panorama dos scanners CLI |
-| 4 | Fase 2 | Amass e OSINT (Passos 4.1–4.5) |
-| 5 | Fase 3 | WhatWeb e Dirb (Passos 5.1–5.3) |
-| 6 | Fase 4 | Nikto (Passos 6.1–6.3) |
-| 7 | Fase 5 | Uniscan (Passos 7.1–7.2) |
-| 8 | Fase 6 | Validacao manual e exploracao (Passos 8.1–8.4) |
-| 9 | Fase 7 | Matriz de evidencias |
-| 10 | — | Mitigacao e hardening |
-| 11 | — | Encerramento e criterios |
-| 12 | — | Checklist de validacao da aula |
-
-1. [Contexto e Objetivo da Aula](#1-contexto-e-objetivo-da-aula)
-2. [Escopo Operacional](#2-escopo-operacional)
-   - 2.1 [Passo 2.1: Confirmar host, Docker e container atacante](#passo-2-1-confirmar-host-docker-e-container-atacante)
-   - 2.2 [Passo 2.2: Instalar e validar ferramentas no atacante_kali](#passo-2-2-instalar-e-validar-ferramentas-no-atacante_kali)
-   - 2.3 [Passo 2.3: Mapear alvo e criar diretorio de evidencias](#passo-2-3-mapear-alvo-e-criar-diretorio-de-evidencias)
-3. [Fase 1: Panorama Metodologico dos Scanners CLI](#3-fase-1-panorama-metodologico-dos-scanners-cli)
-   - 3.1 [Papel de cada ferramenta](#3-1-papel-de-cada-ferramenta)
-   - 3.2 [Diferenca entre este workshop e o OWASP ZAP](#3-2-diferenca-entre-este-workshop-e-o-owasp-zap)
-4. [Fase 2: Enumeracao de Superficie com Amass](#4-fase-2-enumeracao-de-superficie-com-amass)
-   - 4.1 [Passo 4.1: Identificar dominio ficticio do alvo](#passo-4-1-identificar-dominio-ficticio-do-alvo)
-     - 4.1.1 [Confirmar que o alvo responde](#4-1-1-confirmar-que-o-alvo-responde)
-     - 4.1.2 [Coletar dominios nos artefatos expostos](#4-1-2-coletar-dominios-nos-artefatos-expostos)
-     - 4.1.3 [Registrar dominio alvo do Amass](#4-1-3-registrar-dominio-alvo-do-amass)
-   - 4.2 [Passo 4.2: Executar enumeracao passiva](#passo-4-2-executar-enumeracao-passiva)
-     - 4.2.1 [Pre-validacao do Amass](#4-2-1-pre-validacao-do-amass)
-     - 4.2.2 [Executar enumeracao passiva](#4-2-2-executar-enumeracao-passiva)
-     - 4.2.3 [Por que a enumeracao passiva veio vazia?](#4-2-3-por-que-a-enumeracao-passiva-veio-vazia)
-   - 4.3 [Passo 4.3: Interpretar resultados em laboratorio isolado](#passo-4-3-interpretar-resultados-em-laboratorio-isolado)
-   - 4.4 [Passo 4.4: OSINT real (hackertarget + crt.sh)](#passo-4-4-osint-real-hackertarget-crt-sh)
-     - 4.4.1 [Confirmar conectividade](#4-4-1-confirmar-conectividade)
-     - 4.4.2 [Coletar subdominios via hackertarget (obrigatorio)](#4-4-2-coletar-subdominios-via-hackertarget-obrigatorio)
-     - 4.4.3 [Coletar via crt.sh (opcional)](#4-4-3-coletar-via-crt-sh-opcional-certificate-transparency)
-     - 4.4.4 [Comparar Amass (vazio) vs OSINT (com dados)](#4-4-4-comparar-amass-vazio-vs-osint-com-dados)
-   - 4.5 [Passo 4.5 (opcional): Amass passivo em dominio real](#passo-4-5-opcional-amass-passivo-em-dominio-real)
-     - 4.5.1 [Confirmar que o dominio existe na internet](#4-5-1-confirmar-que-o-dominio-existe-na-internet)
-     - 4.5.2 [Executar Amass passivo em owasp-juice.shop](#4-5-2-executar-amass-passivo-em-owasp-juice-shop)
-     - 4.5.3 [Amass passivo em owasp.org](#4-5-3-amass-passivo-em-owasp-org-comparar-com-crt-sh)
-   - 4.6 [Checklist da Fase 2 (Amass)](#checklist-da-fase-2-amass)
-5. [Fase 3: Reconhecimento Web com WhatWeb e Dirb](#5-fase-3-reconhecimento-web-com-whatweb-e-dirb)
-   - 5.1 [Passo 5.1: Fingerprint da aplicacao com WhatWeb](#passo-5-1-fingerprint-da-aplicacao-com-whatweb)
-   - 5.2 [Passo 5.2: Descoberta de diretorios com Dirb](#passo-5-2-descoberta-de-diretorios-com-dirb)
-   - 5.3 [Passo 5.3: Analisar robots.txt e caminhos sensiveis](#passo-5-3-analisar-robots-txt-e-caminhos-sensiveis)
-     - 5.3.2 [Ler /ftp logo apos o robots.txt](#5-3-2-ler-ftp-logo-apos-o-robots-txt-confirmacao-manual)
-   - 5.4 [Painel resumo — Fase 3](#painel-resumo-fase-3)
-6. [Fase 4: Varredura DAST com Nikto](#6-fase-4-varredura-dast-com-nikto)
-   - 6.0 [Como o Nikto detecta padroes](#como-o-nikto-sabe-que-falta-cabecalho-arquivo-ou-misconfiguracao)
-   - 6.0 [O que o Nikto pode testar](#o-que-o-nikto-pode-testar-visao-geral)
-   - 6.0 [Onde e quando usar o Nikto](#onde-e-quando-usar-o-nikto)
-   - 6.0 [Severidade tipica dos achados Nikto](#severidade-tipica-dos-achados-nikto-como-ler-no-relatorio)
-   - 6.1 [Passo 6.1: Executar Nikto (varredura completa, sem filtro)](#passo-6-1-executar-nikto-contra-o-juice-shop-varredura-completa-sem-filtro)
-   - 6.2 [Passo 6.2: Interpretar achados e falsos positivos](#passo-6-2-interpretar-achados-e-falsos-positivos)
-     - 6.2.1 [Exploracao: .bash_history, .sh_history e PasswordsData.json](#6-2-1-exploracao-bash_history-sh_history-e-passwordsdata-json)
-   - 6.3 [Passo 6.3 (opcional): Provar impacto em 5 minutos](#passo-6-3-opcional-provar-impacto-em-5-minutos-o-que-vale-da-coleta)
-7. [Fase 5: Testes Complementares com Uniscan](#7-fase-5-testes-complementares-com-uniscan)
-   - 7.0 [Como o Uniscan testa (e limites em SPA)](#como-o-uniscan-testa-e-por-que-falha-em-spa)
-   - 7.0 [O que o Uniscan faz / nao faz](#o-que-o-uniscan-faz-bem-e-o-que-nao-faz)
-   - 7.0 [Onde e quando usar o Uniscan](#onde-e-quando-usar-o-uniscan)
-   - 7.0 [Severidade tipica e validacao](#severidade-tipica-e-validacao)
-   - 7.1 [Passo 7.1: Entender limites do Uniscan em SPAs](#passo-7-1-entender-limites-do-uniscan-em-spas)
-   - 7.2 [Passo 7.2: Executar testes web e estaticos em endpoint REST](#passo-7-2-executar-testes-web-e-estaticos-em-endpoint-rest)
-   - 7.3 [Painel resumo — Fase 5](#painel-resumo-fase-5)
-8. [Fase 6: Validacao Manual e Exploracao Controlada](#8-fase-6-validacao-manual-e-exploracao-controlada)
-   - 8.1 [Passo 8.1: Exposicao de informacao em /ftp](#passo-8-1-exposicao-de-informacao-em-ftp)
-   - 8.2 [Passo 8.2: Validar SQL Injection no endpoint de busca](#passo-8-2-validar-sql-injection-no-endpoint-de-busca)
-   - 8.3 [Passo 8.3: Demonstrar impacto com login bypass](#passo-8-3-demonstrar-impacto-com-login-bypass)
-   - 8.4 [Passo 8.4: Encadear achados dos scanners com exploracao](#passo-8-4-encadear-achados-dos-scanners-com-exploracao)
-9. [Fase 7: Matriz de Evidencias e Leitura Profissional](#9-fase-7-matriz-de-evidencias-e-leitura-profissional)
-   - 9.1 [Matriz minima de evidencias](#9-1-matriz-minima-de-evidencias)
-   - 9.2 [Oportunidades de melhoria no processo](#9-2-oportunidades-de-melhoria-no-processo)
-10. [Mitigacao, Deteccao e Hardening](#10-mitigacao-deteccao-e-hardening)
-    - 10.1 [Correcoes na aplicacao](#10-1-correcoes-na-aplicacao)
-    - 10.2 [Correcoes operacionais e de scanner](#10-2-correcoes-operacionais-e-de-scanner)
-    - 10.3 [Deteccao de varredura e exploracao](#10-3-deteccao-de-varredura-e-exploracao)
-11. [Encerramento e Criterios de Avaliacao](#11-encerramento-e-criterios-de-avaliacao)
-    - 11.1 [Modelo minimo de relatorio do aluno](#11-1-modelo-minimo-de-relatorio-do-aluno)
-    - 11.2 [Criterios de avaliacao sugeridos](#11-2-criterios-de-avaliacao-sugeridos)
-    - 11.3 [Sintese final do workshop](#11-3-sintese-final-do-workshop)
-12. [Checklist de Validacao da Aula](#12-checklist-de-validacao-da-aula)
 ---
 
 ## 1. Contexto e Objetivo da Aula
@@ -185,7 +140,7 @@ docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} {{.N
 
 - `hostname`: confirma que voce esta no host correto (`srvdocker01`).
 - `docker ps`: confirma que `atacante_kali` e `lab_juice_shop` estao `Up`.
-- `docker inspect -f ... $(docker ps -q)`: com **um comando** voce ja sabe o **IP interno de cada container** — procure a linha `/lab_juice_shop` e use esse IP nos scanners.
+- `docker inspect -f ... $(docker ps -q)`: extrai, em lote, o **IP interno de todos os containers ativos** e relaciona cada IP ao respectivo nome do container. Esse comando monta rapidamente o mapa `IP -> container`, essencial para identificar o alvo correto antes dos scanners.
 
 **Resultado esperado:**
 
@@ -197,7 +152,7 @@ lab_juice_shop   Up ...   0.0.0.0:3000->3000/tcp
 172.18.0.30 /lab_juice_shop
 ```
 
-**Como ler a saida:** o numero antes de `/lab_juice_shop` e o IP do alvo (`http://172.18.0.30:3000` neste lab). O antes de `/atacante_kali` e o IP do container de ataque. Se os valores forem diferentes dos exemplos desta aula, **substitua `172.18.0.30`** em todos os comandos seguintes — nao e necessario outro `inspect`.
+**Como ler a saida:** cada linha relaciona um IP interno Docker ao nome de um container. O numero antes de `/lab_juice_shop` e o IP do alvo (`http://172.18.0.30:3000` neste lab). O numero antes de `/atacante_kali` e o IP do container de ataque. Se os valores forem diferentes dos exemplos desta aula, **substitua `172.18.0.30`** em todos os comandos seguintes — nao e necessario outro `inspect`.
 
 **Analise:** atacante e alvo devem aparecer na mesma faixa de IP (`172.18.0.x` no ambiente de referencia). Todos os testes partem do `atacante_kali` contra o IP do `lab_juice_shop`.
 
@@ -699,62 +654,16 @@ O Passo 4.2 usa `-passive`. Nesse modo, o Amass **nao testa o seu laboratorio**;
 
 O dominio `juice-sh.op` e **ficticio** — existe no conteudo do Juice Shop, mas nao possui presenca real nessas fontes. Por isso a mensagem `No assets were discovered` e o arquivo `amass-juice-sh_subdomains.txt` com **0 linhas** sao o comportamento esperado aqui.
 
-```text
-Comando executado com sucesso (EXIT:0)
-        |
-        v
-Amass consultou fontes OSINT externas
-        |
-        v
-Nenhuma fonte publica retornou subdominios para juice-sh.op
-        |
-        v
-No assets were discovered  (resultado vazio, nao e falha)
-```
-
 | Situacao | Significa falha? | O que aconteceu |
 |---|---|---|
 | `EXIT:0` + `No assets were discovered` | Nao | OSINT nao tinha dados para esse dominio |
 | `EXIT:1` + `libpostal_data: command not found` | Sim | Dependencia ausente (Passo 2.2) |
 | `EXIT:0` + linhas com `(FQDN)` | Nao | OSINT encontrou hosts publicos |
 
-#### E o Passo 4.4 (hackertarget)?
-
-O Amass passivo do Passo 4.2 pode retornar vazio — no lab, ate em dominios reais. A **coleta OSINT que funciona** nesta fase e o **Passo 4.4**: API `hackertarget` em `owasp.org` (comandos simples, sem Python embutido no `docker exec`).
-
-#### Saida de referencia: quando o OSINT passivo encontra ativos (dominio real)
-
-O bloco abaixo **nao e o que voce deve obter** no Passo 4.2 com `juice-sh.op`. E um exemplo de subdominios que o **Passo 4.4** (`hackertarget` / `osint-owasp-org.txt`) coleta de `owasp.org`:
-
-```text
-                                                                      v5.1.1
-owasp.org (FQDN) --> a_record --> 104.20.44.163
-www.owasp.org (FQDN) --> a_record --> 172.66.157.115
-wiki.owasp.org (FQDN) --> cname_record --> ...
-EXIT:0
-12 /tmp/evidencias/workshop-05/amass-owasp-org_subdomains.txt
-owasp.org
-www.owasp.org
-wiki.owasp.org
-```
-
-Cada linha com `(FQDN)` representa um nome encontrado em fonte externa que pode ampliar o escopo de testes autorizados. O arquivo `*_subdomains.txt` lista um subdominio por linha. Os hosts e IPs exatos podem variar conforme as fontes OSINT consultadas naquele dia.
-
 > [!NOTE]
-> No `srvdocker01`, o Amass v5.1.1 passivo costuma retornar vazio mesmo em dominios reais. A coleta que funciona nesta aula e o **Passo 4.4** (`hackertarget` + `owasp.org`).
+> No `srvdocker01`, o Amass v5.1.1 passivo pode retornar vazio mesmo quando o comando esta correto. Para demonstrar coleta OSINT real, avance ao **Passo 4.4** com `hackertarget` em `owasp.org`.
 
-> [!TIP]
-> O Passo 4.2 mostra o fluxo do Amass no lab. Para **subdominios reais na evidencia**, avance ao **Passo 4.4.2** (`hackertarget`).
-
-| O que voce observou | Como interpretar |
-|---|---|
-| `EXIT:0` e `amass-juice-sh_subdomains.txt` com linhas | Enumeracao concluida; revisar cada host antes de testar |
-| `EXIT:0` e arquivo vazio ou `0 linhas` | Comando ok, mas sem novos ativos no OSINT consultado |
-| `EXIT:1` com `libpostal_data: command not found` | Dependencia nao configurada; volte ao Passo 2.2 |
-| `flag provided but not defined: -o` | Sintaxe do Amass v4; use `-dir` e `-oA` conforme este passo |
-| Mensagem `No assets were discovered` | Execucao valida, sem expansao de superficie neste dominio |
-
-**Como validar o Passo 4.2 (resumo):** `EXIT:0` + log gravado = passo concluido. Arquivo de subdominios vazio **nao** impede continuar para o Passo 4.3 ou para a Fase 3 (WhatWeb/Dirb).
+**Como validar o Passo 4.2:** `EXIT:0` + log gravado = passo concluido. Arquivo de subdominios vazio **nao** impede continuar.
 
 ### Passo 4.3: Interpretar resultados em laboratorio isolado
 
@@ -790,7 +699,7 @@ EXIT:0 no Passo 4.2?
 
 Resultado vazio com `EXIT:0` **nao interrompe a aula** — indica apenas que `juice-sh.op` nao tem presenca publica no OSINT consultado. A **coleta real de subdominios** acontece no **Passo 4.4** (API `hackertarget`).
 
-### Passo 4.4: OSINT real (hackertarget + crt.sh)
+### Passo 4.4: OSINT real com hackertarget e crt.sh
 
 > [!IMPORTANT]
 > Este e o passo que **exemplifica coleta de verdade** nesta fase. No `srvdocker01`, o Amass v5.1.1 passivo costuma retornar vazio. O comando unico com `crt.sh` + `python3` embutido no `docker exec` **falha com frequencia** (resposta HTML `502 Bad Gateway` em vez de JSON). Por isso usamos **dois comandos simples**: primeiro `hackertarget` (confiavel), depois `crt.sh` opcional.
@@ -954,7 +863,7 @@ docker exec atacante_kali sh -lc 'echo "=== AMASS (juice-sh.op) ==="; wc -l /tmp
 
 **Como validar o Passo 4.4:** `osint-owasp-org.txt` com **40+ linhas**. Esse e o criterio de **coleta real** desta fase.
 
-### Passo 4.5 (opcional): Amass passivo em dominio real
+### Passo 4.5: Amass passivo em dominio real (opcional)
 
 > [!NOTE]
 > **Opcional.** Somente se quiser comparar Amass x crt.sh no mesmo dominio. No `srvdocker01`, este passo **pode retornar vazio** — nao use como unica evidencia de coleta.
@@ -1378,7 +1287,7 @@ docker exec atacante_kali sh -lc 'curl -s http://172.18.0.30:3000/ftp/acquisitio
 **Saida observada:**
 
 ```text
-# Planned Acquisitions
+  # Planned Acquisitions
 
 > This document is confidential! Do not distribute!
 
@@ -1402,7 +1311,7 @@ docker exec atacante_kali sh -lc 'curl -s http://172.18.0.30:3000/ftp/acquisitio
 > [!NOTE]
 > Os mesmos comandos sao reutilizados no **Passo 8.1** (Fase 6) com foco em impacto e mitigacao. Aqui o objetivo e fechar o encadeamento **Dirb → robots.txt → leitura manual** ainda na fase de reconhecimento.
 
-### Painel resumo — Fase 3
+### Painel resumo da Fase 3
 
 Antes de abrir o Nikto, confira se o reconhecimento web ficou assim:
 
@@ -1435,124 +1344,45 @@ Apos o reconhecimento (WhatWeb + Dirb), o Nikto entra como **scanner DAST de tri
 
 **O que e o Nikto:** ferramenta open source (CLI) focada em **varredura passiva/ativa leve** de servidores HTTP/HTTPS. Nao substitui o analista — gera um **relatorio de indicios** para revisao manual. No Kali desta aula: **Nikto 2.6.0**.
 
-### Como o Nikto "sabe" que falta cabecalho, arquivo ou misconfiguracao?
+### Fundamentos do Nikto antes do scan
 
-O Nikto **nao le a mente do servidor** e **nao inventa** vulnerabilidades. Ele funciona como um **`curl` automatizado com uma planilha gigante de regras** — a base de testes do projeto (`db_tests`, `db_headers` e arquivos relacionados em `/etc/nikto` e `/usr/share/nikto` no Kali).
+#### Como o Nikto "sabe" que falta cabecalho, arquivo ou misconfiguracao?
+
+O Nikto funciona como um **`curl` automatizado orientado por regras conhecidas**. A ferramenta envia requisicoes HTTP contra caminhos, cabecalhos e padroes catalogados pela comunidade e compara a resposta do alvo com a base local do projeto (`db_tests`, `db_headers`, `db_outdated` e arquivos relacionados em `/etc/nikto` e `/usr/share/nikto` no Kali).
 
 ```text
 Para cada teste cadastrado na base do Nikto:
-    1. Monta uma requisicao HTTP (metodo, URL, as vezes cabecalhos)
-    2. Envia ao alvo (ex.: GET http://172.18.0.30:3000/users.json)
-    3. Le a resposta: codigo (200, 403, 500...), cabecalhos, tamanho, pedacos do corpo
-    4. Compara com a REGRA do teste ("se X, entao reportar")
-    5. Se bater, imprime a linha + no relatorio
+    1. monta uma requisicao HTTP;
+    2. envia ao alvo;
+    3. observa codigo, cabecalhos, tamanho e trechos do corpo;
+    4. compara com a regra;
+    5. reporta quando o padrao bate.
 ```
 
 | Tipo de achado | O que o Nikto faz na pratica | Exemplo desta aula |
 |---|---|---|
-| **Cabecalho ausente** | Faz `GET /` (ou outra URL da regra) e **procura o nome do cabecalho na resposta**. Se `X-Content-Type-Options` **nao aparecer** nos headers → alerta | `The X-Content-Type-Options header is not set` |
-| **Arquivo / caminho exposto** | Faz `GET /caminho` para milhares de caminhos da base (como o Dirb, mas com **regras por caminho**) | `GET /robots.txt` → analisa se ha entradas `Disallow` |
-| **Item "interessante"** | Caminho retornou **codigo ou tamanho inesperado** para aquela regra (ex.: 200 em vez de 404) | `GET /users.json` → 200 → `This might be interesting` |
-| **Misconfiguracao** | Regra conhece um **padrao ruim**: listagem de diretorio (`Index of /`), banner de versao antiga, arquivo default acessivel | `/.htpasswd` com resposta que parece arquivo de senhas |
-| **Software desatualizado** | Le o cabecalho `Server:` (se existir) e compara com versões marcadas como vulneraveis na base | No Juice Shop costuma falhar (`No banner retrieved`) |
-
-**Analogia rapida:**
-
-| Ferramenta | Logica |
-|---|---|
-| **Dirb** | "Existe `/ftp`?" — testa nomes da wordlist, pouca interpretacao |
-| **Nikto** | "Existe `/ftp` **e** a resposta parece listagem / arquivo sensivel / cabecalho errado?" — testa **caminho + condicao** |
-
-**Exemplo concreto — cabecalho ausente (simplificado):**
-
-```text
-Regra na base Nikto (conceito):
-  URL: GET /
-  Se resposta NAO contem header "X-Content-Type-Options"
-  Entao: reportar "header is not set"
-
-Requisicao real (equivalente didatico):
-  curl -sI http://172.18.0.30:3000/ | grep -i x-content-type-options
-  (vazio)  -->  Nikto gera o achado
-```
-
-**Exemplo concreto — caminho interessante:**
-
-```text
-Regra (conceito):
-  URL: GET /users.json
-  Se codigo HTTP = 200
-  Entao: reportar "This might be interesting"
-
-O Nikto NAO abre o JSON nem valida se ha dados sensiveis —
-so viu "200 onde muitos sites dariam 404". Por isso o Passo 6.2 manda validar com curl.
-```
+| Cabecalho ausente | Verifica se headers esperados existem na resposta | `referrer-policy`, `content-security-policy`, `strict-transport-security` ausentes |
+| Caminho conhecido | Testa URLs comuns de arquivos, diretorios e paineis | `/robots.txt`, `/ftp/`, `/public/` |
+| Item "interessante" | Marca respostas `200`, `403` ou tamanhos inesperados | `/users.json`, `/.htpasswd`, `/PasswordsData.json` |
+| Misconfiguracao | Procura padroes historicos de configuracao fraca | arquivos sensiveis, listagem, caminhos default |
+| Software desatualizado | Compara banners quando disponiveis | limitado no Juice Shop, pois o banner do servidor e pouco informativo |
 
 > [!TIP]
-> **Resumo para sala:** o Nikto nao "descobre" falhas novas — **aplica uma biblioteca de testes conhecidos** (anos de misconfiguracoes documentadas pela comunidade) e **marca o que a resposta HTTP bate com essas regras**. O analista confirma se o achado e real no seu alvo.
+> **Resumo para sala:** o Nikto nao confirma impacto sozinho. Ele levanta indicios baseados em padroes conhecidos; o analista confirma com `curl`, navegador, logs ou outro teste manual.
 
 #### Quem alimenta os "milhares de padroes conhecidos"?
 
-Nao e o seu alvo que ensina o Nikto, nem um servico em nuvem analisando o Juice Shop em tempo real. Quem alimenta e o **projeto Nikto (open source)** e a **comunidade de seguranca** que mantem arquivos de banco de dados junto com a ferramenta.
+Quem alimenta esses testes e o **projeto Nikto** e a **comunidade de seguranca**. As regras refletem anos de misconfiguracoes recorrentes, caminhos default, arquivos de backup, advisories publicos e padroes encontrados em servidores web reais.
 
 | Origem | O que contribui |
 |---|---|
-| **Mantenedores do Nikto** | Projeto historico (Chris Sullo e colaboradores); releases no GitHub (`sullo/nikto`) |
-| **Arquivos de base no Kali** | `db_tests` (testes de URL/comportamento), `db_headers` (cabecalhos esperados), `db_outdated` (versoes antigas de servidor), entre outros em `/etc/nikto` e `/usr/share/nikto` |
-| **Comunidade / contribuidores** | Novas regras via issues e pull requests quando alguem documenta uma misconfiguracao recorrente |
-| **Fontes que viram regra** | CVEs publicas, advisories de Apache/IIS/nginx, listas OWASP, achados de pentesters, caminhos default de instalacao, arquivos de backup comuns (`backup.zip`, `.git`, etc.) |
+| Arquivos de base no Kali | `db_tests`, `db_headers`, `db_outdated` e bases auxiliares |
+| Mantenedores e contribuidores | Atualizacoes do projeto open source |
+| Fontes tecnicas | CVEs, advisories, OWASP, achados de pentest e configuracoes default conhecidas |
 
-```text
-Pentester encontra "/server-status" exposto em varios clientes Apache
-        |
-        v
-Alguem propoe regra no repositorio Nikto (URL + condicao de resposta)
-        |
-        v
-Release nova do Nikto  -->  apt/Kali atualiza pacote  -->  seu scan usa a regra
-```
+**Na aula:** quando o relatorio aponta `8907 requests`, isso significa que milhares de testes da biblioteca foram executados contra o Juice Shop. Nao significa que todos os achados sejam vulnerabilidades.
 
-**Analogia:** parecido com **assinatura de antivirus** — humanos catalogam padroes conhecidos; o scanner so **compara**. Por isso:
-
-- Nikto e forte em **misconfiguracoes classicas de servidor web** (anos de catalogacao).
-- Nikto e fraco em **falhas novas da sua aplicacao** (logica de negocio, API custom) — isso exige analista, ZAP ativo ou revisao de codigo.
-- A base **envelhece**: o pacote do Kali traz um **snapshot** da data do release; `apt upgrade` atualiza, mas nao e feed comercial diario.
-
-**Na aula:** quando o relatorio diz `8907 requests`, sao ~8.907 **regras/testes da biblioteca** executados contra o Juice Shop — nao 8.907 ideias geradas na hora pelo scanner.
-
-**Comparacao com o Nmap (mesma filosofia, camada diferente):**
-
-| | **Nmap + NSE** (Workshop 03) | **Nikto** (esta aula) |
-|---|---|---|
-| Quem alimenta | Comunidade Nmap — scripts `.nse` no GitHub | Comunidade Nikto — arquivos `db_*` no repositorio |
-| Formato | Scripts em Lua (`http-headers`, `http-sql-injection`, etc.) | Entradas em banco de texto (URL + condicao de resposta) |
-| O que executa | `nmap --script ...` escolhe scripts | `nikto -h URL` roda a base inteira (ou filtros) |
-| Foco | Rede + servico (porta, banner, scripts por protocolo) | HTTP/HTTPS — servidor web e superficie URL |
-| Papel na investigacao | "O que esta aberto e o que o servico revela?" | "Que caminhos e misconfiguracoes web conhecidas batem aqui?" |
-
-```text
-Comunidade estuda achados recorrentes  -->  cataloga padrao  -->  publica no projeto
-        |                                        |
-   Nmap: script .nse                      Nikto: linha em db_tests
-        |                                        |
-   nmap --script http-*                   nikto -h http://alvo
-```
-
-Nos dois casos a ferramenta **nao pensa** — **aplica conhecimento coletivo** que alguem documentou antes. A diferenca e que o Nmap e **modular** (voce escolhe scripts); o Nikto veio **focado em triagem web** (milhares de testes HTTP embutidos de uma vez).
-
-**Papel nesta trilha:**
-
-```text
-Fase 3 (WhatWeb/Dirb)  -->  voce ja achou /ftp e entendeu que e SPA
-        |
-        v
-Fase 4 (Nikto)         -->  confirma em escala: robots.txt, users.json, cabecalhos, caminhos "interessantes"
-        |
-        v
-Secao 8 / Fase 6 (curl) -->  so o que importa vira vulnerabilidade com impacto demonstrado
-```
-
-### O que o Nikto pode testar (visao geral)
+#### O que o Nikto pode testar (visao geral)
 
 | Categoria | Exemplos do que o Nikto verifica | O que **nao** e forte no Nikto |
 |---|---|---|
@@ -1562,16 +1392,16 @@ Secao 8 / Fase 6 (curl) -->  so o que importa vira vulnerabilidade com impacto d
 | **Software desatualizado** | Versoes antigas de Apache, nginx, IIS (quando o banner aparece) | Juice Shop em Node/Express muitas vezes retorna `Server` generico |
 | **Itens "interessantes"** | Caminhos da base de testes do Nikto que retornam 200/301/403 diferente do esperado | SQL Injection, XSS refletido — raramente confirmados so pelo Nikto |
 
-### Onde e quando usar o Nikto
+#### Onde e quando usar o Nikto
 
 | Contexto | Uso recomendado | Observacao |
 |---|---|---|
-| **Laboratorio / pentest autorizado** | Triagem rapida apos reconhecimento (como nesta aula) | Volume alto de requisicoes (~8.900 no Juice Shop) |
-| **Hardening de servidor web** | Checar configuracao default, arquivos expostos, cabecalhos | Bom para IIS/Apache/nginx classicos |
-| **Aplicacao SPA moderna** (Juice Shop) | Complementar Dirb/WhatWeb; **nao** como unica ferramenta DAST | Muitos achados pedem `curl` ou ZAP para confirmar |
-| **Producao** | Somente com **autorizacao**, janela de manutencao e escopo definido | Pode gerar alertas em WAF/SIEM e carga no servico |
+| Laboratorio / pentest autorizado | Triagem rapida apos reconhecimento | Volume alto de requisicoes |
+| Hardening de servidor web | Checar configuracao default, arquivos expostos e cabecalhos | Bom para Apache, nginx, IIS e stacks web classicas |
+| Aplicacao SPA moderna | Complementar WhatWeb, Dirb e validacao manual | Muitos resultados sao fallback HTML da propria SPA |
+| Producao | Apenas com autorizacao, escopo e janela definidos | Pode gerar alertas em WAF, SIEM e logs de aplicacao |
 
-### Severidade tipica dos achados Nikto (como ler no relatorio)
+#### Severidade tipica dos achados Nikto (como ler no relatorio)
 
 O Nikto **nao entrega CVSS pronto**. O analista classifica depois da validacao manual. Referencia didatica para esta aula:
 
@@ -1847,53 +1677,28 @@ Impacto desta aula      -->  Fase 3 (/ftp) + Secao 8 / Fase 6 (SQLi, bypass) —
 
 **Analise:** o valor do Nikto **sem filtro** e mostrar ao aluno a **diferenca entre triagem automatizada e verdade no alvo**. O scanner levanta 25 linhas; o analista fecha com `curl` e leva para o relatorio **so o que sobrevive a validacao**.
 
-### Passo 6.3 (opcional): Provar impacto em 5 minutos — o que vale da coleta
+### Passo 6.3: Provar impacto em 5 minutos (opcional)
 
 > [!IMPORTANT]
 > **`/.htpasswd` e `/users.json` nao servem para intrusao aqui.** O `curl` do Passo 6.2 mostrou HTML da SPA — nao ha usuarios/senhas Apache para ler. O Nikto **errou pelo criterio dele** (viu `200`); o analista **corrige** com evidencia.
 
-O que **sim** da para validar rapido, encadeando Fase 3 + Nikto + APIs da SPA:
+O que **sim** vale levar para exploracao, encadeando Fase 3 + Nikto + APIs da SPA:
 
 | Ordem | De onde veio o indicio | Teste rapido | Impacto se funcionar |
 |---|---|---|---|
-| 1 | Dirb + Nikto (`/ftp`) | Ler arquivo interno | **Exposicao de informacao** (confirmado) |
-| 2 | WhatWeb (SPA → APIs `/rest/`) | SQLi no parametro `q` | **Injection** — erro SQLite na resposta |
-| 3 | Mesma logica (API de login) | Payload `or 1=1--` | **Bypass de autenticacao** + token JWT |
-
-**Teste 1 — `/ftp` (30 s) — ja coletado, agora com impacto**
-
-```bash
-docker exec atacante_kali sh -lc 'curl -s http://172.18.0.30:3000/ftp/acquisitions.md | head -8'
-```
-
-Esperado: texto **confidencial** (documento interno ficticio). Isso **fecha** o achado Dirb/Nikto em `/ftp`.
-
-**Teste 2 — SQLi (30 s) — nao veio do Nikto; veio do fingerprint SPA**
-
-```bash
-docker exec atacante_kali sh -lc 'curl -sS -G "http://172.18.0.30:3000/rest/products/search" --data-urlencode "q='\'')));" | grep -Ei "SQLITE|syntax|error" | head -3'
-```
-
-Esperado: `SQLITE_ERROR` ou `syntax error` — prova que entrada altera SQL.
-
-**Teste 3 — login bypass (1 min) — impacto maximo rapido**
-
-```bash
-docker exec atacante_kali sh -lc 'printf "%s\n" "{\"email\":\"'\'' or 1=1--\",\"password\":\"x\"}" > /tmp/evidencias/workshop-05/login-payload.json'
-docker exec atacante_kali sh -lc 'curl -sS http://172.18.0.30:3000/rest/user/login -H "Content-Type: application/json" --data-binary @/tmp/evidencias/workshop-05/login-payload.json | grep -E "token|umail|bid"'
-```
-
-Esperado: `"token":"eyJ..."` e e-mail de usuario (ex.: admin) — **conta comprometida** sem senha valida.
+| 1 | Dirb + Nikto (`/ftp`) | Passo 8.1 | Exposicao de informacao |
+| 2 | WhatWeb indicando SPA e APIs `/rest/` | Passo 8.2 | SQL Injection com erro SQLite |
+| 3 | API de login vulneravel | Passo 8.3 | Bypass de autenticacao e token JWT |
 
 ```text
-Coleta (Dirb/Nikto/WhatWeb)          Exploracao rapida (curl)
+Coleta (Dirb/Nikto/WhatWeb)          Validacao manual (Fase 6)
         |                                    |
    /ftp confirmado  ----------------->  acquisitions.md confidencial
    SPA + APIs       ----------------->  SQLi em /rest/products/search
    (nao .htpasswd)  ----------------->  bypass em /rest/user/login
 ```
 
-**Frase para sala:** "O scanner achou 25 coisas; em cinco minutos provamos **tres** — vazamento em `/ftp`, SQLi e login bypass. O resto era ruido de SPA."
+**Frase para sala:** "O scanner achou 25 coisas; a validacao manual aproveitou tres: vazamento em `/ftp`, SQLi e login bypass. O resto era ruido de SPA ou melhoria de hardening."
 
 ---
 
@@ -1915,16 +1720,14 @@ Fase 5 (Uniscan)   -->  ataque leve automatizado: SQLi/LFI/RFI/RCE em URL com pa
 Fase 6 (curl)      -->  prova de impacto (SQLi, bypass) com payload escolhido pelo analista
 ```
 
-### Como o Uniscan testa (e por que falha em SPA)
+### Fundamentos do Uniscan antes do scan
 
-O Uniscan **nao analisa codigo-fonte**. Ele repete o padrao:
+#### Como o Uniscan testa (e por que falha em SPA)
+
+O Uniscan **nao analisa codigo-fonte**. Ele injeta listas de payloads em URLs e parametros, observa mudancas na resposta e procura assinaturas de erro ou comportamento anomalo.
 
 ```text
-Plugin (ex.: SQL Injection tests)
-    -->  lista de payloads (?q=' OR 1=1--, ?file=../../etc/passwd, ...)
-    -->  envia GET/POST para a URL informada (-u)
-    -->  compara resposta (erro, tamanho, palavra-chave)
-    -->  se bater com heuristica do plugin, reporta
+URL com parametro  -->  payloads  -->  resposta HTTP  -->  heuristica do plugin
 ```
 
 | Tipo de teste | Flag Uniscan (resumo) | O que tenta | Exemplo de payload (conceito) |
@@ -1935,47 +1738,37 @@ Plugin (ex.: SQL Injection tests)
 | **RCE** | (plugins estaticos) | Execucao remota via parametro vulneravel | `;id`, `|whoami` |
 | **Diretorios** | padrao / `-q` | Achar pasta inexistente com **404** de referencia | Falha em SPA (Passo 7.1) |
 
-**Quem alimenta os padroes:** plugins embutidos no pacote `uniscan` (listas de payloads e assinaturas de erro), mantidos pelo projeto open source — mesma **filosofia** do Nikto/Nmap NSE: catalogo publico, nao inteligencia contra o seu alvo especifico.
+**Ponto critico:** em SPAs modernas, como o Juice Shop, muitas rotas inexistentes retornam o mesmo HTML da aplicacao com `200 OK`. Isso confunde scanners que dependem de `404` real para diferenciar caminho valido de caminho inventado.
 
-### O que o Uniscan faz bem — e o que nao faz
+#### O que o Uniscan faz bem — e o que nao faz
 
 | Faz bem | Nao faz (ou faz mal) nesta aula |
 |---|---|
-| Testar **um endpoint com parametro** (`?q=`, `?id=`, `?file=`) com dezenas de payloads rapidos | Entender **JavaScript**, rotas Angular ou fluxo de login na SPA |
-| Sinalizar possivel SQLi/LFI quando o corpo da resposta muda | Confirmar impacto sozinho — muitos alertas sao **ruido** |
-| Demonstrar **automacao de vetores estaticos** em aula | Substituir OWASP ZAP em aplicacao moderna com sessao/JWT complexa |
-| Complementar Nikto (que quase nao injeta payloads) | Descobrir `/ftp` ou subdominios (papel do Dirb/Amass) |
+| Testar endpoint com parametro direto, como `?q=` | Entender JavaScript, fluxo de login ou JWT |
+| Demonstrar automacao de SQLi, LFI, RFI e RCE classicos | Confirmar impacto sozinho |
+| Complementar Nikto, que quase nao injeta payloads | Substituir validacao manual com `curl` |
 
-### Onde e quando usar o Uniscan
+#### Onde e quando usar o Uniscan
 
 | Contexto | Uso recomendado | Observacao |
 |---|---|---|
-| **Apps web classicas** (PHP, ASP, parametros GET visiveis) | Bom primeiro passo para SQLi/LFI em formularios e links | O caso de uso original da ferramenta |
-| **API REST com query string** (esta aula) | Apontar `-u` para `/rest/products/search?q=` | Juice Shop tem SQLi aqui, mas Uniscan pode **nao** exibir o erro — `curl` confirma |
-| **SPA sem 404 real** (Juice Shop) | Teste de diretorio **pula** — esperado | Registrar como limite tecnico (Passo 7.1) |
-| **Producao** | Somente com autorizacao; payloads sao **intrusivos** | Pode disparar WAF/IDS |
+| Apps web classicas | Bom primeiro passo para SQLi/LFI em links e formularios |
+| API REST com query string | Util para testar `/rest/products/search?q=` |
+| SPA sem 404 real | Esperar limitacoes e documentar o comportamento |
+| Producao | Somente com autorizacao; payloads podem acionar WAF/IDS |
 
-### Severidade tipica e validacao
+#### Severidade tipica e validacao
 
 | Saida do Uniscan | Severidade usual | O que fazer nesta aula |
 |---|---|---|
 | Plugin carregado, sem alerta claro | N/A | Normal no Juice Shop — **nao** significa "seguro" |
 | Mensagem de possivel SQLi/LFI | **Media** (hipotese) | Confirmar com `curl` na Fase 6 (Passo 8.2) |
-| Directory check skipped (SPA) | Informativo | Documentar limitacao da ferramenta |
+| Directory/File check skipped (SPA) | Informativo | Documentar limitacao da ferramenta |
 | RCE/LFI "confirmado" pelo plugin | **Alta** (se validado) | Reproduzir manualmente antes do relatorio |
 
 ```text
 Uniscan injeta payloads  -->  resposta mudou?  -->  analista reproduz com curl  -->  relatorio
 ```
-
-**Comparacao rapida Nikto x Uniscan (esta aula):**
-
-| | **Nikto** | **Uniscan** |
-|---|---|---|
-| Pergunta | "Existe misconfig/caminho/cabecalho ruim?" | "Algum parametro aceita injecao?" |
-| Metodo | Milhares de GET com regras | Payloads em URL/parametro |
-| Juice Shop | 25 indicios; muitos falso + SPA | Diretorio pulado; SQLi melhor com `curl` |
-| Confirmacao | `curl -sI`, ler corpo | `curl` com payload exato (Fase 6) |
 
 > [!NOTE]
 > Nesta aula o Uniscan cumpre papel **didatico**: mostrar que existe ferramenta entre "triagem Nikto" e "exploit manual". O **impacto** que entra no relatorio vem da Fase 6, nao da saida truncada do Uniscan.
@@ -1984,27 +1777,27 @@ Uniscan injeta payloads  -->  resposta mudou?  -->  analista reproduz com curl  
 
 O Uniscan foi projetado para aplicacoes web classicas. Em SPAs como o Juice Shop, testes de diretorio podem ser pulados quando a aplicacao nao retorna `404` da forma esperada.
 
-Resultado observado com `uniscan -q`:
+Resultado observado em checks que dependem de `404` real:
 
 ```text
-Directory check:
-Skipped because http://172.18.0.30:3000/uniscan813/ did not return the code 404
+File check:
+Skipped because http://172.18.0.30:3000/rest/products/search?q=test/uniscan465/ did not return the code 404
 ```
 
 **Analise:** isso nao significa falha da aula; significa **limite da ferramenta** contra arquitetura moderna. Registre esse comportamento no relatorio como discussao tecnica.
 
-### Passo 7.2: Executar testes web e estaticos em endpoint REST
+### Passo 7.2: Executar testes de arquivo e estaticos em endpoint REST
 
 Direcione o Uniscan para um endpoint com parametros:
 
 ```bash
-docker exec atacante_kali sh -lc 'timeout 180 uniscan -u http://172.18.0.30:3000/rest/products/search?q=test -ws 2>&1 | tee /tmp/evidencias/workshop-05/uniscan-sqli.txt | tail -25'
+docker exec atacante_kali sh -lc 'timeout 180 uniscan -u http://172.18.0.30:3000/rest/products/search?q=test -ws 2>&1 | tee /tmp/evidencias/workshop-05/uniscan-static.txt | tail -25'
 ```
 
 **Componentes dos comandos:**
 
-- `-w`: testes web.
-- `-s`: testes de SQL Injection.
+- `-w`: habilita **file checks**, ou seja, testes de arquivos e caminhos conhecidos.
+- `-s`: habilita **static checks**, incluindo plugins de LFI, RFI e RCE.
 - `timeout 180`: evita travamento da aula.
 
 **Resultado observado:**
@@ -2016,23 +1809,23 @@ docker exec atacante_kali sh -lc 'timeout 180 uniscan -u http://172.18.0.30:3000
 | Plugin name: Remote File Include tests v.1.1 Loaded.
 ```
 
-**Analise:** mesmo sem confirmar automaticamente a SQLi, o Uniscan mostra a intencao de testar vetores estaticos. A confirmacao final permanece com `curl` na fase seguinte.
+**Analise:** o Uniscan nao confirmou SQL Injection neste ponto. Ele registrou a limitacao de fallback da SPA e carregou plugins estaticos. A SQLi da aula sera comprovada de forma objetiva com `curl` no Passo 8.2.
 
-**Como validar o Passo 7.2:** `uniscan-sqli.txt` gravado; saida lista plugins **LFI/RFI/RCE** carregados; scan termina sem travar (`timeout 180`).
+**Como validar o Passo 7.2:** `uniscan-static.txt` gravado; saida lista plugins **LFI/RFI/RCE** carregados; scan termina sem travar (`timeout 180`).
 
-### Painel resumo — Fase 5
+### Painel resumo da Fase 5
 
 | Item | Criterio |
 |---|---|
-| Entendeu limite SPA | `Directory check: Skipped` documentado |
+| Entendeu limite SPA | `File check: Skipped` ou `Directory check: Skipped` documentado |
 | Uniscan executado em REST | `-u .../rest/products/search?q=test -ws` |
-| Evidencia gravada | `uniscan-sqli.txt` |
+| Evidencia gravada | `uniscan-static.txt` |
 | Conclusao para relatorio | Uniscan = **tentativa automatizada**; SQLi **confirmada** na Fase 6 com `curl` |
 
 ```text
-Nikto  = o que esta exposto / mal configurado
-Uniscan = o parametro aceita injecao?
-curl   = prova o impacto (SQLi, bypass)
+Nikto   = o que esta exposto / mal configurado
+Uniscan = quais checks automatizados fazem sentido no endpoint
+curl    = prova o impacto (SQLi, bypass)
 ```
 
 ---
@@ -2060,7 +1853,7 @@ href="ftp/incident-support.kdbx"
 href="ftp/legal.md"
 href="ftp/suspicious_errors.yml"
 
-# Planned Acquisitions
+  # Planned Acquisitions
 > This document is confidential! Do not distribute!
 ```
 
@@ -2137,7 +1930,7 @@ curl valida SQLi e bypass de login
 | E02 | WhatWeb | `whatweb-juice.txt` | Fingerprint da aplicacao |
 | E03 | Dirb | `dirb-juice.txt` | Descoberta de `/ftp` |
 | E04 | Nikto | `nikto-juice.txt` | Alertas DAST automatizados |
-| E05 | Uniscan | `uniscan-sqli.txt` | Testes estaticos em endpoint REST |
+| E05 | Uniscan | `uniscan-static.txt` | Testes de arquivo e estaticos em endpoint REST |
 | E06 | curl | `ftp-acquisitions.txt` | Exposicao de informacao |
 | E07 | curl | `sqli-erro.txt` | Validacao de SQL Injection |
 | E08 | curl | `login-bypass.txt` | Impacto em autenticacao |
@@ -2258,7 +2051,7 @@ Especialista documenta e resolve.
 - Executei Dirb e identifiquei `/ftp`.
 - Analisei `robots.txt` e a contradicao com `/ftp` exposto.
 - Executei Nikto e registrei os alertas principais.
-- Executei Uniscan em endpoint REST.
+- Executei Uniscan em endpoint REST e registrei `uniscan-static.txt`.
 - Validei exposicao de arquivos em `/ftp/acquisitions.md`.
 - Reproduzi erro SQL em `/rest/products/search`.
 - Executei login bypass em `/rest/user/login`.
