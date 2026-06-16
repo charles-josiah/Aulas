@@ -1,5 +1,11 @@
 # 📘 UC - Ambientes Vulneraveis para Testes com Scanners
 
+**Autor:** Charles Alandt
+
+**Contato:** `echo "Y2hhcmxlcy5hbGFuZHRAZ21haWwuY29tCg==" | base64 -d`
+
+**Uso e atribuição:** este material pode ser copiado, adaptado e utilizado livremente para fins educacionais, desde que a fonte e o autor sejam referenciados.
+
 ---
 
 > [!CAUTION]
@@ -18,6 +24,20 @@
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
+
+## 📋 Índice
+
+1. [Premissas e responsabilidade](#️⃣-1-premissas-e-responsabilidade)
+2. [Estrutura do laboratorio](#-2-estrutura-do-laboratorio)
+3. [Fase 1 - Analise com scanners](#-3-fase-1---analise-com-scanners)
+4. [Fase 2 - Validacao manual](#-4-fase-2---validacao-manual)
+5. [Fase 3 - Exploracao controlada](#-5-fase-3---exploracao-controlada)
+6. [Seguranca em ambientes modernos](#-6-seguranca-em-ambientes-modernos)
+7. [Hardening (defesa)](#-7-hardening-defesa)
+8. [Severidade e classificacao](#-8-severidade-e-classificacao)
+9. [Relatorio tecnico](#-9-relatorio-tecnico)
+10. [Evidencias esperadas](#-10-evidencias-esperadas)
+
 ---
 
 ## ⚖️ 1. Premissas e responsabilidade

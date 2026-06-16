@@ -1,4 +1,15 @@
-#  Aula Prática – Pentest Ofensivo com Metasploitable 2
+# Aula Prática – Pentest Ofensivo com Metasploitable 2
+
+**Autor:** Charles Alandt
+
+**Contato:** `echo "Y2hhcmxlcy5hbGFuZHRAZ21haWwuY29tCg==" | base64 -d`
+
+**Uso e atribuição:** este material pode ser copiado, adaptado e utilizado livremente para fins educacionais, desde que a fonte e o autor sejam referenciados.
+
+---
+
+> [!NOTE]
+> **Ambiente deste journal:** Metasploitable 2 em VirtualBox, rede Host-Only `192.168.100.x` (alvo: `192.168.100.11`, atacante: Kali Linux em `192.168.100.x`). Este registro é **diferente** do laboratório Docker principal (`docker_lab_vulneravel`, rede `172.18.0.0/16`). Consulte [`Aula 01 - 4 - Proposta_de_estrutura_do_Laboratorio_Baseada_em_docker.md`](<../Aula 01 - 4 - Proposta_de_estrutura_do_Laboratorio_Baseada_em_docker.md>) para o ambiente Docker confirmado.
 
 ---
 
@@ -32,9 +43,9 @@
    - Wordlists e Execução
    - Resultados
 
----
+6. [Conclusão](#-conclusão)
 
-# Ataques Realizados
+---
 
 
 
@@ -926,7 +937,7 @@ Table: users
 
 ---
 
-##  2. Ataque – Escalonamento via NFS
+## 2. Ataque – Escalonamento via NFS
 
 - **Serviço:** NFS (porta 2049)  
 - **Ferramenta:** mount, bash  
@@ -940,7 +951,7 @@ nmap -p 2049 -sV --script=nfs-showmount 192.168.100.11
 showmount -e 192.168.100.11
 ```
 
-###  Bora lah:
+### Bora lah:
 ```bash
 mount -t nfs 192.168.100.11:/ /t2
 
@@ -1018,7 +1029,7 @@ Muitas e diversas possibilidades...
 - **CVE:** CVE-2011-3556  
 - **Histórico:** Essa falha de 2011 afeta aplicações Java que expõem interfaces RMI sem autenticação. Permitindo execução remota de código Java malicioso, ela foi uma das causas de múltiplos ataques corporativos ao longo da década.
 
-###  Verificações:
+### Verificações:
 ```bash
 nmap -p 1099 -sV 192.168.100.11
 ```
@@ -1315,27 +1326,30 @@ Descrição:
 
 ---
 
-###  Requisitos
+> **Nota:** os exemplos acima (itens 1–8) usam o IP `192.168.100.20` como placeholder genérico. Os ataques reais executados neste laboratório contra o alvo `192.168.100.11` estão documentados a seguir com saída capturada.
+
+### Requisitos
 
 - Kali Linux (ou similar)
 - Ferramenta `hydra` instalada (vem por padrão no Kali)
-- IP da vítima (exemplo: `192.168.100.20`)
+- IP da vítima: `192.168.100.11` (Metasploitable 2 neste lab)
 - Serviços ativos na vítima:
   - Telnet (porta 23)
   - VNC (porta 5900)
-- Wordlists - https://github.com/kkrypt0nn/wordlists
+- Wordlists: <https://github.com/kkrypt0nn/wordlists>
+
 ---
 
 ### Ataque Telnet com Hydra
 
-### Alvo
+#### Alvo
 
 - Serviço: Telnet
 - Porta: 23
 - Usuário padrão: `msfadmin`
 - Wordlist - senhas.txt (gerei na mao :D)
 
-### Comando Hydra:
+#### Comando Hydra:
 
 ```bash
 hydra -l msfadmin -P senhas.txt 192.168.100.11 telnet
@@ -1343,13 +1357,13 @@ hydra -l msfadmin -P senhas.txt 192.168.100.11 telnet
 
 ### Ataque VNC com Hydra
 
-### Alvo
+#### Alvo
 
 - Serviço: VNC
-- Porta: 23
+- Porta: 5900
 - Wordlist - senhas.txt (gerei na mao :D)
 
-### Comando Hydra:
+#### Comando Hydra:
 
 ```bash
 hydra -P senhas.txt 192.168.100.11 vnc

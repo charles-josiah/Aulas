@@ -1,5 +1,11 @@
 # Wiki Técnica — Introdução à Segurança de Redes para Profissionais de Infraestrutura
 
+**Autor:** Charles Alandt
+
+**Contato:** `echo "Y2hhcmxlcy5hbGFuZHRAZ21haWwuY29tCg==" | base64 -d`
+
+**Uso e atribuição:** este material pode ser copiado, adaptado e utilizado livremente para fins educacionais, desde que a fonte e o autor sejam referenciados.
+
 ---
 
 > [!CAUTION]
@@ -18,6 +24,56 @@
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
+
+## 📋 Índice
+
+- [1. Finalidade da Segurança de Redes](#1-finalidade-da-segurança-de-redes)
+- **2. Pilares CIA**
+  - [2.1 Confidencialidade](#21-confidencialidade)
+  - [2.2 Integridade](#22-integridade)
+  - [2.3 Disponibilidade](#23-disponibilidade)
+- **3. Propriedades Complementares**
+  - [3.1 Autenticidade](#31-autenticidade)
+  - [3.2 Não Repúdio ou Irretratabilidade](#32-não-repúdio-ou-irretratabilidade)
+  - [3.3 Conformidade](#33-conformidade)
+  - [3.4 Confiabilidade ou Reliability](#34-confiabilidade-ou-reliability)
+- **4. Tipos de Ataques**
+  - [4.1 Ataques Internos](#41-ataques-internos)
+  - [4.2 Ataques Externos](#42-ataques-externos)
+- **5. Categorias de Malware**
+  - [5.1 Tabela comparativa de malwares](#51-tabela-comparativa-de-malwares)
+  - [5.2 Trojans](#52-trojans)
+  - [5.3 Vírus](#53-vírus)
+  - [5.4 Worms](#54-worms)
+  - [5.5 Ransomware](#55-ransomware)
+  - [5.6 Botnets](#56-botnets)
+- **6. Controles de Segurança**
+  - [6.1 Controles Técnicos](#61-controles-técnicos)
+  - [6.2 Controles Administrativos](#62-controles-administrativos)
+  - [6.3 Controles Físicos](#63-controles-físicos)
+- **7. Gestão de Risco**
+  - [7.1 Identificação de Ativos](#71-identificação-de-ativos)
+  - [7.2 Avaliação de Risco](#72-avaliação-de-risco)
+  - [7.3 Implementação de Controles](#73-implementação-de-controles)
+  - [7.4 Monitoramento e Revisão](#74-monitoramento-e-revisão)
+  - [7.5 Resposta a Incidentes](#75-resposta-a-incidentes)
+  - [7.6 Melhoria Contínua](#76-melhoria-contínua)
+- **8. Análise de Tráfego de Rede**
+  - [8.1 Superfície de ataque de rede](#81-superfície-de-ataque-de-rede)
+  - [8.2 Sinais de comprometimento no tráfego](#82-sinais-de-comprometimento-no-tráfego)
+- **9. Vulnerabilidades**
+  - [9.1 Vulnerabilidades internas](#91-vulnerabilidades-internas)
+  - [9.2 Vulnerabilidades externas](#92-vulnerabilidades-externas)
+- **11. Hardening — Referência Rápida**
+  - [11.1 Identidade e acesso](#111-identidade-e-acesso)
+  - [11.2 Rede](#112-rede)
+  - [11.3 Servidores e endpoints](#113-servidores-e-endpoints)
+  - [11.4 Dados e backup](#114-dados-e-backup)
+  - [11.5 Monitoramento](#115-monitoramento)
+  - [11.6 Resposta a incidentes](#116-resposta-a-incidentes)
+
+---
+
 ## 1. Finalidade da Segurança de Redes
 
 A segurança de redes consiste no conjunto de princípios, controles, processos e tecnologias destinados a proteger dados, serviços, sistemas e fluxos de comunicação contra acessos indevidos, alterações não autorizadas, indisponibilidade, fraudes, vazamentos e comprometimentos operacionais.

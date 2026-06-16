@@ -1,5 +1,11 @@
 # Laboratorio no VirtualBox (Host Docker + Kali)
 
+**Autor:** Charles Alandt
+
+**Contato:** `echo "Y2hhcmxlcy5hbGFuZHRAZ21haWwuY29tCg==" | base64 -d`
+
+**Uso e atribuição:** este material pode ser copiado, adaptado e utilizado livremente para fins educacionais, desde que a fonte e o autor sejam referenciados.
+
 ---
 
 > [!CAUTION]
@@ -18,6 +24,28 @@
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
 
 ---
+
+## 📋 Índice
+
+- [Topologia CAOS](#topologia-caos)
+- [Topologia Proposta](#topologia-proposta)
+- [Objetivo (o que voce vai montar)](#objetivo-o-que-voce-vai-montar)
+- [Pre-requisitos](#pre-requisitos)
+- [Topologia de rede (simples e segura)](#topologia-de-rede-simples-e-segura)
+- [Passo a passo — criar as VMs](#passo-a-passo--criar-as-vms)
+  - [1) Criar a VM "Host Docker"](#1-criar-a-vm-host-docker)
+  - [2) Criar a VM "Kali"](#2-criar-a-vm-kali)
+  - [3) Criação automatizada usando vagrant](#3-criação-automatizada-usando-vagrant)
+- [Passo a passo — configurar IPs na rede do laboratorio (Adapter 2)](#passo-a-passo--configurar-ips-na-rede-do-laboratorio-adapter-2)
+- [Passo a passo — instalar Docker + Compose no Host Docker](#passo-a-passo--instalar-docker--compose-no-host-docker)
+- [Passo a passo — obter o compose do laboratorio e subir tudo](#passo-a-passo--obter-o-compose-do-laboratorio-e-subir-tudo)
+- [Acesso as aplicacoes (a partir do Kali)](#acesso-as-aplicacoes-a-partir-do-kali)
+- [Como descobrir IPs dos containers (para rede interna Docker)](#como-descobrir-ips-dos-containers-para-rede-interna-docker)
+- [Checklist de validacao (antes de comecar a aula)](#checklist-de-validacao-antes-de-comecar-a-aula)
+- [Reset rapido (para recomecar a aula)](#reset-rapido-para-recomecar-a-aula)
+
+---
+
 ## Topologia CAOS
 
 <p align="center">

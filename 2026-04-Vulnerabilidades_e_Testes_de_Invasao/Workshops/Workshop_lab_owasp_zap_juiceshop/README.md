@@ -4,6 +4,12 @@
 **Ferramentas centrais:** Docker, OWASP Juice Shop, OWASP ZAP, curl e, opcionalmente, OpenVAS/Greenbone.  
 **Finalidade:** documentação acadêmica para reprodução controlada dos testes realizados em laboratório.
 
+**Autor:** Charles Alandt
+
+**Contato:** `echo "Y2hhcmxlcy5hbGFuZHRAZ21haWwuY29tCg==" | base64 -d`
+
+**Uso e atribuição:** este material pode ser copiado, adaptado e utilizado livremente para fins educacionais, desde que a fonte e o autor sejam referenciados.
+
 ---
 
 > [!CAUTION]
@@ -23,6 +29,29 @@
 > Este laboratório foi testado e validado pelo instrutor. Todavia, o ecossistema de TI evolui rapidamente, especialmente quanto a versões de imagens Docker, kernels, navegadores, drivers, virtualização e redes locais.
 >
 > Assim, ajustes pontuais podem ser necessários conforme o ambiente do aluno.
+
+---
+
+## 📋 Índice
+
+1. [Objetivo do laboratório](#1-objetivo-do-laboratório)
+2. [Pré-requisitos](#2-pré-requisitos)
+3. [Ambiente do laboratório](#3-ambiente-do-laboratório)
+4. [Preparação do ambiente](#4-preparação-do-ambiente)
+5. [Comparação metodológica: OpenVAS x OWASP ZAP](#5-comparação-metodológica-openvas-x-owasp-zap)
+6. [Configuração do scan no OWASP ZAP](#6-configuração-do-scan-no-owasp-zap)
+7. [Matriz de evidências](#7-matriz-de-evidências)
+8. [Vulnerabilidade identificada: SQL Injection](#8-vulnerabilidade-identificada-sql-injection)
+9. [Validação manual com curl](#9-validação-manual-com-curl)
+10. [Prova de conceito controlada: Union-Based SQL Injection](#10-prova-de-conceito-controlada-union-based-sql-injection)
+11. [Achados complementares do OWASP ZAP](#11-achados-complementares-do-owasp-zap)
+12. [Lições técnicas aprendidas](#12-lições-técnicas-aprendidas)
+13. [Recomendações de mitigação](#13-recomendações-de-mitigação)
+14. [Roteiro resumido para reprodução](#14-roteiro-resumido-para-reprodução)
+15. [Modelo mínimo de relatório do aluno](#15-modelo-mínimo-de-relatório-do-aluno)
+16. [Critérios de avaliação sugeridos](#16-critérios-de-avaliação-sugeridos)
+17. [Conclusão](#17-conclusão)
+18. [Limpeza do ambiente](#18-limpeza-do-ambiente)
 
 ---
 

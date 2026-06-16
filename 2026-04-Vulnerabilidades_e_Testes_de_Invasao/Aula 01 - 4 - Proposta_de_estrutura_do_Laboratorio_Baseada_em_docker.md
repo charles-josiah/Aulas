@@ -27,7 +27,7 @@ O laboratorio deixa de ser baseado em multiplas VMs e passa a utilizar:
 
 O Kali Linux atuara como maquina atacante, explorando uma rede virtual interna criada pelo Docker.
 
-> Se voce quer montar esse laboratorio em **VirtualBox** (com 2 VMs: Host Docker + Kali), siga o guia: `[Lab_no_VirtualBox_(HostDocker+Kali).md](Lab_no_VirtualBox_(HostDocker+Kali)`.md).
+> Se voce quer montar esse laboratorio em **VirtualBox** (com 2 VMs: Host Docker + Kali), siga o guia: [Lab_no_VirtualBox_(HostDocker+Kali).md](<Aula 01 - 4 - Lab_no_VirtualBox_(HostDocker+Kali).md>).
 
 ---
 
@@ -66,6 +66,8 @@ Topologia do laboratorio Docker recomendada
 - subnet: `172.18.0.0/16`;
 - rede isolada para os alvos.
 
+> **Nota:** a rede e definida como `lab_vulneravel` dentro do `docker-compose.yml`, mas o Docker Compose prefixa o nome do projeto. No servidor de testes (pasta `docker/`), o nome real visto em `docker network ls` e `docker_lab_vulneravel`.
+
 ---
 
 ## 2. Detalhamento dos componentes
@@ -90,13 +92,16 @@ Cada servico roda isoladamente em container.
 Caracteristica importante: estado nao persistente (reset automatico ao reiniciar).
 
 
-| Alvo                | Imagem Docker                 | Portas (Host:Container)         | Foco principal                             | Nivel didatico |
-| ------------------- | ----------------------------- | ------------------------------- | ------------------------------------------ | -------------- |
-| **Metasploitable2** | `tleemcjr/metasploitable2`    | `2121:21`, `2222:22`, `8181:80` | Servicos de rede legados                   | Iniciante      |
-| **DVWA**            | `vulnerables/web-dvwa`        | `8080:80`                       | Vulnerabilidades web classicas (PHP/MySQL) | Iniciante      |
-| **Juice Shop**      | `bkimminich/juice-shop`       | `3000:3000`                     | Falhas web modernas (API/JS)               | Intermediario  |
-| **Vulnerable API**  | `roottusk/vulnerable-api`     | `8888:8080`                     | OWASP API Security Top 10                  | Intermediario  |
-| **ImageMagick**     | `vulhub/imagemagick:7.0.1-10` | N/A                             | Exploracao de CVEs de sistema              | Intermediario  |
+| Alvo                | Imagem Docker                          | Portas (Host:Container)                          | Foco principal                             | Nivel didatico |
+| ------------------- | --------------------------------------- | ------------------------------------------------- | ------------------------------------------ | -------------- |
+| **Metasploitable2** | `tleemcjr/metasploitable2:latest`      | `2121:21`, `2222:22`, `8181:80`, `33306:3306`    | Servicos de rede legados                   | Iniciante      |
+| **DVWA**            | `vulnerables/web-dvwa`                 | `8080:80`                                         | Vulnerabilidades web classicas (PHP/MySQL) | Iniciante      |
+| **Juice Shop**      | `bkimminich/juice-shop`                | `3000:3000`                                       | Falhas web modernas (API/JS)               | Intermediario  |
+| **vAPI**            | build local (`./vapi/`, Laravel)       | `8000:80`                                         | OWASP API Security Top 10                  | Intermediario  |
+| **vAPI - MySQL**    | `mysql:8.0`                            | `3307:3306`                                       | Base de dados do vAPI                      | Suporte        |
+| **phpMyAdmin**      | `phpmyadmin/phpmyadmin`                | `8001:80`                                         | Administracao do banco do vAPI             | Suporte        |
+
+Alem dos alvos acima, o compose tambem sobe uma stack completa do **Greenbone/OpenVAS** (scanner de vulnerabilidades, usado nos workshops de DAST com OpenVAS), acessivel em `9392:80` (HTTP) e `9444:443` (HTTPS via nginx). Ela nao e um "alvo" no sentido tradicional — e a ferramenta de varredura usada contra os demais containers.
 
 
 ---
@@ -130,84 +135,20 @@ O compose completo (rede `lab_vulneravel`, alvos didaticos e **Portainer** para 
 curl -fsSL -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml
 ```
 
-**Conteudo completo para copiar/colar** — grave como `docker-compose.yml` ou `docker-compose.yaml` na pasta onde vai executar `docker compose up -d` (e o mesmo conteudo do [ficheiro no repo](https://github.com/charles-josiah/Aulas/blob/master/2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml)):
+> **Importante:** o ficheiro tem cerca de 500 linhas — alem do Portainer e dos alvos didaticos, ele inclui uma stack completa do **Greenbone/OpenVAS** (mais de 20 servicos, com volumes e dependencias proprias) usada nos workshops de DAST. **Nao copie/cole trechos antigos**: use sempre o link de download/raw acima para obter a versao atual, ja que o ficheiro evolui junto com os workshops.
 
-```yaml
-# Laboratorio didatico — rede isolada + alvos vulneraveis + Portainer (gestao via UI)
-# Uso: na pasta deste ficheiro, executar: docker compose up -d
-# Requisito: Docker Engine com plugin Compose; utilizador com permissao ao socket Docker.
+**Visao geral dos servicos principais** (consulte o ficheiro completo para volumes, variaveis de ambiente e `depends_on`):
 
-networks:
-  lab_vulneravel:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.18.0.0/16
-
-volumes:
-  portainer_data:
-
-services:
-  # Interface web para gerir containers, imagens e volumes (facilita o uso do laboratorio)
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: lab_portainer
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    networks:
-      lab_vulneravel:
-        ipv4_address: 172.18.0.2
-    ports:
-      - "9443:9443"
-
-  # Alvo 1: Metasploitable2 (ambiente legado)
-  metasploitable2:
-    image: tleemcjr/metasploitable2
-    networks:
-      lab_vulneravel:
-        ipv4_address: 172.18.0.10
-    ports:
-      - "2121:21"
-      - "2222:22"
-      - "8181:80"
-    restart: unless-stopped
-
-  # Alvo 2: DVWA (aplicacao web classica)
-  dvwa:
-    image: vulnerables/web-dvwa
-    networks:
-      lab_vulneravel:
-        ipv4_address: 172.18.0.20
-    ports:
-      - "8080:80"
-    environment:
-      - DBMS_TYPE=MySQL
-    restart: unless-stopped
-
-  # Alvo 3: OWASP Juice Shop (aplicacao moderna)
-  juice-shop:
-    image: bkimminich/juice-shop
-    networks:
-      lab_vulneravel:
-        ipv4_address: 172.18.0.30
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
-
-  # Alvo 4: Vulnerable API
-  vulnerable-api:
-    image: roottusk/vulnerable-api
-    networks:
-      lab_vulneravel:
-        ipv4_address: 172.18.0.40
-    ports:
-      - "8888:8080"
-    restart: unless-stopped
-```
-
-> **Nota:** Em clone local do repo, o mesmo texto esta em `2026-04-Vulnerabilidades_e_Testes_de_Invasao/lab-seguranca/docker-compose.yml`.
+| Servico (compose) | Container             | Imagem                            | IP interno    | Portas publicadas        |
+| ------------------ | ---------------------- | ----------------------------------- | -------------- | --------------------------- |
+| portainer          | `lab_portainer`        | `portainer/portainer-ce:latest`     | 172.18.0.2     | `9443:9443`                |
+| metasploitable2     | `lab_metasploitable2`  | `tleemcjr/metasploitable2:latest`   | 172.18.0.10    | `2121:21`, `2222:22`, `8181:80`, `33306:3306` |
+| dvwa                | `lab_dvwa`             | `vulnerables/web-dvwa`              | 172.18.0.20    | `8080:80`                  |
+| juice-shop          | `lab_juice_shop`       | `bkimminich/juice-shop`             | 172.18.0.30    | `3000:3000`                |
+| vapi-www            | `lab_vapi_www`         | build local (`./vapi/`, Laravel)    | 172.18.0.40    | `8000:80`                  |
+| vapi-db             | `lab_vapi_db`          | `mysql:8.0`                         | 172.18.0.41    | `3307:3306`                |
+| phpmyadmin          | `lab_phpmyadmin`       | `phpmyadmin/phpmyadmin`             | 172.18.0.42    | `8001:80`                  |
+| *(Greenbone/OpenVAS)* | `lab_openvas_nginx` + ~20 servicos de apoio | `registry.community.greenbone.net/community/*` | sem IP fixo | `9392:80` (HTTP), `9444:443` (HTTPS) |
 
 ---
 
@@ -242,7 +183,8 @@ docker compose restart dvwa
 - `https://<IP_DO_HOST_DOCKER>:9443` abre o Portainer (avisar excecao de certificado se necessario);
 - `http://<IP_DO_HOST_DOCKER>:8080` abre a DVWA;
 - `http://<IP_DO_HOST_DOCKER>:3000` abre a Juice Shop;
-- `http://<IP_DO_HOST_DOCKER>:8888` responde a API vulneravel.
+- `http://<IP_DO_HOST_DOCKER>:8000/vapi` responde ao vAPI;
+- `http://<IP_DO_HOST_DOCKER>:8001` abre o phpMyAdmin (login do banco do vAPI).
 
 ### 4.5 Acesso as aplicacoes
 
@@ -257,9 +199,14 @@ Substitua `<IP_DO_HOST_DOCKER>` pelo endereco IP da VM ou maquina onde o Docker 
 | **8181**      | 80                        | Metasploitable2 — HTTP (web legada) |
 | **2121**      | 21                        | Metasploitable2 — FTP               |
 | **2222**      | 22                        | Metasploitable2 — SSH               |
+| **33306**     | 3306                      | Metasploitable2 — MySQL             |
 | **8080**      | 80                        | DVWA                                |
 | **3000**      | 3000                      | Juice Shop                          |
-| **8888**      | 8080                      | Vulnerable API                      |
+| **8000**      | 80                        | vAPI (aplicacao Laravel)            |
+| **3307**      | 3306                      | vAPI — MySQL                        |
+| **8001**      | 80                        | phpMyAdmin (banco do vAPI)          |
+| **9392**      | 80                        | Greenbone/OpenVAS — HTTP            |
+| **9444**      | 443                       | Greenbone/OpenVAS — HTTPS           |
 
 
 **Exemplos de URL / cliente** (troque `<IP_DO_HOST_DOCKER>`):
@@ -271,9 +218,13 @@ Substitua `<IP_DO_HOST_DOCKER>` pelo endereco IP da VM ou maquina onde o Docker 
 | Metasploitable2 (web) | `http://<IP_DO_HOST_DOCKER>:8181`           | Equivale ao HTTP na porta 80 **dentro** do container                                          |
 | Metasploitable2 (FTP) | `ftp://<IP_DO_HOST_DOCKER>:2121`            | Alternativa: `ftp <IP_DO_HOST_DOCKER> 2121`                                                   |
 | Metasploitable2 (SSH) | `ssh <usuario>@<IP_DO_HOST_DOCKER> -p 2222` | SSH na porta 22 **dentro** do container                                                       |
+| Metasploitable2 (MySQL) | `mysql -h <IP_DO_HOST_DOCKER> -P 33306`   | MySQL na porta 3306 **dentro** do container                                                   |
 | DVWA                  | `http://<IP_DO_HOST_DOCKER>:8080`           |                                                                                               |
 | Juice Shop            | `http://<IP_DO_HOST_DOCKER>:3000`           |                                                                                               |
-| Vulnerable API        | `http://<IP_DO_HOST_DOCKER>:8888`           |                                                                                               |
+| vAPI                  | `http://<IP_DO_HOST_DOCKER>:8000/vapi`      | Aplicacao Laravel; autenticacao via cabecalho `Authorization-Token`                          |
+| vAPI (MySQL)          | `mysql -h <IP_DO_HOST_DOCKER> -P 3307`      | Banco `vapi`; usuario `root`/senha `vapi123456`                                              |
+| phpMyAdmin            | `http://<IP_DO_HOST_DOCKER>:8001`           | Conecta no banco do vAPI (`PMA_HOST=vapi-db`)                                                |
+| Greenbone/OpenVAS     | `https://<IP_DO_HOST_DOCKER>:9444`          | Interface GSA do scanner (HTTPS); HTTP em `:9392`                                            |
 
 
 #### Como obter o IP de cada container (rede interna Docker)
@@ -292,7 +243,7 @@ docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}
 docker compose ps -q | xargs -I {} docker inspect --format '{{.Name}} {{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' {}
 ```
 
-**3. Inspecionar a rede do laboratorio** (substitua `<nome_da_rede>` se necessario — com Compose v2 costuma ser `<pasta_do_projeto>_lab_vulneravel`, por exemplo `lab-seguranca_lab_vulneravel`):
+**3. Inspecionar a rede do laboratorio** (substitua `<nome_da_rede>` se necessario — com Compose v2 costuma ser `<pasta_do_projeto>_lab_vulneravel`; no servidor de testes e `docker_lab_vulneravel`):
 
 ```bash
 docker network ls | grep lab
@@ -301,7 +252,7 @@ docker network inspect <nome_da_rede>
 
 Na secao `Containers` da saida aparecem os IPs atribuidos.
 
-**4. Valores fixos no compose atual** (se nao alterou o `docker-compose.yml`): Portainer `172.18.0.2`; Metasploitable2 `172.18.0.10`; DVWA `172.18.0.20`; Juice Shop `172.18.0.30`; Vulnerable API `172.18.0.40`.
+**4. Valores fixos no compose atual** (se nao alterou o `docker-compose.yml`): Portainer `172.18.0.2`; Metasploitable2 `172.18.0.10`; DVWA `172.18.0.20`; Juice Shop `172.18.0.30`; vAPI `172.18.0.40`; vAPI MySQL `172.18.0.41`; phpMyAdmin `172.18.0.42`.
 
 Observacoes importantes:
 
