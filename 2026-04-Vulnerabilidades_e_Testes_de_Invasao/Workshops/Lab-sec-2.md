@@ -8,6 +8,19 @@
 
 ---
 
+> [!CAUTION]
+> **AVISO DE ÉTICA E RESPONSABILIDADE**
+> Este conteúdo e ambiente foram elaborados exclusivamente para fins educacionais, laboratoriais e de pesquisa em ambiente controlado.
+>
+> **Uso estritamente proibido** em sistemas de terceiros, redes públicas ou redes de produção sem autorização formal. O uso deste material em qualquer contexto que viole normas legais, políticas corporativas ou limites do laboratório é de inteira responsabilidade do executor.
+>
+> **Fique atento:**
+> - A execução é permitida apenas em laboratório isolado, com escopo definido e autorização explícita.
+> - As técnicas demonstradas envolvem exploração controlada e devem permanecer restritas ao ambiente descrito neste documento.
+> - Evidências, credenciais, hashes, comandos e resultados devem ser tratados como material didático sensível.
+
+---
+
 > [!NOTE]
 > **Ambiente deste journal:** Metasploitable 2 em VirtualBox, rede Host-Only `192.168.100.x` (alvo: `192.168.100.11`, atacante: Kali Linux em `192.168.100.x`). Este registro é **diferente** do laboratório Docker principal (`docker_lab_vulneravel`, rede `172.18.0.0/16`). Consulte [`Aula 01 - 4 - Proposta_de_estrutura_do_Laboratorio_Baseada_em_docker.md`](<../Aula 01 - 4 - Proposta_de_estrutura_do_Laboratorio_Baseada_em_docker.md>) para o ambiente Docker confirmado.
 

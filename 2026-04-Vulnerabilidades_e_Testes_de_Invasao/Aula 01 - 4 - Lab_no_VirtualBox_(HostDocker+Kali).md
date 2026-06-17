@@ -384,7 +384,7 @@ Em geral, do Kali voce acessa pelo **IP do Host Docker + portas**.
 Para exercicios de rede interna (entre containers), voce pode ver os IPs assim (no Host Docker):
 
 ```bash
-cd /caminho/para/pasta/com/docker-compose.yml
+cd ~/lab-seguranca
 docker compose ps -q | xargs -I {} docker inspect --format '{{.Name}} {{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' {}
 ```
 

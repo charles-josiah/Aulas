@@ -1,5 +1,11 @@
 # Proposta de Estrutura do Laboratorio Baseada em Docker
 
+**Autor:** Charles Alandt
+
+**Contato:** `echo "Y2hhcmxlcy5hbGFuZHRAZ21haWwuY29tCg==" | base64 -d`
+
+**Uso e atribuição:** este material pode ser copiado, adaptado e utilizado livremente para fins educacionais, desde que a fonte e o autor sejam referenciados.
+
 ---
 
 > [!CAUTION]
@@ -159,7 +165,7 @@ Apos configurar o Host Docker e obter o ficheiro `docker-compose.yml` (pasta de 
 ### 4.1 Inicializacao do laboratorio
 
 ```bash
-cd /caminho/para/pasta/com/docker-compose.yml
+cd lab-seguranca
 docker compose up -d
 ```
 
