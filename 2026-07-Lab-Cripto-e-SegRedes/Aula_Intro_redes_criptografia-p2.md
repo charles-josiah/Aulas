@@ -1,4 +1,4 @@
-# Aula Introdutória de Redes e Criptografia — Parte 2: Visão Avançada 
+# Aula Introdutória de Redes e Criptografia — Parte 2: Visão Avançada
 
 > **Público-alvo:** Estudantes que já dominam o básico (Parte 1) e profissionais iniciando em Infra/Sec.
 > **Foco:** O que *realmente* acontece no fio, por que falha, e como defender.
@@ -9,6 +9,7 @@
 ## 1. Visão de Redes: O "Encanamento" Invisível
 
 ### 1.1 Anatomia Real de um Pacote (Headers na Prática)
+
 Esqueça a analogia da carta. Veja o que *realmente* vai no fio (captura real `tcpdump -n -vv`):
 
 ```text
@@ -26,47 +27,94 @@ Src Port: 54321 | Dst Port: 443 (HTTPS)
 Seq: 1001 | Ack: 1 | Flags: [SYN] | Window: 65535 (WS=256) | Options: [MSS=1460, SACK_PERM, TS]
 ```
 
-**O que o Sênior olha primeiro:**
-1.  **Flags TCP:** `SYN`, `SYN/ACK`, `ACK`, `FIN`, `RST` (estado da conexão).
-2.  **Flags IP:** `DF` (Don't Fragment) → indica PMTUD ativo.
-3.  **TTL/Hop Limit:** Detecta loops (`TTL=1`) ou distância (`TTL=64` Linux, `128` Windows).
-4.  **Portas Efêmeras (>49152):** Identifica o lado cliente.
+**O que o engenheiro de rede examina primeiro:**
+1. **Flags TCP** — o estado da conexão:
+   - `SYN` — inicia conexão (primeiro passo do three-way handshake).
+   - `SYN/ACK` — servidor reconhece e responde (handshake completo).
+   - `ACK` — confirmação de dados recebidos.
+   - `FIN` — inicia encerramento gracioso da conexão.
+   - `RST` — reseta a conexão abruptamente (erro, ataque, ou porta fechada).
+   - `PSH` — força entrega imediata dos dados ao aplicativo (sem buffering).
+   - `URG` — dados urgentes precedem o restante do stream.
+   - `PSH + ACK + URG` simultâneos costumam indicar ataque ou software mal configurado.
+2. **Flags IP** — controle de pacote:
+   - `DF (Don't Fragment)` — pacote **não pode ser fragmentado**. Fundamental para PMTUD.
+   - `MF (More Fragments)` — este é um fragmento; outro segue.
+   - `TTL (Time To Live)` — decrementado em 1 a cada roteador. `TTL=1` → próximo salto descarta. `TTL=64` (Linux), `128` (Windows), `255` (alguns roteadores). Detecta loops (`TTL=0` antes de chegar ao destino) e distância de um atacante.
+3. **Portas Efêmeras (>49152)** — todo cliente TCP escolhe aleatoriamente uma porta efêmera para iniciar conexões. Verificar com `ss -tulpn` (Linux) ou `netstat -an`. Duplicação de porta efêmera pode indicar ataque de sobrecarga.
+4. **Window Size TCP** — indica quanto dado o receptador pode aceitar. Valor pequeno pode indicar throttling, ataque de redução de janela, ou congestionamento severo.
 
 ---
 
 ### 1.2 ARP / NDP: A Ponte Invisível (L2 ↔ L3)
+
 O IP **não** chega ao MAC sozinho.
-- **IPv4 (ARP):** `Who has 192.168.1.1? Tell 192.168.1.45` → Broadcast L2. Resposta Unicast.
-- **IPv6 (NDP/NS/NA):** `Neighbor Solicitation` (Multicast Solicited-Node) → `Neighbor Advertisement`.
+- **IPv4 (ARP, RFC 826):** `Who has 192.168.1.1? Tell 192.168.1.45` → Broadcast L2 (destino `ff:ff:ff:ff:ff:ff`). O dono do IP responde com pacote Unicast contendo seu MAC. A tabela ARP local é mantida em cache com timeout (tipicamente 60 segundos Linux, 15-30 min Windows).
+- **IPv6 (NDP, RFC 4861):** Substitui ARP com mensagens mais ricas.
+  - **NS (Neighbor Solicitation):** `Who has ff02::1%eth0? Tell fe80::...` → Multicast Solicited-Node (otimizado para não inondar toda a rede). Requer que o IP de destino seja conhecido; se não, usa o endereço de todos os nós (`ff02::1`).
+  - **NA (Neighbor Advertisement):** Resposta Unicast ou Multicast com o MAC do destino.
+  - **RA (Router Advertisement, ICMPv6 Type 134):** Enviado pelo roteador periodicamente (ou solicitado por RS - Router Solicitation). Anuncia: prefixo de rede (ex `2001:db8:1::/64`), gateway padrão (`fe80::1`), flags como `Managed` (usar DHCPv6), `Other` (usar SLAAC apenas para endereçamento), e `MTU`.
+  - **RDNSS Option:** Informa servidores DNS para a rede.
 - **Ataque Clássico:** **ARP Spoofing / NDP Spoofing** → MITM na LAN. Defesa: **DAI (Dynamic ARP Inspection)**, **RA Guard**, **DHCP Snooping**.
 
 ---
 
 ### 1.3 MTU, Fragmentação & PMTUD (O "Pacote Grande" Quebra a VPN)
-- **MTU Ethernet Padrão:** 1500 bytes.
-- **Overhead Comum:** IPsec (ESP) ~60-80 bytes, GRE 24B, VXLAN 50B, PPPoE 8B.
-- **Bit `DF` (Don't Fragment):** Se pacote > MTU do caminho e `DF=1` → Roteador descarta + envia **ICMP Type 3 Code 4 (Fragmentation Needed / Packet Too Big)**.
-- **PMTUD (Path MTU Discovery):** Host descobre MTU do caminho diminuindo tamanho até passar.
-- **Problema Real:** Firewall bloqueia ICMP "Packet Too Big" → **Black Hole PMTUD** (VPN conecta, handshake TLS OK, mas transferência de arquivo/website grande trava).
-- **Solução Moderna:** **PLPMTUD (Packetization Layer PMTUD - RFC 8899)** no QUIC/TCP (não depende de ICMP).
+
+- **MTU Ethernet Padrão:** 1500 bytes (payload). Tamanho total do quadro ~1518-1522 bytes (inclui headers Ethernet + FCS).
+- **Overhead Comum:** IPsec (ESP) adiciona ~60-80 bytes (Encap + IV + Padding + ESP + novo IP + novo IPsec header), GRE ~24B, VXLAN ~50B, PPPoE 8B.
+- **Bit `DF` (Don't Fragment)** (bit 1 no campo Flags do header IPv4): Se um roteador no caminho não consegue fragmentar (ou não quer) e o pacote ainda é maior que o MTU de saída → descarta e envia **ICMP Type 3 Code 4 (Fragmentation Needed / Packet Too Big)** de volta ao remetente.
+- **PMTUD (Path MTU Discovery, RFC 1191):** O host TCP envia pacotes com `DF=1`. Se encontrar um link com MTU menor, recebe ICMP "Packet Too Big" → reduz tamanho do MSS (Maximum Segment Size) e retransmite. O processo se repete até encontrar o menor MTU do caminho.
+- **Problema Real Clássico ("Black Hole PMTUD"):** Um firewall bloqueia ICMP "Packet Too Big" (muito comum por medo de ataques de fingerprinting via ICMP). Resultado: o host envia pacotes grandes com `DF=1`, o firewall os descarta SILENCIOSAMENTE (não retorna o ICMP), o remetente nunca descobre que deve reduzir o tamanho — **conexão trava para pacotes grandes mas pacotes pequenos funcionam**.
+  - Cenário típico: VPN site-to-site com IPsec (overhead de ~60 bytes). Handshake TLS (pacotes pequenos) funciona, mas transferência de arquivo grande (pacotes cheios) trava.
+- **Solução Moderna:** **PLPMTUD (RFC 8899)** — descobre PMTU usando TCP/QUIC explorando sinalização de "loss" como indicativo de pacote drop, independente de ICMP. Também `tcp_mtu_probing` no Linux (sysctl `net.ipv4.tcp_mtu_probing=1`).
 
 ---
 
 ### 1.4 NAT Real: Além da Tradução Simples
+
 | Tipo | Direção | Uso Comum | Armadilha |
 | :--- | :--- | :--- | :--- |
-| **SNAT (Masquerade)** | Outbound (LAN→WAN) | Acesso internet | Porta efêmera colide? (PAT/NAPT resolve). |
-| **DNAT (Port Forward)** | Inbound (WAN→LAN) | Servidor público | Hairpin NAT (acessar IP público de dentro). |
-| **1:1 NAT** | Bidirecional | IP Público dedicado | IP público escasso (IPv4 exhaustion). |
-| **CGNAT (Carrier Grade NAT)** | ISP → Cliente | IPv4 escasso | **Quebra:** P2P, VoIP, VPN site-to-site, port forwarding. **Solução:** IPv6, PCP, STUN/TURN. |
+| **SNAT / Masquerade** | Outbound (LAN→WAN) | Acesso internet (iptables `--to-source` ou `masquerade`) | Porta efêmera pode colidir em alta concorrência (probabilidade baixa mas existente). |
+| **DNAT / Port Forward** | Inbound (WAN→LAN) | Servidor público acessível (`PREROUTING` → redirecionar 443→192.168.1.10:443) | **Hairpin NAT:** acessar pelo IP público de dentro da mesma LAN exige que o router suporte (muitos não suportam). |
+| **1:1 NAT (Static NAT)** | Bidirecional | IP público dedicado a um servidor interno | Poupa IP público mas expõe o servidor diretamente. |
+| **CGNAT (Carrier Grade NAT, RFC 6598)** | ISP → Cliente (`100.64.0.0/10`, range RFC 1918 privado da operadora) | IPv4 escasso — múltiplos clientes compartilham IP do ISP | **Quebra:** P2P, VoIP ICE/STUN pode falhar, port forwarding impossível (o cliente não controla o CGNAT). **Solução definitiva:** IPv6 (cada dispositivo com IP público global), ou `PCP (Port Control Protocol, RFC 6887)` / `STUN/TURN` para contornar CGNAT. |
 
 ---
 
 ### 1.5 IPv6 na Prática (Não é "Futuro")
-- **Endereçamento:** `2001:db8::/32` (docs), `fe80::/10` (Link-Local), `ff02::1` (All Nodes).
-- **SLAAC (Stateless):** `fe80::` + `Prefix` (RA) + `EUI-64` ou **Privacy Extensions (RFC 4941/7217)** → Endereço temporário/aleatório (privacidade).
-- **DHCPv6 (Stateful):** Prefixo delegado (PD) + Opções (DNS, NTP).
-- **Sem NAT (Idealmente):** End-to-end restaurado. Firewall **Stateful** continua obrigatório (IPv6 ≠ Inseguro).
+
+IPv6 não é "IPv4 grande". É um protocolo completamente diferente que elimina muitas dores de cabeça do IPv4 (sem NAT obrigatório, endereçamento automático robusto, segurança integrada). Aqui está o que você precisa saber para configurar uma rede real:
+
+**Tipos de endereços:**
+- `fe80::/10` — **Link-Local:** gerado automaticamente a partir do MAC (EUI-64) ou aleatoriamente (Privacy Extensions). Só funciona no enlace local (não roteável). Usado para comunicação entre vizinhos (NDP, RA). Formato típico: `fe80::1a2b:3c4d:5e6f:7081`.
+- `2001:db8::/32` — **Global Unicast:** endereço público global, roteável. Prefixado pelo ISP ou datacenter. Exemplo: `2001:db8:abcd:1::1`.
+- `ff02::1` — **All Nodes (link-local multicast):** todos os dispositivos na rede local recebem.
+- `ff02::2` — **All Routers (link-local multicast):** todos os roteadores recebem.
+- `::` — **Unspecified (equivalente a 0.0.0.0):** usado em Source Address durante SLAAC quando o cliente ainda não tem endereço.
+- `::1` — **Loopback (equivalente a 127.0.0.1):** comunicar consigo mesmo.
+
+**SLAAC (Stateless Address Autoconfiguration, RFC 4862):**
+Quando um host se conecta à rede, ele:
+1. Gera um endereço Link-Local (`fe80::` + interface ID).
+2. Envia **Router Solicitation (RS, ICMPv6 Type 133)** → pergunta: "tem roteador aqui?".
+3. O roteador responde com **Router Advertisement (RA, ICMPv6 Type 134)** contendo:
+   - **Prefixo** (ex `2001:db8:1::/64`) → o host combina com interface ID para formar o endereço global.
+   - **Flags `M` (Managed):** se `M=1` → host deve usar **DHCPv6 Stateful** para obter endereço completo (DNS, NTP, etc.). Se `M=0` → SLAAC automático.
+   - **Flags `O` (Other):** se `O=1` → host deve usar DHCPv6 para outras informações (DNS, NTP) mesmo que SLAAC forneça o endereço.
+   - **Lifetime preferido** (`preferred lifetime`) e **valid lifetime** → quando o endereço deve ser renovado.
+   - **MTU** → o host adota este MTU naquele enlace.
+4. O host gera um endereço global usando **EUI-64** (MAC → endereço, visível mas rastreável) OU **Privacy Extensions (RFC 4941)** que gera endereços temporários aleatórios que rotacionam periodicamente (melhor para privacidade).
+
+**DHCPv6 (Stateful ou Stateless):**
+- **Stateful (M=1):** o servidor DHCPv6 aloca endereços IP e fornece DNS/NTP/etc. Similar ao DHCP IPv4. Requer servidor dedicado (ISC DHCPv6, dnsmasq, Kea).
+- **Stateless (M=0, O=1):** o host já tem endereço via SLAAC, mas consulta DHCPv6 para DNS, NTP, search domain, etc. Mais leve.
+- **PD (Prefix Delegation, RFC 8415):** o cliente (ex. roteador doméstico) pede ao ISP um **bloco de prefixos** (ex `2001:db8:1234::/48`) que ele repassa para suas sub-redes internas. O ISP aloca blocos menores (ex `/56` ou `/60`) para cada cliente. O roteador internamente cria `/64` por VLAN. Diferente do IPv4: o cliente obtém bloco real roteável, sem NAT.
+
+**Firewall IPv6 obrigatório:**
+- IPv6 **não usa NAT como padrão** (cada dispositivo pode ter IP público global). Isso significa que **firewall stateful é absolutamente necessário** em toda borda.
+- Regras típicas: bloquear tráfego inbound não solicitado, permitir apenas tráfego de retorno (established/related), bloquear ICMPv6 indesejado (mas NUNCA bloquear ICMPv6 inteiro — ele é fundamental para NDP, PMTUD, etc.).
+- **Extension Headers** (Hop-by-Hop, Routing, Fragment) podem ser usados para ataques de evasion (firewall que não analisa extension headers pode ser enganado).
 
 ---
 
@@ -84,7 +132,8 @@ O IP **não** chega ao MAC sozinho.
 
 ---
 
-### 2.2 PKI Real: A Cadeia de Confiança (Não é Só "Ter Certificado")
+### 2.1 PKI Real: A Cadeia de Confiança (Não é Só "Ter Certificado")
+
 ```text
 Root CA (Offline, Air-gapped, HSM)
    │  Assina (Basic Constraints: CA:TRUE, Key Usage: keyCertSign, cRLSign)
@@ -100,6 +149,7 @@ Leaf Certificate (Servidor/Cliente)
    ├── CT Logs (Certificate Transparency): Obrigatório p/ público
    └── Revogação: OCSP Stapling (rápido) / CRL (legado)
 ```
+
 **Checklist de Validação (O que o cliente/browser faz):**
 1.  Cadeia válida até Root confiável (Trust Store do SO/Browser).
 2.  Não expirado / Não revogado (OCSP Stapling preferido).
@@ -110,7 +160,8 @@ Leaf Certificate (Servidor/Cliente)
 
 ---
 
-### 2.3 TLS Hardening Checklist (Configuração de Produção)
+### 2.2 TLS Hardening Checklist (Configuração de Produção)
+
 ```nginx
 # nginx exemplo (aplicável a Apache, HAProxy, Nginx, Envoy, Go, Java, .NET)
 ssl_protocols TLSv1.2 TLSv1.3;           # 1.0/1.1/SSLv3 PROIBIDOS
@@ -139,6 +190,7 @@ add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsaf
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 ```
+
 **Cipher Suites Permitidas (Ordem de Preferência):**
 1. `TLS_AES_256_GCM_SHA384` (TLS 1.3, AES-NI)
 2. `TLS_CHACHA20_POLY1305_SHA256` (TLS 1.3, Sem AES-NI / Mobile)
@@ -148,7 +200,7 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 
 ---
 
-### 2.4 Ataques Reais & Defesas (O "Dia a Dia" do Adversário)
+### 2.3 Ataques Reais & Defesas (O "Dia a Dia" do Adversário)
 
 | Ataque | Vetor | Impacto | Defesa Efetiva |
 | :--- | :--- | :--- | :--- |
@@ -162,8 +214,9 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 
 ---
 
-### 2.5 Segredos & Key Management (O "Não Faça Isso")
-| ❌ Erro Fatal | ✅ Prática Sênior |
+### 2.4 Segredos & Key Management (O "Não Faça Isso")
+
+| ❌ Erro Fatal | ✅ Prática |
 | :--- | :--- |
 | `API_KEY="sk_live_..."` no código / `.env` no repo | **Vault / AWS Secrets Manager / 1Password CLI / SOPS / SealedSecrets** |
 | Chave privada RSA sem senha (`-----BEGIN RSA PRIVATE KEY-----`) | **Chave criptografada (PKCS#8 + AES-256)**, **HSM / TPM / YubiKey (PIV)** |
@@ -173,7 +226,8 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 
 ---
 
-### 2.6 Criptografia Pós-Quântica (PQC) — Prepare-se Agora
+### 2.5 Criptografia Pós-Quântica (PQC) — Prepare-se Agora
+
 | Algoritmo (NIST FIPS 203/204/205) | Tipo | Uso | Status |
 | :--- | :--- | :--- | :--- |
 | **ML-KEM (CRYSTALS-Kyber)** | KEM (Key Encapsulation) | Substitui RSA/ECDH (Key Exchange) | **FIPS 203 (2024)** |
@@ -272,7 +326,7 @@ fs.protected_symlinks=1
 
 ---
 
-## 6. Referências Sênior (O Que Ler Depois)
+## 6. Referências (O Que Ler Depois)
 
 | Livro / RFC / Site | Foco |
 | :--- | :--- |
