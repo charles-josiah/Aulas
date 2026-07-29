@@ -78,6 +78,8 @@ Propiciar o desenvolvimento de capacidades básicas e socioemocionais relativas 
 - Aplicar os modelos OSI e TCP/IP para análise de rede
 - Analisar logs para identificar possíveis ameaças ou invasões
 
+---
+
 ### Objetos de Conhecimento
 
 - **Algoritmos Criptográficos e Funções de Hash**
