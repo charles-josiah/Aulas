@@ -95,4 +95,4 @@ Propiciar o desenvolvimento de capacidades básicas e socioemocionais relativas 
 - SILVA, Michel. *Cibersegurança: uma visão panorâmica*. 2023.
 
 ---
-📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Plano-de-Ensino-Atualizado.md.svg)
+📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/2-Plano-de-Ensino-Atualizado.md.svg)

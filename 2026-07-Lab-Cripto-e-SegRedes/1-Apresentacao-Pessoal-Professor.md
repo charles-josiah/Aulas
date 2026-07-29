@@ -321,4 +321,4 @@ Professor SENAI
 Especialista em Segurança Cibernética e Redes
 
 ---
-📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Apresentacao-Pessoal-Professor.md.svg)
+📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/1-Apresentacao-Pessoal-Professor.md.svg)
