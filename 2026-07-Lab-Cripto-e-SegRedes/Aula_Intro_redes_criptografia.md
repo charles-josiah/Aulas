@@ -215,14 +215,14 @@ Três atores principais aparecem em toda rede. Entender cada um é metade da bat
 
 Existem dois "formatos" fundamentais de conversa na rede.
 
-### Cliente–Servidor (assimétrico)
+### Cliente–Servidor
 
 - **Papéis fixos**: um é **servidor** (que espera requisição), outro é **cliente** (que pede).
 - **Exemplos**: seu navegador (cliente) pede página ao Google (servidor); seu phone (cliente) pede emails ao Gmail (servidor).
 - **Vantagem**: servidor é um ponto único de controle, fácil monitorar e proteger.
 - **Desvantagem**: se servidor cair, ninguém consegue nada.
 
-### P2P — Ponto-a-Ponto (simétrico)
+### P2P — Ponto-a-Ponto
 
 - **Papéis dinâmicos**: todo nó é **cliente E servidor** ao mesmo tempo.
 - **Exemplos**: BitTorrent (arquivo vem de múltiplas fontes simultaneamente); WhatsApp (seu phone envia e recebe de outros).
