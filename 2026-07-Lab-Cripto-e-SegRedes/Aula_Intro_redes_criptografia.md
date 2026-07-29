@@ -16,13 +16,14 @@ Se você chegou até aqui, está prestes a entender como a internet realmente fu
 2. **Pix/Bancos**: sem criptografia, sua senha trafegaria em texto claro — qualquer um na rede roubaria seu dinheiro.
 3. **Wi-Fi público**: sem criptografia, todos os dados que você acessa (emails, senhas, fotos) seriam visíveis para quem estivesse por perto.
 
-**A criptografia é o escudo que protege você.**
+**A criptografia é o escudo que protege você.** 
+- Porque te protege ? Como ela te protege ? O que ela traz de beneficio ? Não so mundo da TI, mas no dia a dia ? 
 
 ---
 
 ## Objetivos desta aula
 
-- Entender como **roteadores, switches e hubs** funcionam — e por que hubs não existem mais.
+- Entender o funcionamento basico de **roteadores, switches e hubs** — e por que hubs não existem mais (nao deveriam mais existir ;D ).
 - Mapear o **modelo OSI** e descobrir **onde a criptografia atua** em cada camada.
 - Conhecer **endereçamento IP**, **DHCP**, **DNS** na prática.
 - Diferenciar **Cliente–Servidor** de **Ponto-a-Ponto (P2P)**.
