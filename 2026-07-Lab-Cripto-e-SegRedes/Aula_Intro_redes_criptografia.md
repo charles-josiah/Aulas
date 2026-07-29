@@ -101,21 +101,49 @@ LQLPLJR QDR VXVSHLWD
 
 ## 2) O Modelo OSI — O Mapa da Rede (e onde vive a criptografia)
 
-O modelo OSI é uma **receita** que explica como dados trafegam de A até B. Cada camada tem um "dever": a L1 envia bits, a L2 envia quadros, a L3 envia pacotes...
+O modelo OSI é uma **receita** que explica como dados trafegam de A até B. Cada camada tem um "dever" e uma unidade de trabalho (PDU): a L1 envia bits, a L2 envia quadros, a L3 envia pacotes...
 
 E aqui está a magia: **criptografia vive em praticamente todas elas.**
 
 ### As 7 camadas com criptografia mapeada
 
-| Camada | Função | Protocolos | 🔐 Criptografia |
-|--------|--------|-----------|---|
-| **7 — Aplicação** | Onde você interage (browser, app) | HTTP, DNS, FTP, SMTP, PGP | ✅ **PGP/GPG** — você cifra arquivos/emails; **SSH** — acesso remoto seguro |
-| **6 — Apresentação** | Formata os dados | TLS, compressão | ✅ **TLS handshake** — negocia qual cifra usar; **certificados digitais** |
-| **5 — Sessão** | Mantém a conversa acontecendo | NetBIOS, RPC, TLS | 🔄 **TLS continua aqui** — protege a sessão aberta |
-| **4 — Transporte** | Garante entrega (TCP) ou apenas envia (UDP) | TCP, UDP, QUIC | 🔄 **TLS "vive entre" L4 e L7**; **QUIC** cifra por padrão |
-| **3 — Rede** | Roteia pacotes (IP) | IP, ICMP, IPsec, BGP, OSPF | ✅ **IPsec** — cifra todo pacote IP; base das VPNs |
-| **2 — Enlace** | Envia quadros/frames (MAC) | Ethernet, Wi-Fi, ARP, VLAN | ✅ **WPA2/WPA3** — cifra Wi-Fi; **MACsec** — cifra cabo físico |
-| **1 — Física** | Bits no fio/fibra/ar | Cabo UTP, fibra óptica, RF | ❌ Nenhuma — é só eletricidade/luz |
+| Camada | PDU (Unidade) | Função | Protocolos | 🔐 Criptografia |
+|---|---|---|---|---|
+| **7 — Aplicação** | **Dados** | Onde você interage (browser, app) | HTTP, DNS, FTP, SMTP, PGP | ✅ **PGP/GPG**, **SSH** |
+| **6 — Apresentação** | **Dados** | Formata os dados | TLS, compressão | ✅ **TLS handshake** |
+| **5 — Sessão** | **Dados** | Mantém a conversa acontecendo | NetBIOS, RPC, TLS | 🔄 **TLS continua aqui** |
+| **4 — Transporte** | **Segmento/Datagrama** | Garante entrega (TCP) ou apenas envia (UDP) | TCP, UDP, QUIC | 🔄 **TLS/QUIC** |
+| **3 — Rede** | **Pacote** | Roteia pacotes (IP) | IP, ICMP, IPsec, BGP, OSPF | ✅ **IPsec** |
+| **2 — Enlace** | **Quadro/Frame** | Envia quadros/frames (MAC) | Ethernet, Wi-Fi, ARP, VLAN | ✅ **WPA2/WPA3**, **MACsec** |
+| **1 — Física** | **Bit** | Bits no fio/fibra/ar | Cabo UTP, fibra óptica, RF | ❌ Nenhuma |
+
+### Exemplo prático: a jornada de um e-mail
+
+Imagine que você envia um e-mail do seu Gmail para um amigo. É isso que acontece por baixo dos panos, camada por camada:
+
+#### ➡️ A Descida (No seu PC)
+
+1. **(L7) Aplicação**: você clica em "Enviar". Seu navegador entrega os dados do e-mail (texto, anexos) para a camada de baixo.
+2. **(L6) Apresentação**: seu navegador (via **TLS**) codifica os caracteres, negocia a criptografia e prepara tudo para a transmissão segura.
+3. **(L5) Sessão**: o TLS mantém a conexão segura com o servidor do Google.
+4. **(L4) Transporte**: o texto do e-mail é quebrado em **segmentos** (TCP). Cada um ganha um "número de sequência" para garantir que cheguem na ordem certa.
+5. **(L3) Rede**: cada segmento vira um **pacote**. Ele ganha o "endereço do remetente" (seu IP) e o "endereço do destinatário" (IP do servidor do Google).
+6. **(L2) Enlace**: cada pacote vira um **quadro**. Ele ganha o "endereço físico" do seu PC (MAC) e do próximo salto na rede (roteador).
+7. **(L1) Física**: o quadro vira uma sequência de **bits** (zeros e uns) e viaja pelo cabo de rede ou Wi-Fi.
+
+#### ↗️ A Subida (No PC do seu amigo)
+
+O processo inverso acontece:
+
+1. **(L1) Física**: os bits chegam pela internet.
+2. **(L2) Enlace**: os bits são remontados em **quadros**.
+3. **(L3) Rede**: os quadros são remontados em **pacotes**.
+4. **(L4) Transporte**: os pacotes são remontados em **segmentos** na ordem correta.
+5. **(L5) Sessão**: a sessão TLS garante que a conexão é segura.
+6. **(L6) Apresentação**: o TLS decifra e formata os dados.
+7. **(L7) Aplicação**: o Gmail do seu amigo recebe os dados e exibe o e-mail na caixa de entrada.
+
+**Conclusão**: o que você vê como "enviar email" é, na verdade, uma complexa operação de empacotamento, endereçamento, envio, desempacotamento e remontagem.
 
 ### Visualização do fluxo
 
