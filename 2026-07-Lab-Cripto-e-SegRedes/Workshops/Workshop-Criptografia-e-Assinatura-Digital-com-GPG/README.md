@@ -1,6 +1,6 @@
 # Workshop Prático: Criptografia e Assinatura Digital com GPG
 
-## Disciplina: Criptografia e Segurança em Redes — 2026/02
+## Disciplina: Criptografia e Segurança em Redes
 
 **Curso:** Superior de Tecnologia em Segurança Cibernética  
 **Docente:** Charles Alandt  
