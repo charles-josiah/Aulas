@@ -1,4 +1,4 @@
-# Aula Introdutória de Redes e Criptografia — Parte 2: Visão Avançada (Sênior)
+# Aula Introdutória de Redes e Criptografia — Parte 2: Visão Avançada 
 
 > **Público-alvo:** Estudantes que já dominam o básico (Parte 1) e profissionais iniciando em Infra/Sec.
 > **Foco:** O que *realmente* acontece no fio, por que falha, e como defender.
