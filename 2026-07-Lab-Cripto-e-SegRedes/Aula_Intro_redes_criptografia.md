@@ -6,7 +6,7 @@
 
 Se você chegou até aqui, está prestes a entender como a internet realmente funciona por baixo dos panos — e por que criptografia é o que mantém o mundo digital em pé.
 
-**Não precisa saber nada de rede antes. Vamos juntos.**
+**Não precisa saber nada de rede antes, sera?. Vamos juntos.**
 
 ---
 
