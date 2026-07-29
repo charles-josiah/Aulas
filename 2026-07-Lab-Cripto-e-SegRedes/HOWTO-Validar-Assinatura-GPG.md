@@ -23,13 +23,13 @@
 
 ## 1. Usabilidade da chave GPG
 
-A criptografia de chave pública (GPG/PGP) tem diversas aplicações práticas no mundo real. Abaixo, 5 usabilidades essenciais:
+A criptografia de [chave pública](https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2026-07-Lab-Cripto-e-SegRedes/senai-public-key.asc) (GPG/PGP) tem diversas aplicações práticas no mundo real. Abaixo, 5 usabilidades essenciais:
 
 ### 🔏 1.1 — Assinatura de documentos e contratos
 
 Substitui a assinatura de próprio punho em ambientes digitais. Um contrato assinado com GPG tem **validade jurídica** (MP 2.200-2 / ICP-Brasil) e pode ser verificado por qualquer parte envolvida.
 
-**Exemplo:** Empresa A assina um PDF de contrato e envia para Empresa B, que valida a assinatura com a chave pública da Empresa A.
+**Exemplo:** Empresa A assina um PDF de contrato e envia para Empresa B, que valida a assinatura com a [chave pública](https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2026-07-Lab-Cripto-e-SegRedes/senai-public-key.asc) da Empresa A.
 
 ### 🔐 1.2 — Criptografia de e-mails e comunicações
 
@@ -59,7 +59,7 @@ O **ITI (Instituto Nacional de Tecnologia da Informação)** — ICP-Brasil regu
 
 **Exemplo:** Um advogado assina digitalmente uma petição com certificado A3 e protocola no sistema PJe do tribunal — sem precisar ir ao fórum.
 
-> **Resumo:** a chave GPG/PGP é a base da **infraestrutura de chave pública (PKI)** e está presente em contratos, e-mails, código-fonte, software livre e sistemas governamentais.
+> **Resumo:** a chave GPG/PGP é a base da **infraestrutura de [chave pública](https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2026-07-Lab-Cripto-e-SegRedes/senai-public-key.asc) (PKI)** e está presente em contratos, e-mails, código-fonte, software livre e sistemas governamentais.
 
 ---
 
@@ -70,13 +70,13 @@ Uma assinatura digital comprova **autenticidade** e **integridade** de um arquiv
 - **Autenticidade:** confirma que o autor (quem tem a chave privada) realmente assinou o arquivo
 - **Integridade:** garante que o arquivo **não foi alterado** depois da assinatura
 
-Funciona como um "carimbo digital" que qualquer pessoa pode verificar usando a chave pública do autor.
+Funciona como um "carimbo digital" que qualquer pessoa pode verificar usando a [chave pública](https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2026-07-Lab-Cripto-e-SegRedes/senai-public-key.asc) do autor.
 
 ---
 
 ## 3. O que foi feito?
 
-Assinamos digitalmente o **README.md** usando nossa **chave privada GPG**. O GPG calcula um **hash** (resumo criptográfico) do arquivo original, cifra esse hash com nossa chave privada e gera o arquivo de assinatura (`.asc`). Quem receber o arquivo pode usar nossa **chave pública** para decifrar o hash, recalcular o hash do arquivo recebido e comparar os dois: se forem iguais, o arquivo é autêntico e não foi alterado.
+Assinamos digitalmente o **README.md** usando nossa **chave privada GPG**. O GPG calcula um **hash** (resumo criptográfico) do arquivo original, cifra esse hash com nossa chave privada e gera o arquivo de assinatura (`.asc`). Quem receber o arquivo pode usar nossa **[chave pública](https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2026-07-Lab-Cripto-e-SegRedes/senai-public-key.asc)** para decifrar o hash, recalcular o hash do arquivo recebido e comparar os dois: se forem iguais, o arquivo é autêntico e não foi alterado.
 
 ```
 ┌─────────────────────────────────────┐
