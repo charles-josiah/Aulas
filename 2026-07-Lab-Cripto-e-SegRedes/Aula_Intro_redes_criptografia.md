@@ -294,4 +294,4 @@ printf 'segredo' | gpg --symmetric --cipher-algo AES256 --armor
 - Caso “**FDP**” refira-se a outro termo (e não **FDDI**), indique para inclusão correta no glossário.
 
 ---
-📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2025-09-Lab-Cripto-e-SegRedes/Aula_Intro_redes_criptografia.md.svg)
+📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Aula_Intro_redes_criptografia.md.svg)
