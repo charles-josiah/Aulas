@@ -335,3 +335,6 @@ gpg --decrypt arquivo.txt.gpg
 **Elaborado por:** Prof. Charles Alandt — SENAI/SC  
 **Disciplina:** Criptografia e Segurança em Redes  
 **Data:** 29/07/2026
+
+---
+📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/Workshop-Criptografia-e-Assinatura-Digital-com-GPG/README.md.svg)

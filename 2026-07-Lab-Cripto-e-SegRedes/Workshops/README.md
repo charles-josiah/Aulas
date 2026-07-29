@@ -12,3 +12,6 @@ Tópicos abordados:
 - Verificação de autenticidade e integridade
 - Descriptografia e validação de assinaturas
 
+---
+📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/README.md.svg)
+

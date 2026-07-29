@@ -203,3 +203,6 @@ A lista abaixo é um **cardápio**, uma **sugestão**, de possíveis laboratóri
   `https://github.com/charles-josiah/Aulas/tree/master/2026-07-Lab-Cripto-e-SegRedes/`
 7. **Free Tier da OCI** — se precisar de servidor adicional, aproveite os recursos gratuitos da Oracle Cloud
 
+---
+📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/sugestao-de-atividades.md.svg)
+

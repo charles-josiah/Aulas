@@ -34,3 +34,4 @@
 12. Hacking Ético em Ambientes Controlados
 
 ---
+📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/README.md.svg)
