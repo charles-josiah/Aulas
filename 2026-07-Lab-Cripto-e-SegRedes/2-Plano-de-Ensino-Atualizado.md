@@ -78,6 +78,55 @@ Propiciar o desenvolvimento de capacidades básicas e socioemocionais relativas 
 - Aplicar os modelos OSI e TCP/IP para análise de rede
 - Analisar logs para identificar possíveis ameaças ou invasões
 
+### Objetos de Conhecimento
+
+- **Algoritmos Criptográficos e Funções de Hash**
+  - Algoritmos comuns: AES, Blowfish, DES (3DES), Serpent, Twofish
+  - Funções de Hash: MD5, SHA-256, SHA-1
+- **Assinaturas Digitais e Certificados**
+  - Assinaturas digitais — conceitos e aplicações
+  - Certificados Digitais e o padrão PKI (ICP)
+  - ICP-Brasil
+- **Autenticação segura**
+- **Breve História da Criptografia**
+  - Evolução da criptografia
+  - Da criptografia clássica à moderna
+  - Introdução à criptografia — conceitos e aplicações
+- **Compreender o funcionamento de um proxy**
+- **Compreender o funcionamento de um firewall**
+- **Conceitos básicos de serviços de redes**
+- **Conceitos, terminologias e topologias de rede**
+- **Criptografia Quântica**
+  - Conceitos e aplicações da criptografia quântica
+- **Criptografia Simétrica e Assimétrica**
+  - Algoritmos simétricos: DES, RC5, Blowfish, IDEA, AES, RC6
+  - Algoritmos assimétricos: Diffie-Hellman, DSA, Curvas Elípticas, Elgamal, RSA
+- **Ética profissional**
+  - Princípios da conduta ética do serviço: Sigilo, Prudência e Honestidade
+- **Fundamentos de Redes**
+  - Conceitos sobre Gateways, SNAT e DNAT, DNS e DNSSEC, VLSM, VLAN
+- **Gestão da qualidade**
+  - Ferramentas da Qualidade
+- **Imparcialidade**
+- **Instalação de SGBD**
+- **Introdução à Segurança Cibernética**
+  - Conceitos fundamentais: Segurança da informação, Segurança de rede, Segurança de sistemas
+  - Segurança cibernética
+  - Impactos da cibersegurança na sociedade contemporânea
+- **Modelos de multicamada OSI e TCP/IP**
+- **Monitoramento e Análise de Redes**
+  - Segurança de redes: monitoramento e análise de logs
+  - Varredura em rede
+- **Permissões em banco de dados**
+- **Plugins**
+- **Protocolos Seguros e Sistemas Open Source**
+  - PGP, GPG, SSL/TLS, IPSec / Free S/WAN
+- **Segmentação de rede**
+- **Servidor Web**
+- **Servidor FTP**
+- **Trabalho e profissionalismo**
+  - Planejamento da rotina, Flexibilidade e Resultados
+
 ---
 
 ## Referências Bibliográficas
