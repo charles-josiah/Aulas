@@ -1,297 +1,396 @@
-# Aula Introdutória de Redes e Criptografia 
+# Aula Introdutória de Redes e Criptografia
 
 ---
 
-## Objetivos
-- Compreender funções de **roteadores, switches e hubs** (e por que hubs caíram em desuso).
-- Mapear os **modelos OSI e TCP/IP** e localizar onde a **criptografia** atua.
-- Entender **endereçamento IP**, **DHCP**, **DNS**, e noções de **HTTP/FTP**.
+## Bem-vindo(a)!
+
+Se você chegou até aqui, está prestes a entender como a internet realmente funciona por baixo dos panos — e por que criptografia é o que mantém o mundo digital em pé.
+
+**Não precisa saber nada de rede antes. Vamos juntos.**
+
+---
+
+## Por que isso importa? (3 exemplos reais)
+
+1. **WhatsApp**: sem criptografia, alguém leria suas conversas. Com ela, só você e quem recebe conseguem ler.
+2. **Pix/Bancos**: sem criptografia, sua senha trafegaria em texto claro — qualquer um na rede roubaria seu dinheiro.
+3. **Wi-Fi público**: sem criptografia, todos os dados que você acessa (emails, senhas, fotos) seriam visíveis para quem estivesse por perto.
+
+**A criptografia é o escudo que protege você.**
+
+---
+
+## Objetivos desta aula
+
+- Entender como **roteadores, switches e hubs** funcionam — e por que hubs não existem mais.
+- Mapear o **modelo OSI** e descobrir **onde a criptografia atua** em cada camada.
+- Conhecer **endereçamento IP**, **DHCP**, **DNS** na prática.
 - Diferenciar **Cliente–Servidor** de **Ponto-a-Ponto (P2P)**.
-- Reconhecer diferenças entre **firewalls L3/L4/L7**, **UTM** e **NGFW**.
-- Ter uma visão inicial de **nuvem** (**OCI, AWS, Azure**).
-- Assimilar os fundamentos de **criptografia** (simétrica x assimétrica, **TLS**, **IPsec**, **WPA3**, **PGP**).
+- Entender **firewalls** e como eles protegem redes.
+- Explorar **nuvem** (AWS, Azure, OCI) — como funciona por trás das cortinas.
+- Aprender os **fundamentos da criptografia** (simétrica, assimétrica, TLS, IPsec, WPA3).
 
 ---
 
-## Nuvem de tags (panorama)
-**Roteador**, **Switch**, **Hub**, **TCP/IP**, **DNS**, **DHCP**, **HTTP/HTTPS**, **FTP/SFTP/FTPS**, **ARP**, **ICMP**, **NAT**, **VLAN**, **VPN**, **QoS**, **SNMP**, **SSH**, **NTP**, **BGP/OSPF**, **Firewall L3/L4/L7**, **UTM**, **NGFW**, **WAF**, **IDS/IPS**, **TLS**, **IPsec**, **WPA2**, **MAC**, **P2P**, **Cliente–Servidor**, **Topologias** (Barramento, Anel, Estrela, Malha), **Cloud**, **OCI**, **AWS**, **Azure**.
+## Termos que você vai dominar até o fim
 
-> **Nota “FDP?”**: não é acrônimo padrão de redes.
+**Redes**: Roteador, Switch, Hub, TCP/IP, DNS, DHCP, IP, NAT, VLAN, Topologias  
+**Segurança**: Firewall L3/L4/L7, UTM, NGFW, WAF, IDS/IPS  
+**Criptografia**: TLS, IPsec, WPA2/WPA3, PGP/GPG, SSH, HTTPS/SFTP/FTPS  
+**Comunicação**: Cliente–Servidor, P2P, HTTP, FTP  
+**Nuvem**: OCI, AWS, Azure, VPC, Subnets
 
 ---
 
-## 1) Modelo OSI — O Mapa da Rede (e onde vive a criptografia)
+## Atividade 1min: Explore sua rede AGORA
 
-O modelo OSI é a **referência** para entender como os dados trafegam em uma rede — e **onde cada tecnologia de criptografia se encaixa**. Pense no OSI como um **mapa de camadas**: cada camada tem uma função e um tipo de proteção possível.
+Sem instalações, sem complicação. Abra o terminal e rode:
 
-### As 7 camadas em detalhe
+```bash
+# Descubra seu IP público:
+curl ifconfig.me
 
-| Camada | Função | Protocolos/Exemplos | 🔐 Criptografia aqui? |
-|--------|--------|---------------------|----------------------|
-| **7 — Aplicação** | Interface com o usuário (navegador, app) | HTTP, DNS, FTP, SMTP, PGP | ✅ **PGP/GPG** — cifra e assina arquivos e e-mails na ponta |
-| **6 — Apresentação** | Codificação, compressão, formatação | TLS (conceitualmente aqui) | ✅ **TLS** — aperto de mão, negociação de cifras, certificados |
-| **5 — Sessão** | Controle de diálogo entre hosts | NetBIOS, RPC, sessão TLS | 🔄 **TLS** (continuação) — gerencia a sessão segura |
-| **4 — Transporte** | Confiabilidade, controle de fluxo, portas | TCP, UDP, QUIC | 🔄 **TLS** atua **entre** L4 e L7; **QUIC** (HTTP/3) já criptografa por padrão |
-| **3 — Rede** | Roteamento entre redes, endereço IP, fragmentação | IP, ICMP, ARP, IPsec, OSPF, BGP | ✅ **IPsec** — túneis VPN site‑to‑site e cliente‑to‑site |
-| **2 — Enlace** | Quadros, MAC, acesso ao meio físico | Ethernet, Wi‑Fi, ARP, STP, VLAN | ✅ **WPA2/WPA3** (Wi‑Fi), **MACsec 802.1AE** (cabo) |
-| **1 — Física** | Bits no meio físico (cabo, fibra, rádio) | Cabo UTP, fibra óptica, RF | ❌ Sem criptografia — é o meio bruto |
+# Descubra por onde seu pacote passa até o Google:
+traceroute google.com
 
-### Onde cada tecnologia de segurança atua no OSI
+# Veja os servidores DNS que você usa:
+nslookup google.com
+```
+
+**O que você acabou de ver?** Pacotes viajando de verdade pela internet. Isso é real, agora, acontecendo.
+
+---
+
+## 1) História da Criptografia (O contexto)
+
+Por que criptografia importa? Porque sempre importou.
+
+### Linha do tempo resumida
+
+| Época | O que acontecia | Como se protegia |
+|-------|-----------------|-----------------|
+| **~1900 aC** (Egito Antigo) | Faraós precisavam de mensagens secretas | Substituição de letras por símbolos |
+| **~500 aC** (Grécia) | Guerreiros usavam **cifra de César** (shift 3) | `ABC → DEF` |
+| **~1600 dC** (Renascimento) | Matemáticos criam **cifra de Vigenère** (multi-shift) | Muito mais forte que César |
+| **~1940s** (WWII) | Alemanha usa **máquina Enigma** | Considerada inquebrável (mas Alan Turing quebrou) |
+| **~1970s** | **RSA** inventado — primeira cripto de chave pública | Dois números primos gigantes: impossível fatorar |
+| **Hoje** | **TLS/SSL**, **GPG**, **AES**, **Curvas Elípticas** | Protege bilhões de transações por segundo |
+
+**Lição**: Criptografia sempre evoluiu porque pessoas sempre quiseram manter segredos.
+
+---
+
+## 2) O Modelo OSI — O Mapa da Rede (e onde vive a criptografia)
+
+O modelo OSI é uma **receita** que explica como dados trafegam de A até B. Cada camada tem um "dever": a L1 envia bits, a L2 envia quadros, a L3 envia pacotes...
+
+E aqui está a magia: **criptografia vive em praticamente todas elas.**
+
+### As 7 camadas com criptografia mapeada
+
+| Camada | Função | Protocolos | 🔐 Criptografia |
+|--------|--------|-----------|---|
+| **7 — Aplicação** | Onde você interage (browser, app) | HTTP, DNS, FTP, SMTP, PGP | ✅ **PGP/GPG** — você cifra arquivos/emails; **SSH** — acesso remoto seguro |
+| **6 — Apresentação** | Formata os dados | TLS, compressão | ✅ **TLS handshake** — negocia qual cifra usar; **certificados digitais** |
+| **5 — Sessão** | Mantém a conversa acontecendo | NetBIOS, RPC, TLS | 🔄 **TLS continua aqui** — protege a sessão aberta |
+| **4 — Transporte** | Garante entrega (TCP) ou apenas envia (UDP) | TCP, UDP, QUIC | 🔄 **TLS "vive entre" L4 e L7**; **QUIC** cifra por padrão |
+| **3 — Rede** | Roteia pacotes (IP) | IP, ICMP, IPsec, BGP, OSPF | ✅ **IPsec** — cifra todo pacote IP; base das VPNs |
+| **2 — Enlace** | Envia quadros/frames (MAC) | Ethernet, Wi-Fi, ARP, VLAN | ✅ **WPA2/WPA3** — cifra Wi-Fi; **MACsec** — cifra cabo físico |
+| **1 — Física** | Bits no fio/fibra/ar | Cabo UTP, fibra óptica, RF | ❌ Nenhuma — é só eletricidade/luz |
+
+### Visualização do fluxo
 
 ```
-  Aplicação      7 │ 🔐 PGP/GPG, SSH, HTTPS, SFTP, cripto na aplicação
-  Apresentação   6 │ 🔐 TLS (handshake, certificados) ═══════════╗
-  Sessão         5 │ 🔄 TLS (sessão)                            ║
-  Transporte     4 │ ══ TCP/UDP — TLS atua "no meio" ═══════════╝
-  Rede           3 │ 🔐 IPsec (túneis VPN, site-to-site)
-  Enlace         2 │ 🔐 WPA2/WPA3 (Wi-Fi), MACsec (cabo)
+  Aplicação      7 │ 🔐 PGP/GPG, SSH, HTTPS, SFTP
+  Apresentação   6 │ 🔐 TLS (handshake, certificados) ╮
+  Sessão         5 │ 🔄 TLS (sessão aberta)           ║ TLS atua
+  Transporte     4 │ ══ TCP/UDP ←─────────────────────╯ "entre camadas"
+  Rede           3 │ 🔐 IPsec (VPN, túneis)
+  Enlace         2 │ 🔐 WPA2/WPA3 (Wi-Fi), MACsec
   Física         1 │ ❌ Nenhuma
 ```
 
-### TCP/IP na prática (4 camadas)
+### Modelo TCP/IP (a versão "real" da internet)
 
-O modelo TCP/IP é a implementação real da internet — uma simplificação do OSI:
+TCP/IP é OSI **simplificado** em 4 camadas. É isso que rodas de verdade:
 
-| TCP/IP | OSI equivalente | Criptografia típica |
-|--------|-----------------|-------------------|
-| **Aplicação** | L5 + L6 + L7 | **TLS/HTTPS**, **SSH**, **PGP/GPG** |
-| **Transporte** | L4 | — (TLS atua entre App e Transporte) |
-| **Internet** | L3 | **IPsec** |
-| **Acesso à rede** | L1 + L2 | **WPA2/WPA3**, **MACsec** |
+| Camada TCP/IP | = OSI | Criptografia típica |
+|---|---|---|
+| Aplicação | L5 + L6 + L7 | TLS/HTTPS, SSH, PGP/GPG |
+| Transporte | L4 | (TLS atua acima dela) |
+| Internet | L3 | IPsec (VPNs) |
+| Acesso à rede | L1 + L2 | WPA2/WPA3, MACsec |
 
-### Para fixar: exemplos do dia a dia
+### Exemplos do seu dia a dia (mapeados ao OSI)
 
-| Você usa… | Camada OSI | Proteção |
-|-----------|-----------|----------|
-| **WhatsApp** (cripto ponta‑a‑ponta) | L7 — Aplicação | Criptografia na aplicação |
-| **Site com 🔒 (HTTPS)** | Entre L4 e L7 | **TLS** — certificado digital |
-| **Wi‑Fi com senha** | L2 — Enlace | **WPA2/WPA3** |
-| **VPN do trabalho** | L3 — Rede | **IPsec** ou **WireGuard** |
-| **Arquivo .gpg assinado** | L7 — Aplicação | **PGP/GPG** |
+| Você usa… | Camada OSI | Como é protegido? |
+|-----------|-----------|---|
+| **WhatsApp** (conversa encriptada) | L7 | Criptografia na aplicação — só o app cifra/decifera |
+| **Site com 🔒 (HTTPS)** | Entre L4–L7 | TLS — seu navegador e servidor "apertam mão" e negocia cifra |
+| **Wi-Fi com senha** | L2 | WPA2/WPA3 — cifra dados L2 antes de sair pelo ar |
+| **VPN do trabalho** | L3 | IPsec — cifra **todo** pacote IP dentro de um túnel |
+| **Arquivo .gpg** | L7 | PGP — arquivo cifrado no disco; só você descriptografa |
+| **SSH (terminal remoto)** | L7 | SSH — terminal toda criptografado, inclusve senhas |
 
----
-
-## 2) Dispositivos de rede
-### Hub (Camada 1)
-- Repetidor elétrico: **replica tudo para todas as portas**.
-- Gera **colisões**, **sem segurança**. Uso atual: laboratório/legado.
-
-### Switch (Camada 2)
-- Comuta **quadros** por **endereços MAC** (tabela MAC).
-- **STP/RSTP** evitam loops; **VLAN (802.1Q)** segmenta L2.
-- Reduz domínio de colisão; base da LAN moderna.
-
-### Roteador (Camada 3)
-- Encaminha **pacotes IP** entre redes diferentes (LAN↔WAN).
-- Tabela de rotas, **NAT**, **ACLs**. Conecta e isola domínios IP.
-
-> **Regra de bolso**: **Hub morreu**, **Switch manda na LAN**, **Roteador liga redes**.
+**Punchline**: De cima a baixo, criptografia está lá. Não há "um lugar seguro" — segurança é **múltiplas camadas**.
 
 ---
 
-## 3) Endereçamento IP, DHCP e DNS
-### IP e Sub-redes
-- IPv4 (32 bits) e IPv6 (128).  
-- **Máscara/Prefixo**, **Gateway**, **MTU**.  
-- CIDR: ex. `192.168.10.0/24` → hosts `192.168.10.1–254`.
+## 3) Dispositivos de Rede (Os personagens)
 
-### DHCP (App; usa UDP 67/68)
-- Fornece IP, máscara, gateway, DNS, opções (ex.: tempo de lease).  
-- **Comandos úteis**:  
-  - Windows: `ipconfig /all`, `ipconfig /release`, `ipconfig /renew`  
-  - Linux: `ip a`, `sudo dhclient -r && sudo dhclient`
+Três atores principais aparecem em toda rede. Entender cada um é metade da batalha.
 
-### DNS (tradução nome↔IP)
-- Tipos: **A/AAAA**, **CNAME**, **MX**, **TXT**…  
-- **Comandos**: `nslookup`, `dig dominio.com +trace`, `dig A www…`, `dig MX`, `dig TXT`.
+### Hub (Camada 1) — O repetidor "burrão"
 
----
+- **O que faz**: recebe bit de uma porta, envia para **todas** as outras (broadcast puro).
+- **Segurança**: zero. Qualquer máquina na rede vê todo tráfego.
+- **Hoje**: defunto. Mataram porque é arriscado (ninguém quer transparência total).
 
-## 4) HTTP, FTP e modelos de comunicação
-### HTTP/HTTPS
-- **HTTP** é aplicação; **HTTPS = HTTP + TLS**.  
-- Versões: 1.1, 2 e **3 (QUIC/UDP)**.  
-- Cabeçalhos (ex.: `curl -I https://exemplo.com`).
+### Switch (Camada 2) — O "gestor de quadros"
 
-### FTP x SFTP x FTPS
-- **FTP**: legado, **sem criptografia**.  
-- **FTPS**: FTP + TLS.  
-- **SFTP**: protocolo de transferência sobre **SSH** (**não** é FTP).
+- **O que faz**: aprende endereço MAC de cada máquina e envia quadros **só para quem precisa** (não broadcast).
+- **Proteção L2**: VLAN (802.1Q) — cria sub-redes lógicas.
+- **Hoje**: onipresente. Base de toda LAN moderna.
+- **Analogia**: central telefônica — sabe quem liga para quem e conecta direto.
 
-### Cliente–Servidor vs Ponto‑a‑Ponto (P2P)
-- **Cliente–Servidor**: papéis fixos, centralização (web, bancos).  
-- **P2P**: pares atuam como clientes e servidores (BitTorrent, WebRTC).
+### Roteador (Camada 3) — O "viajante entre mundos"
+
+- **O que faz**: conecta **redes diferentes** (LAN local ↔ internet). Usa endereço IP (não MAC).
+- **Proteção**: NAT (traduz IPs privados para públicos), ACL (regras de quem passa).
+- **Hoje**: ponta de entrada/saída de toda rede.
+- **Analogia**: guarda de fronteira — sabe para qual país (rede) cada pacote precisa ir.
+
+**Resumão**: Hub = antigo/burro. Switch = governa LAN. Roteador = governa inter-redes.
 
 ---
 
-## 5) Firewalls e segurança de rede
-- **L3/L4 (Tradicional)**: filtra **IP/protocolo/portas**; pode ser **stateful** e **stateless**.  
-- **L7 (Aplicação)**: compreensão de **HTTP/JSON/SQL**, **DPI**.  
-- **UTM**: “tudo‑em‑um” (FW, IPS, AV, filtro web, VPN).  
-- **NGFW**: controle por **aplicação/usuário**, **IPS**, inspeção SSL/TLS, sandbox.  
-- **Correlatos**: **WAF** (focado em HTTP/HTTPS), **IDS/IPS** (detectar/bloquear ameaças).
+## 4) Comunicação: Cliente–Servidor vs Ponto-a-Ponto (P2P)
+
+Existem dois "formatos" fundamentais de conversa na rede.
+
+### Cliente–Servidor (assimétrico)
+
+- **Papéis fixos**: um é **servidor** (que espera requisição), outro é **cliente** (que pede).
+- **Exemplos**: seu navegador (cliente) pede página ao Google (servidor); seu phone (cliente) pede emails ao Gmail (servidor).
+- **Vantagem**: servidor é um ponto único de controle, fácil monitorar e proteger.
+- **Desvantagem**: se servidor cair, ninguém consegue nada.
+
+### P2P — Ponto-a-Ponto (simétrico)
+
+- **Papéis dinâmicos**: todo nó é **cliente E servidor** ao mesmo tempo.
+- **Exemplos**: BitTorrent (arquivo vem de múltiplas fontes simultaneamente); WhatsApp (seu phone envia e recebe de outros).
+- **Vantagem**: sem ponto único de falha; muito mais resiliente.
+- **Desvantagem**: mais difícil de governar (quem policia?).
+
+**Lição**: A maioria da internet é Cliente–Servidor (centralizadora). P2P é usado quando você quer **descentralização**.
 
 ---
 
-## 6) Introdução à criptografia
-### Tríade CIA
-- **Confidencialidade**, **Integridade**, **Autenticidade**.
+## 5) Endereçamento IP, DHCP e DNS
 
-### Chave simétrica vs assimétrica
-- **Simétrica**: 1 chave (ex.: **AES**). Rápida; desafio na distribuição.  
-- **Assimétrica**: **pública/privada** (ex.: **RSA**, **ECC**). Facilita troca de chaves e assinatura.
+Três pilares que fazem a internet funcionar.
 
-### Protocolos e camadas
-- **TLS** (web): certificado do servidor, cadeias de confiança (CA), negociação (ECDHE).  
-- **IPsec** (rede): protege **IP** ponto‑a‑ponto.  
-- **WPA3** (Wi‑Fi): proteção L2 com SAE/Dragonfly.  
-- **PGP/GPG** (aplicação): cifra/assina arquivos/emails.
+### IP (Internet Protocol)
 
-### Boas práticas
-- RSA ≥ 2048 ou curvas seguras (**P‑256+**).  
-- **PFS** (Perfect Forward Secrecy) com **ECDHE**.  
-- Rotação de chaves e gestão segura de segredos.  
-- Em web: **HSTS**, TLS 1.2+ (preferir 1.3).
+- **IPv4**: 32 bits (ex. `192.168.1.1`) — já está lotado.
+- **IPv6**: 128 bits (ex. `2001:db8::1`) — espaço infinito, ainda em adoção.
+- **CIDR notation**: `192.168.10.0/24` = "rede com 256 endereços (10.1 a 10.254)".
+- **Gateway**: "portão de saída" para fora da rede local.
 
-### Exemplos práticos (terminais)
+### DHCP (Dynamic Host Configuration Protocol)
+
+Servidor DHCP é tipo um **cartório de IPs**: quando você chega numa rede, pede um IP emprestado.
+
 ```bash
-# Verificar certificado/TLS de um site (cadeia e datas)
-openssl s_client -connect exemplo.com:443 -servername exemplo.com | openssl x509 -noout -issuer -subject -dates
+# Ver qual IP o DHCP deu para você:
+Windows:  ipconfig /all
+Linux:    ip a
+          sudo dhclient -r && sudo dhclient  # renovar
+```
 
-# Portas em uso
-ss -tulpn    # Linux
-netstat -ano # Windows
+### DNS (Domain Name System)
 
-# GPG simétrico (demonstração)
-printf 'segredo' | gpg --symmetric --cipher-algo AES256 --armor
+Traduz nome (`google.com`) em IP (`142.251.41.14`).
+
+```bash
+# Descobrir qual IP é google.com:
+nslookup google.com
+dig google.com A +trace     # ver a trajetória da requisição
 ```
 
 ---
 
-## 7) Topologias (físicas e lógicas)
-### Físicas
-- **Barramento** — um único meio compartilhado (legado).  
-- **Anel** — **Token Ring/FDDI** (legado; latência previsível).  
-- **Estrela** — **switch** no centro (padrão moderno).  
-- **Malha (Mesh)** — múltiplos caminhos/redundância (datacenters, malhas Wi‑Fi).
+## 6) HTTP/HTTPS, FTP/SFTP/FTPS — Protocolos de Aplicação
 
-### Lógicas
-- **VLANs** (L2), **sub‑redes** (L3), **overlays** (VXLAN, GRE).  
-- Isolamento de tráfego e virtualização de redes.
+Cada um tem um "padrão de conversa". Alguns têm cripto, outros não.
 
-> **FDDI** (se o “FDP” era isso): anel duplo em fibra (100 Mb/s), típico dos anos 90; substituído por Ethernet comutada.
+| Protocolo | O que faz | Tem cripto? | Hoje é seguro? |
+|-----------|-----------|-----------|---|
+| **HTTP** | Transfere páginas/arquivos | ❌ Não | ❌ Nunca use para dados sensíveis |
+| **HTTPS** | HTTP + TLS | ✅ Sim | ✅ Padrão hoje (🔒 no navegador) |
+| **FTP** | Transfere arquivos | ❌ Não | ❌ Legado, evite |
+| **SFTP** | Arquivos sobre SSH | ✅ Sim | ✅ Substituto seguro de FTP |
+| **FTPS** | FTP + TLS | ✅ Sim | ✅ Funciona, menos usado que SFTP |
+
+**Regra de ouro**: Se tem senha ou dados sensíveis, exija **cripto**. Hoje, HTTPS e SFTP são padrão.
 
 ---
 
-## 8) Nuvem (conceitos e provedores)
+## 7) Firewalls — Os Porteiros da Rede
+
+Firewalls dizem **"sim" ou "não"** a cada pacote que tenta entrar/sair.
+
+| Tipo | O que filtra | Nivel de detalhe | Uso |
+|------|-------------|---|---|
+| **Firewall L3/L4** | IP, porta, protocolo | Básico | Router caseiro, borda de rede |
+| **Firewall L7** | Conteúdo (HTTP, JSON, SQL) | Avançado | Proteção contra XSS, SQL injection |
+| **UTM** | FW + IPS + antivírus + filtro web | Tudo junto | Redes médias/grandes |
+| **NGFW** | Aplicação, usuário, inteligência | Muito avançado | Empresas, gov |
+| **WAF** | Só HTTP/HTTPS | Focado web | Proteção de sites |
+
+**Analogia**: Firewall = guarda de portaria; olha documento (IP:porta) e decide deixa passar ou não.
+
+---
+
+## 8) Introdução à Criptografia (Por quê? Como?)
+
+### A Tríade CIA
+
+Todo sistema de segurança deve garantir:
+- **Confidencialidade**: ninguém lê seus dados (cripto simétrica)
+- **Integridade**: ninguém altera seus dados (hash, assinatura)
+- **Autenticidade**: você sabe quem enviou (certificado, assinatura digital)
+
+### Simétrica vs Assimétrica (diferença crucial)
+
+| Simétrica | Assimétrica |
+|-----------|---|
+| 1 chave compartilhada | Chave pública + privada |
+| Rápida | Mais lenta |
+| Desafio: como compartilhar a chave com segurança? | Chave pública é... pública; privada só você tem |
+| Exemplo: **AES** | Exemplo: **RSA**, **curvas elípticas** |
+
+### Protocolos em ação
+
+- **TLS/HTTPS**: browser e servidor fazem handshake (negociam chave simétrica usando assimétrica), depois comunicam com simétrica.
+- **IPsec**: cria túnel criptografado entre dois IPs. Base das VPNs.
+- **WPA3**: protege Wi-Fi com criptografia moderna (SAE).
+- **PGP/GPG**: você cifra e assina arquivos. Ninguém lê, ninguém altera.
+
+### Boas práticas
+
+- Use **RSA ≥ 2048 bits** ou **curvas elípticas modernas** (P-256+).
+- Exija **TLS 1.3** em sites (não 1.2 ou 1.0).
+- Ative **HSTS** (força HTTPS mesmo se você digitar HTTP).
+- Rode **TLS com PFS** (chave não é reutilizável; cada sessão gera nova).
+
+---
+
+## 9) Topologias de Rede
+
+### Físicas (como os cabos estão arrumados)
+
+- **Barramento**: 1 fio compartilhado (antigo, colisões garantidas).
+- **Anel**: máquinas em círculo, token passa de um a outro (Token Ring/FDDI, defunto).
+- **Estrela**: switch no centro, todos conectados a ele (padrão hoje).
+- **Malha**: múltiplos caminhos, redundância total (datacenters, Wi-Fi mesh).
+
+### Lógicas (como os dados se veem)
+
+- **VLAN** (L2): máquinas diferentes "fingem" estar na mesma rede (802.1Q tags).
+- **Sub-redes** (L3): redes diferentes com mascaras IP diferentes.
+- **Overlays** (VXLAN, GRE): rede lógica em cima de rede física.
+
+---
+
+## 10) Nuvem (AWS, Azure, OCI)
+
+Nuvem = **computação alugada**. Você não tem servidor em casa; um provedor tem para você.
+
 ### Modelos de serviço
-- **IaaS** (VMs/rede), **PaaS** (DB gerenciado), **SaaS** (aplicativo pronto).
 
-### Rede por provedor
-- **AWS**: **VPC**, Subnets, **IGW**, **NAT GW**, **Security Groups** (L4 stateful), **NACL** (stateless).  
-- **Azure**: **VNet**, Subnets, **NSG**, **UDR**, **ExpressRoute**.  
-- **OCI**: **VCN**, Subnets (priv/púb), **DRG**, **IG**, **NSG**, **LPG**, **FastConnect**.
+- **IaaS** (Infrastructure as a Service): alugar VM, rede, storage. Ex: EC2 (AWS).
+- **PaaS** (Platform as a Service): alugar banco de dados gerenciado, sem cuidar do hardware. Ex: RDS (AWS).
+- **SaaS** (Software as a Service): alugar aplicativo pronto. Ex: Gmail, Salesforce.
 
-### Conectividade
-- **VPN IPsec**, **links dedicados** (Direct Connect/ExpressRoute/FastConnect).  
-- Segmentação por **subnets/VLANs**; **WAF** e **IAM** robustos.
+### Por provedor
 
----
+| Provedor | Rede VPC | Firewall | VPN |
+|----------|----------|----------|---|
+| **AWS** | VPC + Subnets | Security Groups (L4) + NACL (L3) | Site-to-site / Client VPN |
+| **Azure** | VNet | Network Security Groups | VPN Gateway |
+| **OCI** | VCN | Network Security Groups | FastConnect (dedicado) |
 
-## 9) Laboratórios rápidos (para demonstração)
-1. **DHCP & IP**
-   - Win: `ipconfig /all`; Linux: `ip a`  
-   - Identificar **IP**, **Máscara**, **Gateway**, **DNS**.
-
-2. **DNS**
-   - `nslookup chat.openai.com`  
-   - `dig chat.openai.com A +trace` (recursão e autoridade).
-
-3. **HTTP/HTTPS**
-   - `curl -I https://exemplo.com` (status, headers)  
-   - `curl --http3 -I https://cloudflare.com` (quando disponível)
-
-4. **Rota/TTL**
-   - Win: `tracert exemplo.com` ; Linux/macOS: `traceroute exemplo.com`
-
-5. **TLS**
-   - `openssl s_client -connect exemplo.com:443 -servername exemplo.com | openssl x509 -noout -issuer -subject -dates`
+**Custo**: pague só pelo que usa.
 
 ---
 
-## 10) Glossário essencial
-- **ARP**: IP→MAC em L2.  
-- **ICMP**: mensagens de controle (ping, traceroute).  
-- **NAT**: tradução de endereços (privado↔público).  
-- **VLAN (802.1Q)**: segmentação L2 por tagging.  
-- **QoS**: priorização (voz/vídeo).  
-- **SNMP**: monitoração de rede.  
-- **SSH**: acesso remoto cifrado.  
-- **NTP**: sincronização de horário.  
-- **BGP/OSPF**: roteamento dinâmico (inter/intra‑domínio).  
-- **WAF**: firewall de aplicação web.  
-- **IDS/IPS**: detecção/prevenção de intrusões.  
-- **MACsec / WPA3**: criptografia em L2 (fio/Wi‑Fi).  
-- **IPsec**: criptografia em L3.  
-- **TLS**: criptografia na camada de aplicação/transporte (conceitual).  
-- **SFTP/FTPS**: transferência segura (via SSH / via TLS).
+## 11) Laboratórios Rápidos (Faça AGORA)
+
+### 1. Descubra seu IP e máscara
+
+```bash
+Windows: ipconfig /all
+Linux:   ip addr show
+```
+
+Procure por `IPv4 Address` / `inet` e `Subnet Mask` / `netmask`.
+
+### 2. Mapeie seus servidores DNS
+
+```bash
+nslookup google.com
+```
+
+Veja qual servidor DNS respondeu.
+
+### 3. Veja o caminho até o Google
+
+```bash
+Windows: tracert google.com
+Linux:   traceroute google.com
+```
+
+Conta quantos "saltos" (routers) leva.
+
+### 4. Veja o certificado de um site
+
+```bash
+openssl s_client -connect google.com:443 -servername google.com 2>/dev/null | openssl x509 -noout -dates
+```
+
+Veja quando expira.
+
+### 5. Teste uma VPN
+
+Se tiver acesso a uma VPN, ative e rode `curl ifconfig.me` de novo. O IP deve mudar.
 
 ---
 
-## 11) Quiz relâmpago
-1. Em quais camadas você encontra **TLS**, **IPsec** e **WPA3**?  
-2. Diferencie **Switch** de **Roteador** em uma frase cada.  
-3. **HTTPS** usa qual protocolo para criptografar e em qual “camada” conceitual ele se encaixa?
+## 12) Glossário Essencial
+
+- **ARP**: descobrir qual MAC corresponde a qual IP (L2).
+- **ICMP**: mensagens de controle (ping, traceroute); "alô, você tá aí?".
+- **NAT**: traduzir IPs privados (10.0.0.1) para públicos (8.8.8.8).
+- **VLAN**: criar sub-redes lógicas via tagging (L2).
+- **SSH**: terminal remoto encriptado; mais seguro que telnet.
+- **TLS**: protocolo de cripto; base de HTTPS, FTPS.
+- **IPsec**: criptografia de rede (L3); base de VPN.
+- **WPA3**: criptografia de Wi-Fi moderna.
+- **BGP/OSPF**: protocolos que roteadores usam pra aprender rotas.
+- **WAF**: firewall só pra HTTP/HTTPS; bloqueia ataques web.
+- **IDS/IPS**: sistemas que **detectam** (IDS) ou **bloqueiam** (IPS) ataques.
 
 ---
 
-## 12) Materiais e dicas para o instrutor
-- Use analogias: **estradas** (IP), **interseções** (roteadores), **prédios** (switches/VLANs), **porteiros** (firewalls).  
-- Mostre `curl -I` para status e cabeçalhos; `dig` para DNS e `traceroute` para caminho/latência.  
-- Enfatize **chaves** (simétrica/assimétrica), **cadeia de confiança** (AC raiz → intermediária → servidor) e **PFS**.
+## Próximos Passos
+
+Parabéns. Você entendeu o mapa da rede e onde criptografia vive.
+
+**Na próxima aula**, vamos sujar as mãos: montar um laboratório com Docker, criar nossas próprias chaves GPG, criptografar mensagens de verdade, e atacar/defender redes simuladas.
+
+Traga curiosidade.
 
 ---
 
-## 13) Acréscimos essenciais (DHCP + “XYZ”)
-> Tópicos correlatos que costumam aparecer junto de DHCP. Aqui listados **sem ordem sequencial** (o professor pode escolher a ordem didática).
-
-### NAT
-- Traduz IPs privados ↔ públicos (saída: **SNAT/masquerade**; entrada: **DNAT**).  
-- **Exemplo (Linux, nftables)**:
-  ```bash
-  nft add table ip nat
-  nft add chain ip nat POSTROUTING '{ type nat hook postrouting priority 100; }'
-  nft add rule ip nat POSTROUTING oifname "eth0" masquerade
-  ```
-
-### VLAN
-- Segmentação lógica L2 por **tag 802.1Q**.  
-- **Exemplo (Linux)**:
-  ```bash
-  ip link add link eth0 name eth0.10 type vlan id 10
-  ip addr add 192.168.10.1/24 dev eth0.10
-  ip link set eth0.10 up
-  ```
-
-### VPN
-- Túneis criptografados (**IPsec**, **SSL/TLS**, **WireGuard**).  
-- Atenção a **sobreposição de sub-redes**, **NAT‑exempt** e **MTU/MSS**.
-
-### QoS
-- **Marcação** (802.1p/CoS, **DSCP**) e **enfileiramento** (HTB, FQ‑CoDel).  
-- **Exemplo (Linux)**:
-  ```bash
-  # marcar voz como EF (DSCP 46) – exemplo
-  iptables -t mangle -A POSTROUTING -p udp --dport 5060 -j DSCP --set-dscp-class EF
-  tc qdisc add dev eth0 root fq_codel
-  ```
-
----
-
-## Observações finais
-- **Hub** é legado; prefira **switch**.  
-- O uso de **FTP** sem criptografia não é recomendado; prefira **SFTP/FTPS**.  
-- Caso “**FDP**” refira-se a outro termo (e não **FDDI**), indique para inclusão correta no glossário.
-
----
 📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Aula_Intro_redes_criptografia.md.svg)
