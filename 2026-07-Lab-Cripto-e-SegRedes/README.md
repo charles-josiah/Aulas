@@ -12,11 +12,8 @@
 
 ```
 📁 2026-07-Lab-Cripto-e-SegRedes/
-├── 📁 aulas/           → Planos de aula
-├── 📁 materiais/       → Slides, handouts, referências
-├── 📁 projetos/        → Projetos dos alunos
-├── 📁 labs/            → Laboratórios práticos
-└── 📁 avaliacoes/      → Instrumentos de avaliação
+├── 📁 workshops/       → Workshops
+└── 📁 materiais/       → Slides, handouts, referencias, outros
 ```
 
 ---
@@ -37,9 +34,3 @@
 12. Hacking Ético em Ambientes Controlados
 
 ---
-
-## Projeto Semestral
-
-**Tema:** "Como posso melhorar a Indústria?"
-
-Parceria com indústria via SAGA SENAI de Inovação para solução de problemas reais de segurança cibernética.
