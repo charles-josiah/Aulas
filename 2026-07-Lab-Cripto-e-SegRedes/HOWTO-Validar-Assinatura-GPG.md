@@ -76,7 +76,7 @@ Funciona como um "carimbo digital" que qualquer pessoa pode verificar usando a c
 
 ## 3. O que foi feito?
 
-Neste laboratório, o **README.md** foi assinado digitalmente com a chave GPG do docente:
+Assinamos digitalmente o **README.md** usando nossa **chave privada GPG**. O GPG calcula um **hash** (resumo criptográfico) do arquivo original, cifra esse hash com nossa chave privada e gera o arquivo de assinatura (`.asc`). Quem receber o arquivo pode usar nossa **chave pública** para decifrar o hash, recalcular o hash do arquivo recebido e comparar os dois: se forem iguais, o arquivo é autêntico e não foi alterado.
 
 ```
 ┌─────────────────────────────────────┐
