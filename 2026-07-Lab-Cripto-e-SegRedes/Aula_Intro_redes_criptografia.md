@@ -79,6 +79,24 @@ Por que criptografia importa? Porque sempre importou.
 
 **Lição**: Criptografia sempre evoluiu porque pessoas sempre quiseram manter segredos.
 
+### Exemplo prático: a Cifra de César (shift 3)
+
+A cifra de César "empurra" cada letra 3 posições à frente no alfabeto (`A→D`, `B→E`, `C→F`...). Veja uma mensagem real do campo de batalha:
+
+**Mensagem original:**
+```
+ATAQUE AO AMANHECER
+INIMIGO NAO SUSPEITA
+```
+
+**Mensagem cifrada (o que o inimigo interceptaria):**
+```
+DWDTXH DR DPDQKHFHU
+LQLPLJR QDR VXVSHLWD
+```
+
+> Só quem souber o **shift (3)** consegue desfazer. Essa "chave" secreta é o coração de toda criptografia — desde César até o RSA moderno.
+
 ---
 
 ## 2) O Modelo OSI — O Mapa da Rede (e onde vive a criptografia)
