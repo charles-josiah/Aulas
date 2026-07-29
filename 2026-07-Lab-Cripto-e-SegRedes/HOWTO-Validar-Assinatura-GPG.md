@@ -17,7 +17,8 @@
 5. [Passo a passo: validar a assinatura](#5-passo-a-passo-validar-a-assinatura)
 6. [Comandos rápidos (copia e cola)](#6-comandos-rápidos-copia-e-cola)
 7. [Entendendo o resultado](#7-entendendo-o-resultado)
-8. [Para saber mais](#8-para-saber-mais)
+8. [Exercício prático: descriptografar e validar a mensagem de boas-vindas](#8-exercício-prático-descriptografar-e-validar-a-mensagem-de-boas-vindas)
+9. [Para saber mais](#9-para-saber-mais)
 
 ---
 
@@ -211,7 +212,83 @@ gpg --edit-key charles.alandt@edu.sc.senai.br
 
 ---
 
-## 8. Para saber mais
+## 8. Exercício prático: descriptografar e validar a mensagem de boas-vindas
+
+O arquivo `mensagem_de_boas_vindas.md` foi **criptografado** e **assinado** com a chave GPG do professor. O arquivo original foi removido do repositório — só quem tem a **chave privada** pode descriptografar, mas **qualquer um** pode verificar a assinatura.
+
+### Arquivos no repositório
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `mensagem_de_boas_vindas.md.gpg` | Mensagem criptografada (só o professor descriptografa) |
+| `mensagem_de_boas_vindas.md.sig` | Assinatura digital destacada (qualquer um valida) |
+
+---
+
+### 8.1 — Baixar os arquivos
+
+```bash
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/mensagem_de_boas_vindas.md.gpg
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/mensagem_de_boas_vindas.md.sig
+```
+
+---
+
+### 8.2 — Verificar a assinatura (todos podem fazer)
+
+Com a [chave pública do professor](https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2026-07-Lab-Cripto-e-SegRedes/senai-public-key.asc) importada:
+
+```bash
+# Importar a chave pública (se ainda não fez)
+gpg --import senai-public-key.asc
+
+# Verificar a assinatura .sig contra o .gpg
+gpg --verify mensagem_de_boas_vindas.md.sig mensagem_de_boas_vindas.md.gpg
+```
+
+Saída esperada:
+
+```
+gpg: Signature made Wed Jul 29 13:43:00 2026 -03
+gpg:                using RSA key 1299BD017A0E77B235850DEEC880FC222955FFA3
+gpg: Good signature from "Charles Alandt <charles.alandt@edu.sc.senai.br>"
+```
+
+> **Nota:** validamos a assinatura **do arquivo `.gpg`**, não do texto original. Isso prova que o arquivo criptografado é autêntico e não foi adulterado.
+
+---
+
+### 8.3 — Descriptografar (só quem tem a chave privada)
+
+```bash
+gpg --decrypt mensagem_de_boas_vindas.md.gpg
+```
+
+O GPG pedirá a **senha da chave privada** e exibirá o conteúdo original no terminal.
+
+Para salvar em arquivo:
+
+```bash
+gpg --decrypt mensagem_de_boas_vindas.md.gpg > mensagem_de_boas_vindas.md
+```
+
+---
+
+### Fluxo completo
+
+```
+Exemplo do fluxo que realizamos em aula:
+
+┌──────────────────┐      ┌───────────────────┐      ┌───────────────┐
+│  Original (.md)  │ ───> │ Criptografado.gpg │ ───> │ Descriptografar│
+│  (removido do    │      │ + assinatura.sig  │      │ + validar sig │
+│   repositório)   │      │   (no GitHub)     │      │  (qualquer um)│
+└──────────────────┘      └───────────────────┘      └───────────────┘
+```
+
+---
+
+## 9. Para saber mais
 
 ### Como criar sua própria chave GPG
 
@@ -248,9 +325,9 @@ gpg --decrypt arquivo.txt.gpg
 | Operação | Comando |
 |----------|---------|
 | **Importar chave pública** | `gpg --import chave.asc` |
-| **Verificar assinatura** | `gpg --verify arquivo.asc arquivo` |
+| **Verificar assinatura (.sig)** | `gpg --verify arquivo.sig arquivo.gpg` |
 | **Assinar arquivo** | `gpg --armor --detach-sign arquivo` |
-| **Criptografar** | `gpg --encrypt --recipient email arquivo` |
+| **Criptografar para alguém** | `gpg --encrypt --recipient email arquivo` |
 | **Descriptografar** | `gpg --decrypt arquivo.gpg` |
 
 ---
