@@ -8,168 +8,161 @@
 
 ## Filosofia de Ensino (Modus Operandi)
 
-Baseado na experiência do semestre anterior (2025/2), a disciplina será conduzida no formato **Opção A**:
+A disciplina é fortemente inspirada na experiência prática do semestre anterior (2025/2), mantendo o formato **mão na massa desde o primeiro dia**:
 
-> **Mão na massa desde o primeiro dia.**
+- Laboratórios práticos como espinha dorsal do aprendizado
+- Demonstrações ao vivo de serviços de rede e ferramentas de segurança
+- Topologias e cenários que ilustram visualmente cada conceito
+- Momentos síncronos focados em dúvidas e discussão
+- Todo o material publicado e versionado no GitHub da disciplina
+- Incentivo à experimentação e à curiosidade técnica
 
-- Uso intensivo de laboratórios práticos (workshops)
-- Demonstrações práticas dos serviços de rede
-- Demonstrações práticas das ferramentas da UC
-- Propostas de topologias e atividades para exemplificar visualmente o conteúdo
-- Momentos síncronos para dúvidas e discussão
-- Todo material publicado no GitHub da disciplina
+> O aluno não é espectador — é protagonista da própria aprendizagem.
 
 ---
 
 ## Ambiente de Laboratório
 
-### Especificação Mínima (VirtualBox)
+Estamos trabalhando em uma versão enxuta e moderna do ambiente, substituindo múltiplas VMs por uma abordagem **leve e baseada em containers**:
 
-| VM | SO | CPU | RAM | Disco | Rede |
-|----|----|-----|-----|-------|------|
-| **serv1** | Ubuntu Server | 2 | 2 GB | 10 GB | Rede Interna |
-| **serv2** | Ubuntu Server | 2 | 2 GB | 10 GB | Rede Interna |
-| **firewall** | Debian Server | 2 | 2 GB | 5 GB | Bridge + Rede Interna |
-| **kali** | Kali Linux (Live) | 2 | 2 GB | 10 GB | Rede Interna |
+### Estrutura Atual (em evolução)
 
-> O aluno pode usar **qualquer plataforma** (VirtualBox, VMware, Proxmox, AWS, OCI, Azure) desde que consiga executar as atividades propostas.
+| Componente | Função | Tecnologia |
+|------------|--------|------------|
+| **VM 1 — Servidor** | Docker host com todos os serviços empacotados | Ubuntu Server + Docker |
+| **VM 2 — Kali/Atacante** | Testes, varreduras e análise de tráfego | Kali Linux |
+| **Containers** | Serviços individuais (FTP, Web, SGBD, etc.) | Docker |
+| **Containers vulneráveis** | Alvos propositalmente inseguros para validar criptografia e segurança | Juice Shop, dvwa, vulnapps |
+
+### Por que containers?
+
+- **Menos recursos**: 2 VMs substituem 4+ máquinas
+- **Mais flexibilidade**: sobe e derruba serviços em segundos
+- **Cenários vulneráveis**: containers como Juice Shop e DVWA permitem testar ataques reais em ambiente controlado
+- **Portabilidade**: o mesmo `docker-compose.yml` funciona no VirtualBox, OCI, AWS, ou qualquer servidor Linux
+
+### Quando precisar de mais poder computacional
+
+O **Oracle Cloud Free Tier** oferece recursos Always Free que podem complementar o laboratório:
+
+- [Visão Geral do Free Tier](https://docs.oracle.com/pt-br/iaas/Content/FreeTier/freetier.htm)
+- [Recursos Always Free](https://docs.oracle.com/pt-br/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm)
+
+> O aluno é livre para usar **qualquer plataforma** (VirtualBox, VMware, Proxmox, OCI, AWS, Azure) — desde que consiga executar as atividades propostas, o ambiente é de sua escolha.
 
 ---
 
 ## Estrutura da Disciplina
 
-A disciplina é dividida em **2 grandes blocos**:
+A unidade curricular está organizada em **2 grandes blocos** que se complementam:
 
-### Bloco 1 — Serviços SEM Criptografia (Aulas 01–03)
+### Bloco 1 — Antes da Criptografia
 
-Desenvolver todos os serviços de rede **sem qualquer proteção criptográfica**, analisar o tráfego, identificar vulnerabilidades e entender o "estado da arte" inseguro.
+Desenvolver e analisar serviços de rede **sem qualquer proteção criptográfica**. O objetivo é que o aluno veja com os próprios olhos o tráfego exposto, senhas em texto claro e a fragilidade de um ambiente inseguro — criando a motivação real para a criptografia.
 
-### Bloco 2 — Serviços COM Criptografia (Aulas 04–05)
+### Bloco 2 — Depois da Criptografia
 
-Reconfigurar todos os serviços anteriores **ativando criptografia**, comparar com o bloco anterior e validar a eficácia das medidas.
+Reconfigurar os mesmos serviços **ativando criptografia** (GPG, SSL/TLS, HTTPS, FTPS, certificados digitais). Comparar os cenários, medir a diferença e validar a eficácia das medidas de proteção.
 
----
-
-## Sugestão de Atividades por Aula
+> A chave do aprendizado está na **comparação**: ver o antes e o depois com as mesmas ferramentas de análise (Wireshark, tcpdump, nmap).
 
 ---
 
-### Aula 01 — Aula Inaugural
+## Workshop Inaugural — Criptografia e Assinatura Digital com GPG
 
-**Tema:** Fundamentos de Redes + História da Criptografia
+**Tema desta semana:** Introdução prática à criptografia de chave pública com GPG.
 
-| Atividade | Descrição | Tipo |
-|-----------|-----------|------|
-| **Quebra-gelo** | "Mapeando uma Rede" — usar traceroute + geolocation para mapear rota até um servidor | Prática guiada |
-| **História da Criptografia** | Linha do tempo interativa (Egito Antigo → Criptografia Quântica) | Exposição dialogada |
-| **Laboratório 1** | Instalação do VirtualBox + criação das VMs do ambiente base | Workshop |
-| **Atividade complementar** | Pesquisar e postar no fórum: "qual o marco mais importante da história da criptografia?" | Assíncrona |
+| Atividade | Descrição |
+|-----------|-----------|
+| Geração de par de chaves | `gpg --full-generate-key` — RSA 4096 |
+| Criptografia simétrica | Proteger um arquivo com senha (`gpg --symmetric`) |
+| Criptografia assimétrica | Criptografar mensagem com a chave pública do destinatário |
+| Assinatura digital | Assinar um documento e validar a autenticidade |
+| Troca de chaves | Alunos exportam e importam chaves públicas entre si |
+| Verificação de integridade | Comparar hash, assinatura e validação no GitHub |
 
-**Workshops relacionados:**
-- Workshop de Criptografia e Assinatura Digital com GPG (apresentação do material)
-
----
-
-### Aula 02 — Servidores e Serviços de Rede
-
-**Tema:** Montagem do ambiente de serviços sem criptografia
-
-| Atividade | Descrição | Tipo |
-|-----------|-----------|------|
-| **Laboratório 2** | Configurar servidor FTP (vsftpd) — **sem TLS** | Workshop |
-| **Laboratório 3** | Configurar servidor Web (Apache/Nginx) — **sem HTTPS** | Workshop |
-| **Laboratório 4** | Configurar SGBD (MySQL/PostgreSQL) — **sem SSL** | Workshop |
-| **Análise** | Capturar tráfego FTP/HTTP com Wireshark/tcpdump — senha em texto claro | Prática guiada |
-| **Desafio** | "O que um invasor consegue ver?" — demonstrar interceptação de tráfego com Kali | Demonstração |
-
-**Objetivo:** Que o aluno veja com os próprios olhos como é exposto um serviço sem criptografia.
+**Material de apoio:**
+`Workshops/Workshop-Criptografia-e-Assinatura-Digital-com-GPG/README.md`
 
 ---
 
-### Aula 03 — Criptografia na Prática
+## Laboratórios e Workshops Planejados
 
-**Tema:** Introdução aos algoritmos criptográficos + GPG
+A lista abaixo é um **cardápio** de possíveis laboratórios — serão escolhidos e adaptados conforme o andamento da turma, dúvidas que surgirem e o tempo disponível.
 
-| Atividade | Descrição | Tipo |
-|-----------|-----------|------|
-| **Workshop GPG** | Geração de par de chaves, criptografia simétrica e assimétrica, assinatura digital | Workshop |
-| **Laboratório 5** | Criptografar/assinar mensagens entre colegas (troca de chaves públicas) | Atividade em dupla |
-| **Laboratório 6** | Configurar Apache com HTTPS (SSL/TLS — certificado auto-assinado) | Workshop |
-| **Laboratório 7** | Configurar vsftpd com TLS explícito (FTPES) | Workshop |
-| **Comparação** | Capturar tráfego HTTPS vs HTTP e FTPES vs FTP — comparar o que o Wireshark "enxerga" | Prática guiada |
+### Serviços de Rede (Bloco 1 — sem criptografia)
 
-**Workshops relacionados:**
-- Workshop-Criptografia-e-Assinatura-Digital-com-GPG
+| # | Laboratório | Descrição |
+|---|-------------|-----------|
+| 01 | **Setup do Ambiente** | Instalação do Docker, docker-compose e primeiros containers |
+| 02 | **FTP sem TLS** | Servidor vsftpd em container — capturar senha em texto claro com Wireshark |
+| 03 | **HTTP sem TLS** | Servidor Nginx/Apache em container — tráfego HTTP visível |
+| 04 | **SGBD sem SSL** | MySQL/PostgreSQL em container — consultas e credenciais expostas |
+| 05 | **Análise de Tráfego** | Uso de tcpdump, Wireshark e nmap para enxergar o que trafega na rede |
+| 06 | **DNS e Proxy** | Consultas DNS expostas, proxy sem autenticação |
 
----
+### Criptografia e Segurança (Bloco 2 — com criptografia)
 
-### Aula 04 — Segurança Avançada
+| # | Laboratório | Descrição |
+|---|-------------|-----------|
+| 07 | **GPG na Prática** | Criptografia simétrica/assimétrica, assinatura digital e verificação |
+| 08 | **HTTPS com Certificado Auto-Assinado** | Nginx/Apache com SSL/TLS — comparar tráfego com HTTP |
+| 09 | **FTP com TLS (FTPES)** | vsftpd com TLS explícito — ver a diferença no Wireshark |
+| 10 | **SGBD com SSL** | MySQL/PostgreSQL com conexão cifrada |
+| 11 | **PKI Caseira** | Criar própria Autoridade Certificadora (CA) e emitir certificados |
+| 12 | **Firewall (iptables/nftables)** | Bloqueio por porta, IP e inspeção de tráfego |
 
-**Tema:** Firewall, Proxy, PKI e autenticação segura
+### Cenários Vulneráveis e Hacking
 
-| Atividade | Descrição | Tipo |
-|-----------|-----------|------|
-| **Laboratório 8** | Configurar firewall (iptables/nftables) — bloqueio por porta/IP | Workshop |
-| **Laboratório 9** | Configurar proxy Squid com autenticação | Workshop |
-| **Laboratório 10** | PKI na prática: criar CA própria, emitir certificados para servidores | Workshop |
-| **Laboratório 11** | Configurar MySQL/PostgreSQL com SSL/TLS | Workshop |
-| **Análise** | Testar bloqueios do firewall — o que passa, o que é barrado? | Prática guiada |
-
----
-
-### Aula 05 — Projeto Final e Comparação
-
-**Tema:** Síntese, comparação e apresentação
-
-| Atividade | Descrição | Tipo |
-|-----------|-----------|------|
-| **Laboratório 12** | Revisão geral: todos os serviços rodando COM criptografia | Workshop |
-| **Comparação final** | Antes vs Depois: tabela comparativa de segurança de cada serviço | Atividade |
-| **Hacking ético** | Tentativa de quebra de criptografia (John the Ripper, hashcat — demonstração) | Demonstração |
-| **Plano de Resposta** | Elaborar plano de resposta a incidentes com base no cenário montado | Atividade |
-| **Encerramento** | Discussão: "O que muda quando ativamos a criptografia?" | Debate |
+| # | Laboratório | Descrição |
+|---|-------------|-----------|
+| 13 | **Juice Shop** | Loja vulnerável — testar SQLi, XSS e ver como a criptografia (ou falta dela) expõe dados |
+| 14 | **Container Vulnerável** | Alvo propositalmente inseguro para demonstrar ataques de rede |
+| 15 | **Quebra de Hash** | John the Ripper / hashcat — demonstração de fragilidade de senhas fracas |
+| 16 | **Wireshark Forense** | Capturar tráfego de um ataque simulado e identificar as evidências |
 
 ---
 
 ## Fluxo de Trabalho Recomendado
 
 ```
-Aula 01         Aula 02              Aula 03              Aula 04              Aula 05
-  │                │                    │                    │                    │
-  ▼                ▼                    ▼                    ▼                    ▼
-┌────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
-│Setup   │   │ FTP   Web    │   │ GPG   HTTPS  │   │ Firewall     │   │ Revisão      │
-│VMs     │──▶│ SGBD  (SEM)  │──▶│ FTPES (COM)  │──▶│ PKI   Proxy  │──▶│ Comparação   │
-│Rede    │   │ Wireshark    │   │ Comparação   │   │ SGBD SSL     │   │ Hacking      │
-└────────┘   └──────────────┘   └──────────────┘   └──────────────┘   └──────────────┘
-                  │                                      │                    │
-              Tráfego                                    │              "Antes vs
-              visível                                    │              Depois"
-              (senha em                                  │
-              texto claro)                               │
-                                                         ▼
-                                              Tráfego cifrado
-                                              (dados protegidos)
+┌──────────────────────────────────────────────────────────────────────┐
+│                    BLOCO 1 — SEM CRIPTOGRAFIA                       │
+│                                                                      │
+│   Setup     FTP      Web      SGBD     Análise     Visualização     │
+│   Docker   (sem     (sem     (sem     Wireshark   "tudo exposto"    │
+│   + Kali   TLS)     TLS)     SSL)     /tcpdump    🚨               │
+└──────────────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│                    BLOCO 2 — COM CRIPTOGRAFIA                       │
+│                                                                      │
+│   GPG      HTTPS    FTPES    SGBD      PKI          Comparação      │
+│   Chaves   (TLS)    (TLS)    (SSL)     + CA        "dados seguros   │
+│   + .asc                                                      ✅    │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Workshops Disponíveis no Repositório
+## Workshops Publicados no Repositório
 
-| Workshop | Descrição | Localização |
-|----------|-----------|-------------|
-| Criptografia e Assinatura Digital com GPG | Geração de chaves, criptografia simétrica/assimétrica, assinatura digital | `Workshops/Workshop-Criptografia-e-Assinatura-Digital-com-GPG/` |
+| Workshop | Descrição | Caminho |
+|----------|-----------|---------|
+| Criptografia e Assinatura Digital com GPG | Geração de chaves, criptografia simétrica/assimétrica, assinatura digital e validação | `Workshops/Workshop-Criptografia-e-Assinatura-Digital-com-GPG/` |
 
-> Novos workshops serão adicionados conforme o avanço da turma.
+> Novos workshops e laboratórios serão adicionados conforme a turma avança.
 
 ---
 
 ## Dicas para o Aluno
 
-1. **Monte o laboratório na primeira semana** — não deixe para depois
-2. **Tire prints de cada etapa** — vai usar no relatório final
-3. **Teste SEM criptografia primeiro** — só depois ative a proteção
-4. **Use o Wireshark/tcpdump em cada etapa** — visualizar a diferença é o que fixa o aprendizado
-5. **Participe dos momentos síncronos** — tire dúvidas ao vivo
-6. **Repositório GitHub** — todo material fica disponível em:
+1. **Monte o laboratório o quanto antes** — Docker + Kali rodando é o suficiente para começar
+2. **Teste SEM criptografia primeiro** — só depois ative a proteção. A comparação é o que fixa o conteúdo
+3. **Use o Wireshark/tcpdump em cada etapa** — ver a diferença entre tráfego cifrado e não cifrado é o aprendizado mais valioso da disciplina
+4. **Container é seu amigo** — se errar, derruba e sobe de novo em segundos
+5. **Participe dos momentos síncronos** — dúvidas ao vivo aceleram o aprendizado
+6. **Repositório GitHub** — todo o material fica disponível em:
    `https://github.com/charles-josiah/Aulas/tree/master/2026-07-Lab-Cripto-e-SegRedes/`
+7. **Free Tier da OCI** — se precisar de servidor adicional, aproveite os recursos gratuitos da Oracle Cloud
