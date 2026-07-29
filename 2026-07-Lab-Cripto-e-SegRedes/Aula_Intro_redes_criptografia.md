@@ -145,6 +145,42 @@ O processo inverso acontece:
 
 **Conclusão**: o que você vê como "enviar email" é, na verdade, uma complexa operação de empacotamento, endereçamento, envio, desempacotamento e remontagem.
 
+### Diagrama da Jornada
+
+```mermaid
+graph TD
+    subgraph Seu PC (Remetente)
+        direction TB
+        A[<b>Você clica em "Enviar"</b><br/><i>'Olá, amigo!'</i>] --> L7
+        L7(<b>L7: Aplicação</b><br/><i>Dados</i>) --> L6
+        L6(<b>L6: Apresentação</b><br/><i>Dados Formatados + Cripto TLS</i>) --> L5
+        L5(<b>L5: Sessão</b><br/><i>Controle de diálogo</i>) --> L4
+        L4(<b>L4: Transporte</b><br/><i>[Cabeçalho TCP] + Dados</i><br/><b>= Segmento</b>) --> L3
+        L3(<b>L3: Rede</b><br/><i>[Cabeçalho IP] + Segmento</i><br/><b>= Pacote</b>) --> L2
+        L2(<b>L2: Enlace</b><br/><i>[Cabeçalho MAC] + Pacote</i><br/><b>= Quadro</b>) --> L1
+        L1(<b>L1: Física</b><br/><i>Sinal elétrico/luz</i><br/><b>= Bits</b>)
+    end
+
+    subgraph PC do Amigo (Destinatário)
+        direction BT
+        B[<b>Amigo lê o e-mail</b><br/><i>'Olá, amigo!'</i>] <-- L7_R
+        L7_R(<b>L7: Aplicação</b><br/><i>Dados</i>) <-- L6_R
+        L6_R(<b>L6: Apresentação</b><br/><i>Descriptografa + Formata</i>) <-- L5_R
+        L5_R(<b>L5: Sessão</b><br/><i>Fim do diálogo</i>) <-- L4_R
+        L4_R(<b>L4: Transporte</b><br/><i>Remove cabeçalho TCP</i><br/><b>Segmento</b>) <-- L3_R
+        L3_R(<b>L3: Rede</b><br/><i>Remove cabeçalho IP</i><br/><b>Pacote</b>) <-- L2_R
+        L2_R(<b>L2: Enlace</b><br/><i>Remove cabeçalho MAC</i><br/><b>Quadro</b>) <-- L1_R
+        L1_R(<b>L1: Física</b><br/><i>Interpreta sinal</i><br/><b>Bits</b>)
+    end
+
+    L1 --> M[<b>🌐 Internet 🌐</b><br/>Cabos, Fibras, Roteadores...] --> L1_R
+
+    classDef sender fill:#D1E8FF,stroke:#333,stroke-width:2px;
+    classDef receiver fill:#D1FFD1,stroke:#333,stroke-width:2px;
+    class L7,L6,L5,L4,L3,L2,L1 sender;
+    class L7_R,L6_R,L5_R,L4_R,L3_R,L2_R,L1_R receiver;
+```
+
 ### Visualização do fluxo
 
 ```
@@ -230,6 +266,14 @@ Existem dois "formatos" fundamentais de conversa na rede.
 - **Desvantagem**: mais difícil de governar (quem policia?).
 
 **Lição**: A maioria da internet é Cliente–Servidor (centralizadora). P2P é usado quando você quer **descentralização**.
+
+### Portas: As "Portas de Embarque" da Comunicação
+
+Pense nas portas como os portões de embarque de um aeroporto. O servidor oferece serviços em portões fixos, enquanto você (cliente) usa um portão temporário para se conectar.
+
+- **Portas Fixas (Well-Known Ports: 0-1023):** São os portões padronizados para serviços famosos. O servidor sempre "escuta" nelas.
+  - **Exemplos:** HTTP (80), HTTPS (443), SSH (22), FTP (21).
+- **Portas Efêmeras (Altas/Privadas: 49152-65535):** Seu navegador ou app escolhe uma dessas aleatoriamente para iniciar a conversa. Ela só existe durante a conexão e depois é liberada. Você pode ver quais estão em uso com `netstat -an`.
 
 ---
 
