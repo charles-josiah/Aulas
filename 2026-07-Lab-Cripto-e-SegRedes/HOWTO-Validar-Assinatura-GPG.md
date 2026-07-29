@@ -10,17 +10,60 @@
 
 ## Índice
 
-1. [O que é uma assinatura digital GPG?](#1-o-que-é-uma-assinatura-digital-gpg)
-2. [O que foi feito?](#2-o-que-foi-feito)
-3. [Pré-requisitos](#3-pré-requisitos)
-4. [Passo a passo: validar a assinatura](#4-passo-a-passo-validar-a-assinatura)
-5. [Comandos rápidos (copia e cola)](#5-comandos-rápidos-copia-e-cola)
-6. [Entendendo o resultado](#6-entendendo-o-resultado)
-7. [Para saber mais](#7-para-saber-mais)
+1. [Usabilidade da chave GPG](#1-usabilidade-da-chave-gpg)
+2. [O que é uma assinatura digital GPG?](#2-o-que-é-uma-assinatura-digital-gpg)
+3. [O que foi feito?](#3-o-que-foi-feito)
+4. [Pré-requisitos](#4-pré-requisitos)
+5. [Passo a passo: validar a assinatura](#5-passo-a-passo-validar-a-assinatura)
+6. [Comandos rápidos (copia e cola)](#6-comandos-rápidos-copia-e-cola)
+7. [Entendendo o resultado](#7-entendendo-o-resultado)
+8. [Para saber mais](#8-para-saber-mais)
 
 ---
 
-## 1. O que é uma assinatura digital GPG?
+## 1. Usabilidade da chave GPG
+
+A criptografia de chave pública (GPG/PGP) tem diversas aplicações práticas no mundo real. Abaixo, 5 usabilidades essenciais:
+
+### 🔏 1.1 — Assinatura de documentos e contratos
+
+Substitui a assinatura de próprio punho em ambientes digitais. Um contrato assinado com GPG tem **validade jurídica** (MP 2.200-2 / ICP-Brasil) e pode ser verificado por qualquer parte envolvida.
+
+**Exemplo:** Empresa A assina um PDF de contrato e envia para Empresa B, que valida a assinatura com a chave pública da Empresa A.
+
+### 🔐 1.2 — Criptografia de e-mails e comunicações
+
+O GPG permite criptografar e-mails de ponta a ponta usando o padrão **OpenPGP**, integrado a clientes como Thunderbird (Enigmail), Outlook (Gpg4win) e Mutt.
+
+**Exemplo:** Jornalistas e ativistas usam GPG para proteger comunicações sensíveis contra interceptação.
+
+### 🛡️ 1.3 — Autenticação em commits Git (GitHub/GitLab)
+
+Desenvolvedores usam chaves GPG para **assinar commits e tags** no Git. O GitHub exibe um selo ✅ "Verified" quando o commit é assinado por uma chave GPG válida.
+
+**Exemplo:** Projetos open source como Linux Kernel e Debian exigem commits assinados para garantir que o código veio de fontes confiáveis.
+
+### 📦 1.4 — Verificação de integridade de pacotes e softwares
+
+Distribuições Linux e repositórios de software distribuem **checksums assinados** com GPG para que usuários verifiquem se um pacote não foi adulterado durante o download.
+
+**Exemplo:** Ao baixar uma ISO do Ubuntu, o arquivo `SHA256SUMS` é assinado com a chave GPG oficial da Canonical — o usuário valida antes de instalar.
+
+### 🏛️ 1.5 — Autenticação de documentos oficiais e cartórios
+
+O **ITI (Instituto Nacional de Tecnologia da Informação)** — ICP-Brasil regula a infraestrutura de chaves públicas no Brasil. Certificados A1/A3 são usados para:
+
+- Assinar notas fiscais eletrônicas (NF-e)
+- Autenticar documentos em cartórios digitais (e-Notariado)
+- Protocolizar petições em tribunais (e-SAJ, PJe)
+
+**Exemplo:** Um advogado assina digitalmente uma petição com certificado A3 e protocola no sistema PJe do tribunal — sem precisar ir ao fórum.
+
+> **Resumo:** a chave GPG/PGP é a base da **infraestrutura de chave pública (PKI)** e está presente em contratos, e-mails, código-fonte, software livre e sistemas governamentais.
+
+---
+
+## 2. O que é uma assinatura digital GPG?
 
 Uma assinatura digital comprova **autenticidade** e **integridade** de um arquivo:
 
@@ -31,7 +74,7 @@ Funciona como um "carimbo digital" que qualquer pessoa pode verificar usando a c
 
 ---
 
-## 2. O que foi feito?
+## 3. O que foi feito?
 
 Neste laboratório, o **README.md** foi assinado digitalmente com a chave GPG do docente:
 
@@ -67,7 +110,7 @@ gpg --armor --detach-sign README.md
 
 ---
 
-## 3. Pré-requisitos
+## 4. Pré-requisitos
 
 - **GPG instalado** (GnuPG)
   - Linux: `sudo apt install gnupg` ou `sudo dnf install gnupg2`
@@ -78,9 +121,9 @@ gpg --armor --detach-sign README.md
 
 ---
 
-## 4. Passo a passo: validar a assinatura
+## 5. Passo a passo: validar a assinatura
 
-### 4.1 — Baixar os arquivos
+### 5.1 — Baixar os arquivos
 
 ```bash
 # Baixar o arquivo original
@@ -93,7 +136,7 @@ curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-La
 curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/senai-public-key.asc
 ```
 
-### 4.2 — Importar a chave pública
+### 5.2 — Importar a chave pública
 
 ```bash
 gpg --import senai-public-key.asc
@@ -107,7 +150,7 @@ gpg: Total number processed: 1
 gpg:               imported: 1
 ```
 
-### 4.3 — Verificar a assinatura
+### 5.3 — Verificar a assinatura
 
 ```bash
 gpg --verify README.md.asc README.md
@@ -125,7 +168,7 @@ gpg: Good signature from "Charles Alandt <charles.alandt@edu.sc.senai.br>"
 
 ---
 
-## 5. Comandos rápidos (copia e cola)
+## 6. Comandos rápidos (copia e cola)
 
 ```bash
 # 1. Baixar tudo
@@ -142,7 +185,7 @@ gpg --verify README.md.asc README.md
 
 ---
 
-## 6. Entendendo o resultado
+## 7. Entendendo o resultado
 
 ### ✅ "Good signature" — Assinatura válida
 
@@ -168,7 +211,7 @@ gpg --edit-key charles.alandt@edu.sc.senai.br
 
 ---
 
-## 7. Para saber mais
+## 8. Para saber mais
 
 ### Como criar sua própria chave GPG
 
