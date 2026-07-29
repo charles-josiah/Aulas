@@ -1,4 +1,4 @@
-# 🛡️ Laboratório de Criptografia e Segurança em Redes - 2026/02
+# 🛡️ Laboratório de Criptografia e Segurança em Redes
 
 **Unidade Curricular:** Criptografia e Segurança em Redes  
 **Curso:** Superior de Tecnologia em Segurança Cibernética  
