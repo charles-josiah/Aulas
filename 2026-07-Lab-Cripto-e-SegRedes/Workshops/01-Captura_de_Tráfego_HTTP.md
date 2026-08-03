@@ -62,7 +62,6 @@ layout: default
 - [8. Lições Aprendidas: por que HTTPS importa](#8-lições-aprendidas-por-que-https-importa)
 - [9. Atividade Extra: Análise da Captura no Wireshark (Anatomia do Pacote)](#9-atividade-extra-análise-da-captura-no-wireshark-anatomia-do-pacote)
 - [Checklist de Validação do Aluno](#checklist-de-validação-do-aluno)
-- [Comandos de Referência Rápida](#comandos-de-referência-rápida)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -828,25 +827,6 @@ Agora que você tem o arquivo `captura.pcap` no kali, leve essa captura para uma
 - [ ] Extraí credenciais com `tcpdump -r captura.pcap -A | grep -o "username=..."`.
 - [ ] Visualizei o request POST completo no arquivo .pcap.
 - [ ] Expliquei, com minhas palavras, por que HTTPS é obrigatório.
-
----
-
-## Comandos de Referência Rápida
-
-| Ação | Comando |
-|------|---------|
-| Conectar no servidor | `ssh user1@172.30.234.55` |
-| Conectar no cliente | `ssh kali@172.30.234.56` |
-| Construir imagem | `docker build -t laboratorio-http:latest .` |
-| Iniciar container | `docker run -d --name laboratorio-http -p 5000:5000 laboratorio-http:latest` |
-| Ver containers | `docker ps` |
-| Logs do app | `docker logs laboratorio-http` |
-| Parar container | `docker stop laboratorio-http` |
-| Testar porta | `nc -zv IP_SERVIDOR 5000` |
-| Capturar tráfego | `sudo tcpdump -i any -s 0 -w captura.pcap "host IP_SERVIDOR and port 5000"` |
-| Ler captura (ASCII) | `sudo tcpdump -r captura.pcap -A` |
-| Extrair credenciais | `sudo tcpdump -r captura.pcap -A \| grep -o "username=[^&]*&password=[^[:space:]]*"` |
-| Abrir no Wireshark | `wireshark captura.pcap` |
 
 ---
 
