@@ -218,8 +218,12 @@ Análise:
 Crie o arquivo `server.py` com um formulário de login **sem qualquer criptografia**:
 
 ```bash
-nano server.py
+vi server.py
 ```
+
+> **Alternativa rápida:** em vez de digitar o código, você pode baixar direto do repositório:
+> `curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/server.py`
+> (ou acesse o [arquivo no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/server.py))
 
 Conteúdo:
 
@@ -344,8 +348,10 @@ Análise:
 Crie também o `requirements.txt`:
 
 ```bash
-nano requirements.txt
+vi requirements.txt
 ```
+
+> **Alternativa rápida:** `curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/requirements.txt` — ou veja o [arquivo no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/requirements.txt).
 
 ```text
 flask==3.0.3
@@ -356,8 +362,10 @@ flask==3.0.3
 ### Passo 4.3: Criar o Dockerfile
 
 ```bash
-nano Dockerfile
+vi Dockerfile
 ```
+
+> **Alternativa rápida:** `curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/Dockerfile` — ou veja o [arquivo no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/Dockerfile).
 
 ```dockerfile
 FROM python:3.11-slim
@@ -465,6 +473,23 @@ Usuários: admin/123456, usuario/senha123, aluno/senai2024
  * Running on all addresses (0.0.0.0)
  * Running on http://0.0.0.0:5000
 ```
+
+> **📁 Arquivos do laboratório no GitHub**
+> Todos os arquivos usados nesta fase estão disponíveis no repositório para download/cópia:
+>
+> | Arquivo | Link |
+> |---------|------|
+> | `server.py` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/server.py) |
+> | `requirements.txt` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/requirements.txt) |
+> | `Dockerfile` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/Dockerfile) |
+> | `docker-compose.yml` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/docker-compose.yml) |
+> | `scripts/iniciar_servidor.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/scripts/iniciar_servidor.sh) |
+> | `scripts/capturar_cliente.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/scripts/capturar_cliente.sh) |
+> | `scripts/script_setup_servidor.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/scripts/script_setup_servidor.sh) |
+> | `scripts/script_setup_cliente.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/scripts/script_setup_cliente.sh) |
+> | `scripts/script_capturar.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/scripts/script_capturar.sh) |
+>
+> Dica: para baixar direto no servidor, use `curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/01-Captura_de_Tráfego_HTTP/<arquivo>`.
 
 ---
 
