@@ -60,6 +60,7 @@ layout: default
   - [Passo 7.2: Extrair credenciais em plaintext](#passo-72-extrair-credenciais-em-plaintext)
   - [Passo 7.3: Visualizar o request completo](#passo-73-visualizar-o-request-completo)
 - [8. Lições Aprendidas: por que HTTPS importa](#8-lições-aprendidas-por-que-https-importa)
+- [9. Atividade Extra: Análise da Captura no Wireshark (Anatomia do Pacote)](#9-atividade-extra-análise-da-captura-no-wireshark-anatomia-do-pacote)
 - [Checklist de Validação do Aluno](#checklist-de-validação-do-aluno)
 - [Comandos de Referência Rápida](#comandos-de-referência-rápida)
 - [Troubleshooting](#troubleshooting)
@@ -780,6 +781,36 @@ Análise:
 
 > **🔜 Laboratórios Futuros:**
 > A implementação completa de HTTPS (geração de certificados, configuração de TLS no Flask/Nginx, inspeção com Wireshark) será abordada em laboratórios posteriores. Neste workshop, o foco é comprovar o risco do plaintext.
+
+---
+
+## 9. Atividade Extra: Análise da Captura no Wireshark (Anatomia do Pacote)
+
+Agora que você tem o arquivo `captura.pcap` no kali, leve essa captura para uma máquina com **Wireshark** instalado (Windows, Linux ou macOS) e estude os pacotes em detalhes — é aqui que o "debug visual" do tráfego acontece.
+
+1. **Copie a captura para a outra máquina.** Se estiver no Windows, use o **WinSCP** (SFTP/SCP) para baixar o `captura.pcap` do kali; em Linux/macOS, use `scp kali@IP_KALI:~/laboratorio-capturas/captura.pcap .`. O método de cópia fica a seu critério.
+2. **Abra o arquivo** no Wireshark: `Arquivo > Abrir` (ou `wireshark captura.pcap` no terminal).
+3. **Filtre o tráfego do laboratório**: aplique o filtro `tcp.port == 5000` (e depois `http`) na barra de filtros — sobra só o que interessa.
+4. **Estude a anatomia de um pacote.** Clique em um pacote do POST e observe as camadas empilhadas no painel do meio: **Ethernet II** (endereços MAC), **IPv4** (IPs de origem/destino), **TCP** (portas 54842 → 5000, flags e números de sequência) e **HTTP** (método, headers e o corpo com as credenciais).
+5. **Encontre os pontos principais** — alguns para começar:
+   - O pacote com o `POST / HTTP/1.1` e o payload `username=admin&password=123456`;
+   - O **3-way handshake** TCP (SYN → SYN-ACK → ACK) no início da conexão;
+   - O pacote com a flag **PSH** que entrega os dados do formulário de uma vez;
+   - A resposta `200 OK` do servidor e o `Content-Length` correspondente.
+6. **Siga o fluxo completo**: clique com o botão direito no POST → **Follow > HTTP Stream** — o Wireshark remonta a conversa inteira (requisição + resposta), exatamente como o servidor a viu.
+7. **Remonte o site a partir do dump** (seu dump tem tudo para isso!): no Wireshark, use **File > Export Objects > HTTP** e salve os objetos extraídos — você verá o HTML da página de login e do dashboard, que pode abrir direto no navegador. No kali, o **chaosreader** faz isso automaticamente: `sudo apt install chaosreader && chaosreader captura.pcap` — ele gera um `index.html` com os arquivos reconstruídos.
+8. **Reflita:** o dump permitiu remontar o site inteiro (HTML + credenciais) porque o HTTP trafega em texto claro e a sessão completa foi capturada. Se a página tivesse imagens ou CSS externos, eles também precisariam ter sido baixados durante a captura; se fosse HTTPS, nada disso seria legível — apenas bytes criptografados.
+
+### Como fazer na prática
+
+| Ferramenta | Comando / Ação | Resultado |
+|------------|----------------|-----------|
+| **chaosreader** (Kali) | `sudo apt install chaosreader && cd ~/laboratorio-capturas && chaosreader captura.pcap` | Gera `index.html` + arquivos reconstruídos automaticamente |
+| **Wireshark** | `File > Export Objects > HTTP` | Lista e salva os objetos HTTP extraídos (o HTML) |
+| **tcpflow** | `tcpflow -r captura.pcap` | Extrai cada fluxo TCP em arquivo separado (request e response) |
+| **Manual** | `tcpdump -r captura.pcap -A` + salvar o corpo do HTML | O jeito "bruto", mostrando a anatomia |
+
+> **Dica de estudo:** compare um pacote HTTP deste laboratório com um pacote HTTPS (ex.: abra `https://www.google.com` enquanto captura) — no HTTP os dados aparecem legíveis; no HTTPS, o payload vira bytes criptografados e a estrutura visível para de "fazer sentido". Essa comparação é o resumo visual do porquê este workshop existe.
 
 ---
 
