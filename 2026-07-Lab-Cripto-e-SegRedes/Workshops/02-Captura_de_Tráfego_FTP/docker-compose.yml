@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  servidor:
+    build: .
+    container_name: laboratorio-ftp
+    ports:
+      - "21:21"
+      - "30000-30100:30000-30100"
+    restart: unless-stopped
