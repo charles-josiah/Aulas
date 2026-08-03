@@ -1,4 +1,16 @@
+---
+title: "Workshop 01: Captura de Tráfego HTTP (Credenciais em Texto Claro)"
+description: "Workshop prático de segurança: demonstra a captura de credenciais em texto claro no tráfego HTTP com tcpdump, Kali Linux e Docker. Aprenda por que HTTPS é essencial."
+keywords: ["segurança da informação", "captura de tráfego", "tcpdump", "HTTP", "HTTPS", "Kali Linux", "Docker", "Flask", "credenciais em texto claro", "Wireshark", "segurança em redes", "SENAI"]
+tags: ["seguranca-da-informacao", "captura-de-trafego", "tcpdump", "http", "https", "kali-linux", "docker", "wireshark", "seguranca-em-redes"]
+author: "Charles Alandt"
+lang: "pt-BR"
+layout: default
+---
+
 # Workshop 01: Captura de Tráfego HTTP (Credenciais em Texto Claro)
+
+**Tags:** `segurança da informação` · `captura de tráfego` · `tcpdump` · `HTTP` · `HTTPS` · `Kali Linux` · `Docker` · `Wireshark`
 
 **Autor:** Charles Alandt
 
