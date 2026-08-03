@@ -134,6 +134,16 @@ Dados reais do ambiente validado pelo instrutor:
 | Porta publicada | 5000 (0.0.0.0:5000 → 5000) |
 | Credenciais do app | admin/123456, usuario/senha123, aluno/senai2024 |
 
+> [!NOTE]
+> **Ajuste os endereços IP conforme o seu ambiente!**
+> Os IPs acima (`172.30.234.55` e `172.30.234.56`) são do laboratório onde o instrutor validou o workshop. No seu ambiente os endereços serão **diferentes** — o provedor de virtualização (VirtualBox, VMware, Hyper-V, Proxmox, etc.) e o modo de rede escolhido (NAT, Host-Only, Bridge) definem a faixa de IP de cada máquina.
+>
+> **Como descobrir o IP de cada máquina:**
+> - No servidor: `ip -brief address` (ex.: `eth0 UP 192.168.56.101/24`)
+> - No cliente: `ip -brief address` (ex.: `eth0 UP 192.168.56.104/24`)
+>
+> **Regra prática:** ao longo de todo o workshop, substitua `172.30.234.55` pelo IP real do servidor e `172.30.234.56` pelo IP real do cliente/kali. O comando `ip a` (ou `ifconfig`) mostra os endereços de cada máquina.
+
 ---
 
 ## 4. Fase 1: Setup do Servidor (srvdocker01)
