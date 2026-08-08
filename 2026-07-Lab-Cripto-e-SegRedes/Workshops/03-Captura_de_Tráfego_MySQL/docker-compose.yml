@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  mysql:
+    build: .
+    container_name: laboratorio-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_secret_2024
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

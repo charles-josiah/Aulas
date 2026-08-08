@@ -40,5 +40,20 @@ Tópicos abordados:
 
 ---
 
+## Workshop: Captura de Tráfego MySQL (Senha, Queries e Permissionamento em Texto Claro)
+
+Acesse o [workshop completo](03-Captura_de_Tráfego_MySQL.md).
+
+Tópicos abordados:
+- Por que MySQL sem TLS expõe senhas, queries e dados na rede
+- Setup de MySQL 8.0 em Docker (porta 3306) sem criptografia
+- Captura de tráfego com tcpdump no Kali
+- Extração de queries com tshark (`mysql.query`)
+- Reconstrução de um banco completo a partir de um `.pcap`
+- Mini-howto de permissionamento (GRANT/REVOKE) e princípio do menor privilégio
+- Entendendo por que TLS é essencial em conexões de banco de dados
+
+---
+
 📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/README.md.svg)
 
