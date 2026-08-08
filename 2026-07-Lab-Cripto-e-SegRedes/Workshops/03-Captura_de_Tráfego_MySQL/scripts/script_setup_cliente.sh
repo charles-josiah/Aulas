@@ -1,9 +1,9 @@
 #!/bin/bash
 # script_setup_cliente.sh - Setup do cliente (kali)
-# Execute na MÁQUINA CLIENTE (Kali Linux)
+# Execute na MAQUINA CLIENTE (Kali Linux)
 
 echo "╔═══════════════════════════════════════════════════╗"
-echo "║  🧪 Setup Cliente MySQL - Laboratório de Segurança ║"
+echo "║  🧪 Setup Cliente MySQL - Laboratorio de Seguranca ║"
 echo "╚═══════════════════════════════════════════════════╝"
 echo ""
 
@@ -17,9 +17,9 @@ fi
 
 # Verificar/instalar tshark (ESSENCIAL para extrair queries MySQL)
 if ! command -v tshark &> /dev/null; then
-    echo "📦 Instalando tshark (para análise de queries)..."
+    echo "📦 Instalando tshark (para analise de queries)..."
     sudo apt update && sudo apt install -y tshark
-    echo "⚠️  Durante a instalação, escolha 'Sim' para permitir captura por não-root"
+    echo "⚠️  Durante a instalacao, escolha 'Sim' para permitir captura por nao-root"
 else
     echo "✅ tshark: $(tshark --version | head -1)"
 fi
@@ -32,7 +32,7 @@ else
     echo "✅ mysql client: $(mysql --version)"
 fi
 
-# Criar diretório de capturas
+# Criar diretorio de capturas
 echo "📁 Criando ~/laboratorio-capturas..."
 mkdir -p ~/laboratorio-capturas
 cd ~/laboratorio-capturas || exit 1
@@ -43,9 +43,9 @@ echo "kali ALL=(ALL) NOPASSWD: /usr/bin/tcpdump" | sudo tee /etc/sudoers.d/tcpdu
 sudo chmod 440 /etc/sudoers.d/tcpdump
 
 echo ""
-echo "✅ Setup do cliente concluído!"
+echo "✅ Setup do cliente concluido!"
 echo ""
-echo "   Comandos úteis:"
+echo "   Comandos uteis:"
 echo "   • sudo tcpdump -i any -s 0 -w mysql.pcap \"host IP_SERVIDOR and port 3306\""
 echo "   • mysql -h IP_SERVIDOR -u dba_user -p    (senha: dba_secret_2024)"
 echo "   • tshark -r mysql.pcap -Y \"mysql.query\" -T fields -e mysql.query"

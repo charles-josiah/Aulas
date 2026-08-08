@@ -3,7 +3,7 @@
 # Usage: ./script_capturar.sh SERVER_IP [PORT]
 
 echo "========================================"
-echo "📡 Captura de Tráfego MySQL"
+echo "📡 Captura de Trafego MySQL"
 echo "========================================"
 echo ""
 
@@ -21,18 +21,18 @@ fi
 
 # Verificar tcpdump
 if ! command -v tcpdump &> /dev/null; then
-    echo "❌ tcpdump não encontrado!"
+    echo "❌ tcpdump nao encontrado!"
     exit 1
 fi
 
-read -p "📁 Nome do arquivo de saída (mysql.pcap): " CAPTURE_FILE
+read -p "📁 Nome do arquivo de saida (mysql.pcap): " CAPTURE_FILE
 CAPTURE_FILE=${CAPTURE_FILE:-mysql.pcap}
 
 echo ""
-echo "Capturando tráfego MySQL para: $SERVER_IP:$SERVER_PORT"
+echo "Capturando trafego MySQL para: $SERVER_IP:$SERVER_PORT"
 echo "Arquivo: $CAPTURE_FILE"
 echo ""
-echo "Instruções:"
+echo "Instrucoes:"
 echo "1. Abra outro terminal e conecte: mysql -h $SERVER_IP -u dba_user -p"
 echo "2. Execute comandos SQL (CREATE USER, GRANT, INSERT, SELECT...)"
 echo "3. Volte aqui e pressione Ctrl+C para parar"

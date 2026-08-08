@@ -1,15 +1,15 @@
 #!/bin/bash
 # iniciar_servidor.sh - Script para iniciar o servidor MySQL no Docker
-# Execute na MÁQUINA SERVIDOR (srvdocker01)
+# Execute na MAQUINA SERVIDOR (srvdocker01)
 
 echo "╔═══════════════════════════════════════════════════╗"
-echo "║  🧪 Laboratório MySQL - Servidor Docker           ║"
+echo "║  🧪 Laboratorio MySQL - Servidor Docker           ║"
 echo "╚═══════════════════════════════════════════════════╝"
 echo ""
 
 # Verificar Docker
 if ! command -v docker &> /dev/null; then
-    echo "❌ Docker não encontrado!"
+    echo "❌ Docker nao encontrado!"
     echo "Instale: https://docs.docker.com/get-docker/"
     exit 1
 fi
@@ -20,7 +20,7 @@ if command -v docker-compose &> /dev/null; then
 elif docker compose version &> /dev/null; then
     DOCKER_COMPOSE="docker compose"
 else
-    echo "❌ Docker Compose não encontrado!"
+    echo "❌ Docker Compose nao encontrado!"
     exit 1
 fi
 
@@ -28,13 +28,13 @@ echo "✅ Docker: $(docker --version)"
 echo "✅ Docker Compose: $($DOCKER_COMPOSE --version 2>/dev/null || echo 'plugin nativo')"
 echo ""
 
-# Diretório do script
+# Diretorio do script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Verificar arquivos necessários
+# Verificar arquivos necessarios
 if [ ! -f "Dockerfile" ] || [ ! -f "docker-compose.yml" ]; then
-    echo "❌ Arquivos necessários não encontrados!"
+    echo "❌ Arquivos necessarios nao encontrados!"
     exit 1
 fi
 
@@ -85,32 +85,32 @@ if docker ps | grep -q "laboratorio-mysql"; then
     echo "🌐 Conecte via MySQL: mysql -h $HOST_IP -u dba_user -p"
     echo "   Senha: dba_secret_2024"
     echo ""
-    echo "👤 Usuários criados:"
-    echo "   • dba_user / dba_secret_2024   (DBA - super-usuário)"
+    echo "👤 Usuarios criados:"
+    echo "   • dba_user / dba_secret_2024   (DBA - super-usuario)"
     echo "   • app_user / app_secret_2024   (app - SELECT/INSERT/UPDATE em app_db.clientes)"
-    echo "   • rel_user / rel_secret_2024   (relatórios - SELECT em app_db.clientes)"
+    echo "   • rel_user / rel_secret_2024   (relatorios - SELECT em app_db.clientes)"
     echo ""
     echo "📊 Banco: app_db / Tabela: clientes (5 registros)"
     echo ""
-    echo "📋 Comandos úteis:"
+    echo "📋 Comandos uteis:"
     echo "   • Ver logs: docker logs laboratorio-mysql"
     echo "   • Parar: $DOCKER_COMPOSE down"
     echo "   • Status: docker ps"
     echo ""
 
-    # Salvar IP em arquivo para referência
+    # Salvar IP em arquivo para referencia
     echo "SERVER_IP=$HOST_IP" > .env
     echo "SERVER_PORT=3306" >> .env
-    echo "✅ Configuração salva em .env"
+    echo "✅ Configuracao salva em .env"
     echo ""
 
     echo "══════════════════════════════════════════════════════════"
-    echo "⚠️  AVISO: Este servidor NÃO usa TLS/SSL!"
+    echo "⚠️  AVISO: Este servidor NAO usa TLS/SSL!"
     echo "   Senhas, queries e dados trafegam em PLAINTEXT!"
     echo "   Use apenas para fins educacionais."
     echo "══════════════════════════════════════════════════════════"
 else
-    echo "❌ Container não está rodando!"
+    echo "❌ Container nao esta rodando!"
     echo "Verifique os logs: docker logs laboratorio-mysql"
     exit 1
 fi

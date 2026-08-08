@@ -1,14 +1,14 @@
 #!/bin/bash
 # script_setup_servidor.sh - Setup do servidor MySQL no Docker
-# Execute na MÁQUINA SERVIDOR
+# Execute na MAQUINA SERVIDOR
 
 echo "╔═══════════════════════════════════════════════════╗"
-echo "║  🧪 Setup Servidor MySQL - Laboratório de Segurança ║"
+echo "║  🧪 Setup Servidor MySQL - Laboratorio de Seguranca ║"
 echo "╚═══════════════════════════════════════════════════╝"
 echo ""
 
 if ! command -v docker &> /dev/null; then
-    echo "❌ Docker não encontrado!"
+    echo "❌ Docker nao encontrado!"
     exit 1
 fi
 
@@ -20,8 +20,8 @@ sudo mkdir -p /docker/laboratorio-seguranca-mysql
 sudo chown -R "$USER":"$USER" /docker/laboratorio-seguranca-mysql
 cd /docker/laboratorio-seguranca-mysql || exit 1
 
-echo "📥 Baixando arquivos do repositório..."
-BASE_URL="https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL"
+echo "📥 Baixando arquivos do repositorio..."
+BASE_URL="https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Trafego_MySQL"
 
 mkdir -p init scripts
 for FILE in Dockerfile docker-compose.yml; do
@@ -41,5 +41,5 @@ done
 chmod +x scripts/*.sh
 
 echo ""
-echo "✅ Setup do servidor concluído!"
-echo "   Próximo passo: ./scripts/iniciar_servidor.sh"
+echo "✅ Setup do servidor concluido!"
+echo "   Proximo passo: ./scripts/iniciar_servidor.sh"

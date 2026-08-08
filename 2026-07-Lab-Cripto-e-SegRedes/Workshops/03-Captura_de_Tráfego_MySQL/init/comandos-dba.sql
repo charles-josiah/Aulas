@@ -1,14 +1,14 @@
 -- comandos-dba.sql
--- Comandos SQL executados pelo DBA durante o cenário "backup remoto via rede"
--- Este arquivo é executado manualmente no terminal 2 do kali enquanto
+-- Comandos SQL executados pelo DBA durante o cenario "backup remoto via rede"
+-- Este arquivo e executado manualmente no terminal 2 do kali enquanto
 -- o tcpdump captura no terminal 1.
--- Cada comando abaixo gera tráfego que será capturado e, depois,
--- extraído do dump via tshark.
+-- Cada comando abaixo gera trafego que sera capturado e, depois,
+-- extraido do dump via tshark.
 
 -- ============================================================
--- 1. Login como DBA (a senha aparece no payload do COM_QUERY? Não,
+-- 1. Login como DBA (a senha aparece no payload do COM_QUERY? Nao,
 --    porque o handshake MySQL usa challenge-response com hash.
---    Mas outros comandos abaixo SIM vão em plaintext!)
+--    Mas outros comandos abaixo SIM vao em plaintext!)
 -- ============================================================
 -- (Executado manualmente: mysql -h IP_SERVIDOR -u dba_user -p)
 
@@ -36,14 +36,14 @@ CREATE TABLE pedidos (
 -- 3. Comandos DCL (Data Control Language) - PERMISSIONAMENTO
 -- ============================================================
 
--- Criar novo usuário para um sistema de relatórios
+-- Criar novo usuario para um sistema de relatorios
 CREATE USER IF NOT EXISTS 'reports_user'@'%'
   IDENTIFIED WITH mysql_native_password BY 'reports_2024_secret';
 
 -- Conceder acesso ao banco app_db
 GRANT SELECT ON app_db.clientes TO 'reports_user'@'%';
 
--- Conceder acesso ao novo banco (acesso excessivo - didático!)
+-- Conceder acesso ao novo banco (acesso excessivo - didatico!)
 GRANT ALL PRIVILEGES ON novo_sistema.* TO 'reports_user'@'%' WITH GRANT OPTION;
 
 FLUSH PRIVILEGES;
@@ -55,7 +55,7 @@ FLUSH PRIVILEGES;
 -- Voltar para app_db
 USE app_db;
 
--- Inserir novos clientes (dados sensíveis!)
+-- Inserir novos clientes (dados sensiveis!)
 INSERT INTO clientes (nome, cpf, email, senha_hash) VALUES
   ('Roberto Lima',     '111.222.333-44', 'roberto.lima@exemplo.com', SHA2('senha_roberto_2024', 256)),
   ('Fernanda Souza',   '555.666.777-88', 'fernanda.souza@exemplo.com', SHA2('senha_fernanda_2024', 256));
@@ -67,10 +67,10 @@ SELECT id, nome, cpf, email FROM clientes;
 UPDATE clientes SET email = 'maria.silva.novo@exemplo.com' WHERE cpf = '123.456.789-00';
 
 -- ============================================================
--- 5. Comandos de ADMINISTRAÇÃO (visíveis no dump)
+-- 5. Comandos de ADMINISTRACAO (visiveis no dump)
 -- ============================================================
 
--- Ver permissões do reports_user
+-- Ver permissoes do reports_user
 SHOW GRANTS FOR 'reports_user'@'%';
 
 -- ============================================================

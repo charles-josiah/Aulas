@@ -99,18 +99,18 @@ Objetivos de aprendizagem:
 ### 2.1 Dockerfile e docker‑compose (sem TLS)
 
 ```bash
-# Dockerfile já está na raiz do workshop (Dockerfile)
-# Ele usa a imagem oficial mysql:8.0 e expõe a porta 3306 sem TLS.
-# As variáveis de ambiente definem a senha do usuário root:
+# Dockerfile ja esta na raiz do workshop (Dockerfile)
+# Ele usa a imagem oficial mysql:8.0 e expoe a porta 3306 sem TLS.
+# As variaveis de ambiente definem a senha do usuario root:
 #   MYSQL_ROOT_PASSWORD=root_secret_2024
-#   MYSQL_ROOT_HOST=%   # permite login de qualquer host (necessário para o laboratório)
-# O script `init/init.sql` será copiado para `/docker-entrypoint‑initdb.d/`
-# e executado na primeira inicialização do container, criando o banco
-# `app_db`, a tabela `clientes` e usuários `dba_user`, `app_user` e `rel_user`.
+#   MYSQL_ROOT_HOST=%   # permite login de qualquer host (necessario para o laboratorio)
+# O script `init/init.sql` sera copiado para `/docker-entrypoint-initdb.d/`
+# e executado na primeira inicializacao do container, criando o banco
+# `app_db`, a tabela `clientes` e usuarios `dba_user`, `app_user` e `rel_user`.
 ```
 
 ```yaml
-# docker‑compose.yml (já incluído no workshop)
+# docker-compose.yml (ja incluido no workshop)
 version: "3.8"
 services:
   mysql:
@@ -133,7 +133,7 @@ volumes:
 ```bash
 # No servidor (srvdocker01)
 cd /docker/laboratorio-seguranca-mysql
-./scripts/iniciar_servidor.sh   # script que constrói a imagem e levanta o container
+./scripts/iniciar_servidor.sh   # script que constroi a imagem e levanta o container
 ```
 
 Esse script:
@@ -184,7 +184,7 @@ tcpdump: listening on any, link-type LINUX_SLL2 (Linux cooked v2), snapshot leng
 
 ### Passo 3.2: Executar comandos SQL no MySQL
 
-Abra um **segundo terminal** no kali e conecte no servidor MySQL como DBA:
+Abra um **segundo terminal** no kali e conecte no servidor MySQL com o usuario `dba_user` (destinado ao DBA):
 
 ```bash
 mysql -h 172.30.234.55 -u dba_user -p
@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS clientes (
 ```sql
 INSERT INTO clientes (nome, cpf, email, senha_hash) VALUES
   ('Maria Silva',      '123.456.789-00', 'maria.silva@exemplo.com',   SHA2('senha_maria_2024', 256)),
-  ('João Santos',      '987.654.321-00', 'joao.santos@exemplo.com',   SHA2('senha_joao_2024', 256)),
+  ('Joao Santos',       '987.654.321-00', 'joao.santos@exemplo.com',   SHA2('senha_joao_2024', 256)),
   ('Ana Oliveira',     '456.789.123-00', 'ana.oliveira@exemplo.com',  SHA2('senha_ana_2024', 256));
 ```
 
@@ -266,7 +266,7 @@ Resultado esperado:
 | id | nome         | cpf         | email                     |
 +----+--------------+-------------+---------------------------+
 |  1 | Maria Silva  | 123.456.789-00 | maria.silva@exemplo.com |
-|  2 | João Santos  | 987.654.321-00 | joao.santos@exemplo.com |
+|  2 | Joao Santos  | 987.654.321-00 | joao.santos@exemplo.com |
 |  3 | Ana Oliveira | 456.789.123-00 | ana.oliveira@exemplo.com|
 +----+--------------+-------------+---------------------------+
 ```
@@ -357,7 +357,7 @@ CREATE DATABASE IF NOT EXISTS app_db
 USE app_db
 CREATE TABLE clientes (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(100) NOT NULL, cpf VARCHAR(14) NOT NULL, email VARCHAR(120) NOT NULL, senha_hash VARCHAR(255) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
 INSERT INTO clientes (nome, cpf, email, senha_hash) VALUES ('Maria Silva', '123.456.789-00', 'maria.silva@exemplo.com', SHA2('senha_maria_2024', 256))
-INSERT INTO clientes (nome, cpf, email, senha_hash) VALUES ('João Santos', '987.654.321-00', 'joao.santos@exemplo.com', SHA2('senha_joao_2024', 256))
+INSERT INTO clientes (nome, cpf, email, senha_hash) VALUES ('Joao Santos', '987.654.321-00', 'joao.santos@exemplo.com', SHA2('senha_joao_2024', 256))
 INSERT INTO clientes (nome, cpf, email, senha_hash) VALUES ('Ana Oliveira', '456.789.123-00', 'ana.oliveira@exemplo.com', SHA2('senha_ana_2024', 256))
 CREATE USER IF NOT EXISTS 'app_user'@'%' IDENTIFIED WITH mysql_native_password BY 'app_secret_2024'
 GRANT SELECT, INSERT, UPDATE ON app_db.clientes TO 'app_user'@'%'
@@ -408,10 +408,10 @@ Análise:
 Com os comandos extraídos, você pode reconstruir o banco inteiro num MySQL limpo:
 
 ```bash
-# Num MySQL limpo (pode ser outro container ou o mesmo após DROP DATABASE app_db):
+# Num MySQL limpo (pode ser outro container ou o mesmo apos DROP DATABASE app_db):
 mysql -h IP_MYSQL_LIMPO -u root -p
 
-# Cole os comandos extraídos na ordem:
+# Cole os comandos extraidos na ordem:
 CREATE DATABASE IF NOT EXISTS app_db;
 USE app_db;
 CREATE TABLE clientes (...);
@@ -434,12 +434,12 @@ Resultado: o banco reconstruído é **idêntico** ao original — mesma estrutur
 ## 5. Desafio: Sniffer Attack
 
 **Objetivo geral:**
-- **Como atacante**, você já tem o arquivo `mysql.pcap` capturado na rede da corporação.
+- **Como atacante**, você consegue sniffar um dump completo do banco de dados que atravessa a rede sem criptografia.
 - Seu trabalho é **extrair** tudo que for útil (senhas, grants, dados sensíveis) e **reconstruir** o banco completo num ambiente controlado.
 
 **Cenário narrativo:**
 - Você é parte da equipe de Red Team de uma empresa de saúde que faz backup de bancos críticos durante a madrugada via `mysqldump` sem TLS.
-- O backup atravessa a rede corporativa onde há um ponto de escuta (Raspberry Pi + `tcpdump`).
+- O backup atravessa a rede corporativa onde há um ponto de coleta/sniffer (Raspberry Pi + `tcpdump`) implantado **sem o conhecimento do time local**.
 - O dump contém **comandos DDL/DCL/DML** (criação de bases, usuários, permissões e inserções de dados reais). Como o canal está em plaintext, tudo pode ser extraído.
 
 **Como o dump é gerado e capturado (contexto para o atacante):**
@@ -454,7 +454,7 @@ mysqldump -h 127.0.0.1 -u dba_user -pdba_secret_2024 --all-databases > backup.sq
 Enquanto isso, o atacante (você) já está capturando o tráfego na rede:
 
 ```bash
-# No kali — captura iniciada ANTES do dump começar:
+# No kali - captura iniciada ANTES do dump comecar:
 sudo tcpdump -i any -s 0 -w mysql.pcap "host 172.30.234.55 and port 3306"
 ```
 
@@ -537,13 +537,13 @@ Esse desafio coloca o aluno na pele do atacante, exigindo que ele descubra as in
 ### 6.1 Criar usuários
 
 ```sql
--- Criar usuário com senha
+-- Criar usuario com senha
 CREATE USER 'app_user'@'%' IDENTIFIED WITH mysql_native_password BY 'senha_aqui';
 
--- Criar usuário restrito a um host específico (mais seguro)
+-- Criar usuario restrito a um host especifico (mais seguro)
 CREATE USER 'app_user'@'172.30.234.56' IDENTIFIED WITH mysql_native_password BY 'senha_aqui';
 
--- Criar usuário com autenticação por socket (apenas localhost)
+-- Criar usuario com autenticacao por socket (apenas localhost)
 CREATE USER 'app_user'@'localhost' IDENTIFIED WITH auth_socket;
 ```
 
@@ -594,10 +594,10 @@ FLUSH PRIVILEGES;
 ### 6.7 Exemplo completo: criar usuário com permissão mínima
 
 ```sql
--- Criar usuário restrito ao host da aplicação
+-- Criar usuario restrito ao host da aplicacao
 CREATE USER 'app_user'@'172.30.234.56' IDENTIFIED WITH mysql_native_password BY 'senha_forte_2024';
 
--- Conceder apenas o estritamente necessário
+-- Conceder apenas o estritamente necessario
 GRANT SELECT, INSERT ON app_db.clientes TO 'app_user'@'172.30.234.56';
 
 -- Aplicar
