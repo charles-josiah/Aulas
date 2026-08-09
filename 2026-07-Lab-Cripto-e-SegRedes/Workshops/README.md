@@ -1,6 +1,6 @@
 # Workshops
 
-Workshops práticos da disciplina de Criptografia e Segurança em Redes — 2026/02.
+Workshops práticos da disciplina de Criptografia e Segurança em Redes — 2026/07.
 
 ## Workshop: Criptografia e Assinatura Digital com GPG
 
