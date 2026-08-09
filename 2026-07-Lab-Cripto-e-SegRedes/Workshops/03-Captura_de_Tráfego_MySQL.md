@@ -444,11 +444,11 @@ Resultado: o banco reconstruído é **idêntico** ao original — mesma estrutur
 
 **Como o dump é gerado e capturado (contexto para o atacante):**
 
-O DBA da corporação executa o backup remoto assim (no servidor MySQL):
+O DBA executa o backup remoto a partir de uma estação na mesma rede do banco (no lab, o próprio kali):
 
 ```bash
-# No servidor MySQL (srvdocker01), o DBA gera o dump:
-mysqldump -h 127.0.0.1 -u dba_user -pdba_secret_2024 --all-databases > backup.sql
+# No kali, o DBA gera o dump remoto do banco (IP do servidor MySQL):
+mysqldump -h 172.30.234.55 -u dba_user -pdba_secret_2024 --all-databases > backup.sql
 ```
 
 Enquanto isso, o atacante (você) já está capturando o tráfego na rede:
@@ -459,7 +459,7 @@ sudo tcpdump -i any -s 0 -w mysql.pcap "host 172.30.234.55 and port 3306"
 ```
 
 > [!NOTE]
-> O `mysqldump` conecta no MySQL pela porta 3306 e executa uma sequência de `SELECT`, `SHOW CREATE TABLE`, `LOCK TABLES`, etc. — **tudo em texto claro**. O arquivo `backup.sql` gerado no servidor é a "versão final", mas o atacante não precisa dele: o `.pcap` contém os mesmos comandos, capturados no meio do caminho.
+> O `mysqldump` conecta no MySQL pela porta 3306 e executa uma sequência de `SELECT`, `SHOW CREATE TABLE`, `LOCK TABLES`, etc. — **tudo em texto claro**. O arquivo `backup.sql` gerado no kali é a "versão final", mas o atacante não precisa dele: o `.pcap` contém os mesmos comandos, capturados no meio do caminho.
 
 **Passo‑a‑passo detalhado para o atacante:**
 
@@ -526,7 +526,7 @@ sudo tcpdump -i any -s 0 -w mysql.pcap "host 172.30.234.55 and port 3306"
 4. **Auditar logs** – monitorar `CREATE USER`, `GRANT` e `INSERT` em tempo real.
 5. **Segmentar rede** – colocar o banco atrás de firewall interno, impedir sniffer externo.
 
-Esse desafio coloca o aluno na pele do atacante, exigindo que ele descubra as informações **por si mesmo**, ao invés de receber tudo pronto. O sucesso depende da capacidade de usar `tshark`, `grep` e `mysql` para reconstruir um ambiente realista, identificando também os pontos críticos de segurança que precisam ser corrigidos.
+Esse desafio te coloca com **skin in the game**: nada é entregue pronto — todas as informações (senhas, grants, dados sensíveis) precisam ser descobertas **por você mesmo**, usando `tshark`, `grep` e `mysql` para reconstruir um ambiente realista a partir do `.pcap`, identificando também os pontos críticos de segurança que precisam ser corrigidos.
 
 ---
 
