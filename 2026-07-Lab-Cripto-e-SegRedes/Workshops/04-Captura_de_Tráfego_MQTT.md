@@ -42,6 +42,8 @@ layout: default
 ## Índice
 
 - [1. Ambiente e Preparação](#1-ambiente-e-preparação)
+  - [Contexto: por que o MQTT é indispensável na Indústria 4.0](#contexto-por-que-o-mqtt-é-indispensável-na-indústria-40)
+  - [Cenário do laboratório](#cenário-do-laboratório)
   - [1.1 Arquitetura do laboratório](#11-arquitetura-do-laboratório)
   - [1.2 Obter os arquivos do workshop](#12-obter-os-arquivos-do-workshop)
   - [1.3 Pré-requisitos](#13-pré-requisitos)
@@ -72,6 +74,20 @@ layout: default
 ---
 
 ## 1. Ambiente e Preparação
+
+### Contexto: por que o MQTT é indispensável na Indústria 4.0
+
+Na Indústria 4.0, a **telemetria** é o coração da operação: sensores espalhados pela planta (temperatura, pressão, vibração, umidade, consumo de energia) geram milhares de leituras por minuto que alimentam sistemas de supervisão, controle e manutenção preditiva. É essa malha de sensores que permite à fábrica "enxergar" o que acontece em cada máquina em tempo real, detectar anomalias antes que virem paradas e otimizar processos continuamente.
+
+Para transportar essa massa de dados de forma eficiente, a indústria adotou o **MQTT (Message Queuing Telemetry Transport)** como protocolo de fato. Criado em 1999 pela IBM para telemetria em oleodutos, ele se tornou o padrão da Internet das Coisas (IoT) industrial por três razões:
+
+- **Leveza:** mensagens com cabeçalho mínimo (2 bytes), perfeitas para sensores com pouca memória, processamento e bateria — e para redes com banda limitada.
+- **Modelo publish/subscribe:** o sensor *publica* em um tópico (`sensores/camara1/temperatura`) e o sistema de monitoramento *assina* esse tópico, sem precisarem se conhecer. O **broker** centraliza e roteia as mensagens, desacoplando produtor e consumidor.
+- **QoS e conexões persistentes:** níveis de garantia de entrega (0, 1 e 2) e suporte a conexões de longa duração, adequados a ambientes industriais com redes instáveis.
+
+O problema: por ser um protocolo de telemetria concebido para eficiência, o MQTT **não inclui criptografia nativa**. Em muitas implantações reais (e em praticamente todas as de baixo custo), o tráfego trafega **sem TLS**, expondo credenciais e dados a quem estiver na mesma rede. Na indústria, uma leitura adulterada de temperatura pode induzir uma equipe a desligar uma máquina saudável — ou a ignorar um superaquecimento real, com consequências físicas e financeiras. É exatamente esse risco que este workshop demonstra em laboratório.
+
+### Cenário do laboratório
 
 Neste workshop, um broker **Eclipse Mosquitto 2.x** roda em um container Docker no **srvdocker01**, junto com um **dashboard** (aplicação Python que consome as leituras dos sensores). Um segundo host (**kali**) é a **máquina do sensor** (dispositivo IoT que publica temperatura) e também do **atacante** (que observa a rede, captura as credenciais e injeta dados falsos). O cenário simula uma planta industrial onde sensores de temperatura publicam telemetria via MQTT **sem TLS**, permitindo que qualquer pessoa na mesma rede leia as credenciais e **manipule as leituras** que chegam à aplicação de monitoramento.
 
@@ -105,28 +121,9 @@ Objetivos de aprendizagem:
 
 ### 1.1 Arquitetura do laboratório
 
-```text
-                        REDE DO LABORATORIO (subrede autorizada)
-                        ----------------------------------------
-                                                                 
-  MAQUINA A (srvdocker01) 172.30.234.55                          MAQUINA B (kali) 172.30.234.56
-  +--------------------------------------+                       +------------------------------------------+
-  |  Docker                              |                       |  1) SENSOR (dispositivo IoT)              |
-  |                                      |                       |     python3 sensor.py 172.30.234.55       |
-  |  +----------------+   +-----------+\ |                       |     publica JSON em 'sensores/camara1/    |
-  |  | mosquitto      |<->| dashboard | \|  porta 1883           |     temperatura' a cada 5s                |
-  |  | (broker MQTT)  |   | (aplicacao|  +-----------------------+                                        |
-  |  |  porta 1883    |   |  Python)  |                          |  2) ATACANTE                            |
-  |  | SEM TLS        |   |           |                          |     a) sniffa credenciais (tcpdump)     |
-  |  +----------------+   +-----------+                          |     b) assina o topico (tshark)          |
-  |        ^                                                     |     c) injeta payload FALSO (99.5C)      |
-  |        |                                                     |                                        |
-  +--------|-----------------------------------------------------+----------------------------------------+
-           |   trafego MQTT em TEXTO CLARO (porta 1883)
-           v
-    credenciais (usuario/senha/token) legiveis por qualquer
-    observador na rede -> o atacante as reutiliza para injetar
-```
+![Arquitetura do laboratório — MQTT sem criptografia](04-Captura_de_Tráfego_MQTT/arquitetura_laboratorio.svg)
+
+> **Imagem alternativa:** caso o seu visualizador de Markdown não renderize SVG, use a versão PNG: ![Arquitetura do laboratório (PNG)](04-Captura_de_Tráfego_MQTT/arquitetura_laboratorio.svg.png)
 
 **Quem é quem:**
 
