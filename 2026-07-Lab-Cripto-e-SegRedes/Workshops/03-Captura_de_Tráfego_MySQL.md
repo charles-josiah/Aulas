@@ -50,7 +50,7 @@ layout: default
   - [Passo 3.3: Parar a captura](#passo-33-parar-a-captura)
 - [4. Recuperação dos Comandos SQL do Dump](#4-recuperação-dos-comandos-sql-do-dump)
   - [Passo 4.1: Extrair queries com tshark](#passo-41-extrair-queries-com-tshark)
-  - [Passo 4.2: Extrair queries com tcpdump (modo bruto)](#passo-42-extrair-queries-com-tcpdump-modo-brilho)
+  - [Passo 4.2: Extrair queries com tcpdump (modo bruto)](#passo-42-extrair-queries-com-tcpdump-modo-bruto)
   - [Passo 4.3: Reconstruir o banco num MySQL limpo](#passo-43-reconstruir-o-banco-num-mysql-limpo)
 - [5. Desafio: Sniffer Attack](#5-desafio-sniffer-attack)
 - [6. Mini-howto de Permissionamento MySQL](#6-mini-howto-de-permissionamento-mysql)
