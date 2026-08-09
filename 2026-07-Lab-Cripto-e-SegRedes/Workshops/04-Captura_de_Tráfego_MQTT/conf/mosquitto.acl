@@ -1,0 +1,26 @@
+# ============================================================
+# ACL do Mosquitto - Fase 4 (Hardening)
+#
+# Regras (em ordem, a primeira que casa vence):
+#   user <usuario>      -> regras para um usuario especifico
+#   topic <perm> <padrao> -> permissao: read | write | readwrite
+#   pattern <perm> <padrao> -> regra com substituicao %u (usuario)
+#
+# Estrategia de menor privilegio:
+#   - sensor_camara1: so PUBLICA no proprio topico
+#   - app_dashboard:  so LE sensores/#
+#   - ninguem publica fora do proprio topico (bloqueia o atacante
+#     que roubar a senha do sensor de publicar em outros topicos)
+# ============================================================
+
+# Dashboard/aplicacao: somente leitura em todos os sensores
+user app_dashboard
+topic read sensores/#
+
+# Sensor: somente publicacao no proprio topico
+user sensor_camara1
+topic write sensores/camara1/#
+
+# Qualquer outro usuario autenticado (ex.: atacante com credencial
+# roubada) nao tem permissao de publicacao em nenhum topico,
+# pois nao ha regra default e o Mosquitto nega por padrao.

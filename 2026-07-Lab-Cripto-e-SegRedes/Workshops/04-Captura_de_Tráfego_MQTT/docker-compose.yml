@@ -1,0 +1,40 @@
+# ============================================================
+# docker-compose.yml - Broker MQTT (SEM TLS) + Dashboard
+# Workshop 04: Ataques de Interceptacao e Injecao de Dados em MQTT
+#
+# Servicos:
+#   mosquitto  -> broker MQTT (Eclipse Mosquitto 2.x), porta 1883
+#   dashboard  -> aplicacao que assina sensores/# e mostra as leituras
+#                 (docker logs -f dashboard) - e aqui que o aluno ve
+#                 a temperatura ser alterada pelo atacante
+# ============================================================
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: laboratorio-mqtt-broker
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # MQTT sem TLS (texto claro) - VULNERAVEL por design
+    volumes:
+      - ./conf/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./conf/mosquitto.passwd:/mosquitto/config/mosquitto.passwd:ro
+      - mqtt_data:/mosquitto/data
+      - mqtt_log:/mosquitto/log
+
+  dashboard:
+    build: .
+    container_name: laboratorio-mqtt-dashboard
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    environment:
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+      - MQTT_USER=app_dashboard
+      - MQTT_PASS=app_dash_2024
+      - SENSOR_TOKEN=tok_sensor_camara1_7f3a9c
+    command: ["python", "/app/aplicacao.py"]
+
+volumes:
+  mqtt_data:
+  mqtt_log:

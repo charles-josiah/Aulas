@@ -55,5 +55,19 @@ Tópicos abordados:
 
 ---
 
+## Workshop: Ataques de Interceptação e Injeção de Dados em Protocolo MQTT (IoT) sem Criptografia
+
+Acesse o [workshop completo](04-Captura_de_Tráfego_MQTT.md).
+
+Tópicos abordados:
+- Por que MQTT sem TLS expõe credenciais (usuário/senha no CONNECT) e dados na rede
+- Setup de broker Eclipse Mosquitto 2.x em Docker (porta 1883) sem criptografia
+- Sniffing de credenciais e payloads JSON com tcpdump/tshark no Kali
+- Injeção de dados falsos (spoofing) de sensores IoT com `atacante.py` e `mosquitto_pub`
+- Demonstração do impacto: alerta de temperatura crítica falsa no dashboard
+- ACL por tópico como mitigação parcial e entendimento de por que TLS é essencial
+
+---
+
 📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/README.md.svg)
 
