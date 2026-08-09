@@ -35,6 +35,7 @@ layout: default
 > - Ambientes de laboratório são sensíveis e dependentes de hardware, configuração de rede e versões de pacotes.
 > - Falhas podem ocorrer devido a drivers, virtualização desativada (BIOS/VT-x/AMD-V), firewall local, ausência de pacotes, containers parados ou conflitos de rede.
 > - **Ajustes manuais podem ser necessários** durante o processo para adequar o lab à sua máquina específica.
+> - **Este material é apenas um guia de como realizar as atividades.** O passo a passo foi validado no ambiente do instrutor; o "como" pode ser melhorado e ajustes ao seu ambiente podem ser necessários para alcançar o mesmo resultado.
 
 ---
 
