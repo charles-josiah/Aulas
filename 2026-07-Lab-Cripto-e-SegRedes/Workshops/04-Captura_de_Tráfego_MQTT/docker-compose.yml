@@ -18,6 +18,7 @@ services:
     volumes:
       - ./conf/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - ./conf/mosquitto.passwd:/mosquitto/config/mosquitto.passwd:ro
+      - ./conf/mosquitto.acl:/mosquitto/config/mosquitto.acl:ro
       - mqtt_data:/mosquitto/data
       - mqtt_log:/mosquitto/log
 

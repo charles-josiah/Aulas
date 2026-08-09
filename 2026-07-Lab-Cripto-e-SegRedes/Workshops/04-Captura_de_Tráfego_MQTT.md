@@ -161,6 +161,15 @@ Clique no link de cada arquivo abaixo e baixe-o para a sua máquina (botão "Dow
 
 > **Dica:** para baixar direto no terminal, use `curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/04-Captura_de_Tráfego_MQTT/<arquivo>`. Baixe os arquivos na mesma estrutura de pastas do repositório (`Dockerfile` e `docker-compose.yml` na raiz do workshop; `conf/` e `scripts/` nas respectivas subpastas).
 
+> [!NOTE]
+> Os passos da Fase 2 em diante (no **kali**) usam a pasta padrão `~/laboratorio-mqtt`. Crie-a e copie os scripts do workshop para lá:
+>
+> ```bash
+> # No kali (rode dentro da pasta do workshop baixada na Opção A ou B):
+> mkdir -p ~/laboratorio-mqtt/scripts
+> cp scripts/sensor.py scripts/atacante.py scripts/capturar.sh ~/laboratorio-mqtt/scripts/
+> ```
+
 ### 1.3 Pré-requisitos
 
 | Máquina | Pacote | Comando de verificação |
@@ -206,6 +215,7 @@ services:
     volumes:
       - ./conf/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - ./conf/mosquitto.passwd:/mosquitto/config/mosquitto.passwd:ro
+      - ./conf/mosquitto.acl:/mosquitto/config/mosquitto.acl:ro
       - mqtt_data:/mosquitto/data
       - mqtt_log:/mosquitto/log
 
@@ -450,6 +460,9 @@ mosquitto_pub -h 172.30.234.55 -p 1883 \
 
 O efeito no dashboard é idêntico ao do script.
 
+> [!NOTE]
+> **Sem `mosquitto_pub` no seu kali?** Se você não pode instalar o pacote `mosquitto-clients` (precisa de `sudo`), use a função Python `pub()` descrita no Desafio (seção 5) — ela faz a mesma publicação via `paho-mqtt`, já instalado.
+
 ### Passo 4.3: Confirmar a alteração no dashboard
 
 No **srvdocker01**, acompanhe o log do dashboard:
@@ -615,8 +628,8 @@ Para **ativar** no seu lab (opcional):
 ```bash
 # 1. Troque o arquivo de config usado no docker-compose.yml:
 #    ./conf/mosquitto.conf  ->  ./conf/mosquitto-hardening.conf
-# 2. Reinicie o broker:
-docker compose restart mosquitto
+# 2. Recrie o container (necessario para montar o novo volume da ACL):
+docker compose up -d
 ```
 
 Efeito esperado:
@@ -702,6 +715,8 @@ Leve a captura para uma máquina com **Wireshark** instalado:
 | `not authorised` (código 5) no log do broker | O cliente usou credenciais erradas ou sem credenciais (`allow_anonymous false`). Use as credenciais capturadas: `sensor_camara1` / `sensor_senha_2024`. |
 | Sensor conecta mas não publica | O `token` no JSON precisa ser `tok_sensor_camara1_7f3a9c` (o dashboard rejeita token diferente). |
 | Broker em restart loop (exit 13) | Conferir permissões dos volumes e do passwd: `chmod 644 conf/mosquitto.passwd`, `docker compose up -d`. Se persistir, `docker compose down && docker compose up -d --build`. |
+| Broker em restart loop com `Error: per_listener_settings must be set before any other security settings` (ao usar o `mosquitto-hardening.conf`) | O `per_listener_settings true` deve vir **antes** de `allow_anonymous`/`password_file`/`acl_file` no arquivo; confira a ordem no `conf/mosquitto-hardening.conf` incluído. |
+| Broker em restart loop com `Error opening acl file "/mosquitto/config/mosquitto.acl"` (ao usar o `mosquitto-hardening.conf`) | O `docker-compose.yml` precisa montar o arquivo de ACL no container: `./conf/mosquitto.acl:/mosquitto/config/mosquitto.acl:ro` — e o container deve ser **recriado** com `docker compose up -d` (só `restart` não aplica volumes novos). |
 
 ---
 
