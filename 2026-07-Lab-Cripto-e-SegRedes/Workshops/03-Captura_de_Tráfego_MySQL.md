@@ -437,7 +437,7 @@ Resultado: o banco reconstruído é **idêntico** ao original — mesma estrutur
 - **Como atacante**, você consegue sniffar um dump completo do banco de dados que atravessa a rede sem criptografia.
 - Seu trabalho é **extrair** tudo que for útil (senhas, grants, dados sensíveis) e **reconstruir** o banco completo num ambiente controlado.
 
-**Cenário narrativo:**
+**Contextualização:**
 - Você é parte da equipe de Red Team de uma empresa de saúde que faz backup de bancos críticos durante a madrugada via `mysqldump` sem TLS.
 - O backup atravessa a rede corporativa onde há um ponto de coleta/sniffer (Raspberry Pi + `tcpdump`) implantado **sem o conhecimento do time local**.
 - O dump contém **comandos DDL/DCL/DML** (criação de bases, usuários, permissões e inserções de dados reais). Como o canal está em plaintext, tudo pode ser extraído.
