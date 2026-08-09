@@ -42,6 +42,7 @@ layout: default
 ## Índice
 
 - [1. Ambiente e Preparação](#1-ambiente-e-preparação)
+  - [1.1 Obter os arquivos do workshop](#11-obter-os-arquivos-do-workshop)
 - [2. Como Subir o MySQL via Docker](#2-como-subir-o-mysql-via-docker)
 - [3. Captura do Tráfego MySQL e Criação de Banco/Tabelas](#3-captura-do-tráfego-mysql-e-criação-de-bancotabelas)
   - [Passo 3.1: Iniciar a captura com tcpdump](#passo-31-iniciar-a-captura-com-tcpdump)
@@ -92,6 +93,36 @@ Objetivos de aprendizagem:
 > - No cliente: `ip -brief address`
 >
 > **Regra prática:** substitua `172.30.234.55` pelo IP real do servidor e `172.30.234.56` pelo IP real do cliente/kali.
+
+### 1.1 Obter os arquivos do workshop
+
+Todos os arquivos necessários (Dockerfile, docker-compose.yml, scripts e SQL de inicialização) estão no repositório do professor. **Você não precisa copiar e colar nada**: use um dos dois métodos abaixo.
+
+**Opção A — clone o repositório (recomendado):**
+
+```bash
+# No servidor (srvdocker01) e no kali:
+git clone https://github.com/charles-josiah/Aulas.git
+cd Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL
+```
+
+**Opção B — baixe os arquivos individualmente:**
+
+Clique no link de cada arquivo abaixo e baixe-o para a sua máquina (botão "Download raw file" ou "Raw"):
+
+| Arquivo | Link no GitHub |
+|---------|----------------|
+| `Dockerfile` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/Dockerfile) |
+| `docker-compose.yml` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/docker-compose.yml) |
+| `init/init.sql` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/init/init.sql) |
+| `init/comandos-dba.sql` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/init/comandos-dba.sql) |
+| `scripts/iniciar_servidor.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/scripts/iniciar_servidor.sh) |
+| `scripts/capturar_cliente.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/scripts/capturar_cliente.sh) |
+| `scripts/script_setup_servidor.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/scripts/script_setup_servidor.sh) |
+| `scripts/script_setup_cliente.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/scripts/script_setup_cliente.sh) |
+| `scripts/script_capturar.sh` | [ver no GitHub](https://github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/scripts/script_capturar.sh) |
+
+> **Dica:** para baixar direto no terminal, use `curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/03-Captura_de_Tráfego_MySQL/<arquivo>`. Baixe os arquivos na mesma estrutura de pastas do repositório (`Dockerfile` e `docker-compose.yml` na raiz do workshop; `init/` e `scripts/` nas respectivas subpastas).
 
 ---
 
