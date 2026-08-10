@@ -280,6 +280,35 @@ O script `iniciar_servidor.sh` faz:
 3. Constrói a imagem do dashboard e sobe tudo (`docker compose up -d --build`).
 4. Mostra o log do dashboard em tempo real (Ctrl+C para sair; o stack continua rodando).
 
+**Os mesmos passos, comando por comando (é isso que o script executa por baixo):**
+
+```bash
+# 1. Gera o arquivo de senhas (hashes) com a ferramenta do proprio Mosquitto.
+#    Rodamos o binario mosquitto_passwd dentro de um container descartavel
+#    (--rm) que monta a pasta conf/ do host em /conf:
+docker run --rm -v "$PWD/conf:/conf" eclipse-mosquitto:2 \
+  mosquitto_passwd -b -c /conf/mosquitto.passwd sensor_camara1 sensor_senha_2024
+docker run --rm -v "$PWD/conf:/conf" eclipse-mosquitto:2 \
+  mosquitto_passwd -b /conf/mosquitto.passwd app_dashboard app_dash_2024
+
+# 2. Derruba containers antigos (opcional; na primeira vez nao ha nada):
+docker compose down --remove-orphans
+
+# 3. Constroi a imagem do dashboard e sobe broker + dashboard em background:
+docker compose up -d --build
+
+# 4. Acompanha o log do dashboard (Ctrl+C sai, mas o stack continua no ar):
+docker logs -f laboratorio-mqtt-dashboard
+```
+
+| Comando | O que faz |
+|---------|-----------|
+| `docker run --rm -v ... eclipse-mosquitto:2 mosquitto_passwd -b -c arquivo user senha` | Executa o utilitário `mosquitto_passwd` de dentro da imagem oficial do Mosquitto para **criar o hash** do usuário/senha em `conf/mosquitto.passwd`. `--rm` descarta o container após o comando; `-b` (batch) não pede a senha interativamente; **`-c`** **cria** o arquivo (use só no primeiro usuário — sem ele o comando falha se o arquivo não existe; nos próximos usuários, omita); `-v "$PWD/conf:/conf"` monta a pasta local `conf/` dentro do container. |
+| `docker compose down --remove-orphans` | Para e remove os containers/rede do compose, incluindo containers órfãos (não declarados no YAML). Mantém os **volumes** `mqtt_data`/`mqtt_log` (dados do broker) — para apagar tudo também: `docker compose down -v`. |
+| `docker compose up -d --build` | **`up`** cria e inicia os serviços; **`-d`** (detached) roda em background; **`--build`** reconstrói a imagem do dashboard antes de subir (necessário se o `Dockerfile`/`aplicacao.py` mudou). |
+| `docker compose down -v` | Igual ao `down`, mas **remove os volumes** (apaga dados/mensagens persistidas do broker). Use quando quiser zerar o lab. |
+| `docker logs -f laboratorio-mqtt-dashboard` | Mostra o log do container. **`-f`** (follow) fica acompanhando em tempo real; sem ele, mostra o que já foi impresso e volta ao prompt. |
+
 > [!IMPORTANT]
 > O arquivo `mosquitto.passwd` é **gerado no servidor** (contém hashes de senha) e **não** deve ser commitado no repositório. Se o container não conseguir ler o arquivo (erro `Unable to open pwfile`), corrija as permissões:
 > ```bash
@@ -305,6 +334,26 @@ Do **kali**, teste a porta:
 ```bash
 nc -zv 172.30.234.55 1883
 ```
+
+**Detalhamento dos comandos de verificação e operação:**
+
+| Comando | O que faz |
+|---------|-----------|
+| `docker compose ps` | Lista os containers do stack com o **status** (`Up` = rodando, `Restarting` = falhou e está reiniciando, `Exited` = parou) e as **portas publicadas**. A porta `0.0.0.0:1883->1883/tcp` significa: o host aceita conexões em **qualquer interface** (`0.0.0.0`) na porta **1883** e encaminha para a porta 1883 do container. |
+| `docker compose ps -a` | Igual ao anterior, mas inclui containers **parados** (útil quando um serviço não sobe). |
+| `docker compose logs` | Logs de **todos** os serviços. Para um só: `docker compose logs mosquitto` ou `docker compose logs dashboard`. |
+| `docker logs --tail 50 -f laboratorio-mqtt-broker` | Logs do container por nome. `--tail 50` mostra só as últimas 50 linhas (não a história toda); `-f` acompanha em tempo real. |
+| `docker compose restart mosquitto` | **Reinicia** um serviço sem recriar o container — aplica mudanças em arquivos **montados** (ex.: `mosquitto.conf`), mas **não** aplica mudanças no `docker-compose.yml` (volumes, portas, envs). Para isso use `docker compose up -d`. |
+| `docker compose up -d` | Recria os containers **cuja configuração mudou** (e apenas esses). Use depois de editar o `docker-compose.yml`. |
+| `docker compose down` | Para e remove containers + rede. Dados (volumes) ficam. `-v` remove volumes também. |
+| `docker exec -it laboratorio-mqtt-broker sh` | Abre um **shell dentro do container** (inspeção: `ls /mosquitto/config`, `cat /mosquitto/config/mosquitto.conf`...). Saia com `exit`. |
+| `docker image ls` | Lista as imagens locais — você verá `eclipse-mosquitto:2` (baixada do Docker Hub) e `laboratorio-seguranca-mqtt-dashboard` (construída localmente). |
+
+> [!TIP]
+> **Regra rápida para lembrar:**
+> - Config do arquivo YAML mudou → `docker compose up -d`
+> - Só um arquivo **montado** mudou (conf/script) → `docker compose restart <servico>`
+> - Quer zerar o lab por completo → `docker compose down -v`
 
 ---
 
