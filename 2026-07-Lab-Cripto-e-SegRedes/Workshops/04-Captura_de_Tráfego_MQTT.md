@@ -310,9 +310,10 @@ docker logs -f laboratorio-mqtt-dashboard
 | `docker logs -f laboratorio-mqtt-dashboard` | Mostra o log do container. **`-f`** (follow) fica acompanhando em tempo real; sem ele, mostra o que já foi impresso e volta ao prompt. |
 
 > [!IMPORTANT]
-> O arquivo `mosquitto.passwd` é **gerado no servidor** (contém hashes de senha) e **não** deve ser commitado no repositório. Se o container não conseguir ler o arquivo (erro `Unable to open pwfile`), corrija as permissões:
+> O arquivo `mosquitto.passwd` é **gerado no servidor** (contém hashes de senha) e **não** deve ser commitado no repositório. O `iniciar_servidor.sh` já deixa o arquivo com o dono e as permissões corretas para o Mosquitto (uid `1883`, modo `600`). Se ainda assim aparecer `Unable to open pwfile` (restart loop), **rode o script de novo** (`./iniciar_servidor.sh`) — ele recria o arquivo com as permissões certas. Para consertar manualmente (o arquivo é `root:root`, então `chmod` direto no host não funciona — use um container root descartável):
 > ```bash
-> chmod 644 conf/mosquitto.passwd
+> docker run --rm -v "$PWD/conf:/conf" alpine \
+>   sh -c "chown 1883:1883 /conf/mosquitto.passwd && chmod 600 /conf/mosquitto.passwd"
 > docker compose restart mosquitto
 > ```
 
@@ -677,9 +678,16 @@ Para **ativar** no seu lab (opcional):
 ```bash
 # 1. Troque o arquivo de config usado no docker-compose.yml:
 #    ./conf/mosquitto.conf  ->  ./conf/mosquitto-hardening.conf
+#    (sed troca apenas a linha do mosquitto.conf, preservando passwd/acl)
+sed -i 's|\./conf/mosquitto\.conf:|./conf/mosquitto-hardening.conf:|' docker-compose.yml
+grep -n "conf/" docker-compose.yml   # confira: so a 1a linha mudou
+
 # 2. Recrie o container (necessario para montar o novo volume da ACL):
 docker compose up -d
 ```
+
+> [!NOTE]
+> No log do broker (`docker logs laboratorio-mqtt-broker`) podem aparecer avisos do tipo `File /mosquitto/config/mosquitto.acl has world readable permissions` / `owner is not mosquitto`. Isso é **esperado** neste lab: o arquivo de ACL precisa continuar editável por você (dono `user1`, não `mosquitto`) — e o Mosquitto 2.x atual **lê o arquivo normalmente**, então o lab funciona. Apenas versões **futuras** do Mosquitto passarão a recusar esses arquivos; em produção, o `mosquitto.acl` seria `chown mosquitto:mosquitto` (e então só seria alterado via `sudo` ou um arquivo versionado no deploy).
 
 Efeito esperado:
 
@@ -763,7 +771,7 @@ Leve a captura para uma máquina com **Wireshark** instalado:
 | Atacante Fase A não captura nada | O sensor precisa estar **rodando** durante a Fase A; confira `ps aux \| grep sensor.py`. |
 | `not authorised` (código 5) no log do broker | O cliente usou credenciais erradas ou sem credenciais (`allow_anonymous false`). Use as credenciais capturadas: `sensor_camara1` / `sensor_senha_2024`. |
 | Sensor conecta mas não publica | O `token` no JSON precisa ser `tok_sensor_camara1_7f3a9c` (o dashboard rejeita token diferente). |
-| Broker em restart loop (exit 13) | Conferir permissões dos volumes e do passwd: `chmod 644 conf/mosquitto.passwd`, `docker compose up -d`. Se persistir, `docker compose down && docker compose up -d --build`. |
+| Broker em restart loop (exit 13) | O `mosquitto.passwd` foi criado como `root:root` (o `docker run` roda como root) e o Mosquitto (uid `1883`) não consegue ler. **Rode `./iniciar_servidor.sh` de novo** (ele recria o arquivo com `1883:1883` e modo `600`). Para consertar manualmente: `docker run --rm -v "$PWD/conf:/conf" alpine sh -c "chown 1883:1883 /conf/mosquitto.passwd && chmod 600 /conf/mosquitto.passwd"` e depois `docker compose up -d`. `chmod` direto no host **não** funciona (o arquivo não é do seu usuário). |
 | Broker em restart loop com `Error: per_listener_settings must be set before any other security settings` (ao usar o `mosquitto-hardening.conf`) | O `per_listener_settings true` deve vir **antes** de `allow_anonymous`/`password_file`/`acl_file` no arquivo; confira a ordem no `conf/mosquitto-hardening.conf` incluído. |
 | Broker em restart loop com `Error opening acl file "/mosquitto/config/mosquitto.acl"` (ao usar o `mosquitto-hardening.conf`) | O `docker-compose.yml` precisa montar o arquivo de ACL no container: `./conf/mosquitto.acl:/mosquitto/config/mosquitto.acl:ro` — e o container deve ser **recriado** com `docker compose up -d` (só `restart` não aplica volumes novos). |
 

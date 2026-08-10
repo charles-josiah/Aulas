@@ -17,6 +17,7 @@
 import json
 import os
 import sys
+import time
 
 import paho.mqtt.client as mqtt
 
@@ -65,7 +66,21 @@ def main():
     client.on_connect = on_connect
     client.on_message = on_message
     client.username_pw_set(MQTT_USER, MQTT_PASS)
-    client.connect(BROKER, PORT, 60)
+
+    # Retry de conexao com backoff: na primeira subida do compose, o
+    # dashboard pode tentar conectar antes de o broker (e o DNS da rede
+    # do compose) estarem prontos -> "Temporary failure in name
+    # resolution". Sem este retry, o container cai em Restarting.
+    tentativa = 1
+    while True:
+        try:
+            client.connect(BROKER, PORT, 60)
+            break
+        except (ConnectionRefusedError, OSError) as e:
+            print(f"[DASHBOARD] Broker indisponivel (tentativa {tentativa}): {e}. "
+                  f"Tentando novamente em {min(tentativa, 5)}s...")
+            time.sleep(min(tentativa, 5))
+            tentativa += 1
     client.loop_forever()
 
 

@@ -19,6 +19,14 @@ if [ ! -f conf/mosquitto.passwd ]; then
     mosquitto_passwd -b -c /conf/mosquitto.passwd sensor_camara1 sensor_senha_2024
   docker run --rm -v "$PWD/conf:/conf" eclipse-mosquitto:2 \
     mosquitto_passwd -b /conf/mosquitto.passwd app_dashboard app_dash_2024
+  # O arquivo e criado como root:root (o docker run roda como root).
+  # O mosquitto roda como uid 1883 no container e nao consegue ler um
+  # arquivo root:600 -> "Unable to open pwfile" e restart loop. Passa
+  # o arquivo para o mosquitto (1883:1883, modo 600, sem warnings de
+  # "world readable"/"owner is not mosquitto"). O chmod/chown manual no
+  # host nao funciona - o arquivo nao e do user1:
+  docker run --rm -v "$PWD/conf:/conf" alpine \
+    sh -c "chown 1883:1883 /conf/mosquitto.passwd && chmod 600 /conf/mosquitto.passwd"
   echo "  -> conf/mosquitto.passwd criado com: sensor_camara1 e app_dashboard"
 else
   echo "  -> conf/mosquitto.passwd ja existe, mantendo."
