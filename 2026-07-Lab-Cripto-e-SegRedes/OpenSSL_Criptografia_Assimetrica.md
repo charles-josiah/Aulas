@@ -8,6 +8,15 @@
 > para comandos antigos como `rsautl`. Todos os exemplos abaixo já usam os
 > comandos modernos (`pkeyutl`). Se você encontrar erros, verifique a versão
 > com `openssl version`.
+>
+> **Baseado em:** `2025-09-Lab-Cripto-e-SegRedes/OpenSSL_Criptografia_Assim%C3%A9trica_Aula_Melhorada.md`
+> — documento original com teoria e exemplos. Este material foi reescrito e
+> expandido para o laboratório de 2026-07, com comandos atualizados, novos
+> exemplos, uma seção adicional de ataques comuns e um fluxo de PKI completo.
+> 
+> **Integração Docker:** O script de exemplo completo pode ser executado diretamente num container `openssl:3`.
+
+> **Conexão entre as partes:** Cada exemplo prático está vinculado a uma história do mundo real, tornando abstrata criptografia concreta para desenvolvedores e engenheiros de segurança.
 
 ---
 
@@ -611,6 +620,85 @@ echo "Contrato: prestacao de servicos de TI" > documento.txt
    vulnerabilidade é o tempo entre o comprometimento e a revogação.
 6. **Use `pkeyutl` em vez de `rsautl`.** O `rsautl` está deprecado no
    OpenSSL 3.x e não suporta OAEP nativamente.
+
+## 12. Ataques Conhecidos e Mitigação
+
+| Tipo de Ataque | O que o atacante faz | Por que é perigoso | Mitigação |
+|---|---|---|---|
+| **Padding Oracle** (PKCS#1 v1.5) | O atacante envia uma mensagem criptografada, tenta várias vezes para observar padrões de erro e deduce o texto plano. | O padding é vulnerável a manipulação; erros revelam informações. | Use **OAEP** (`-pkeyopt rsa_padding_mode:oaep`). |
+| **Fatoração** | Se a chave RSA for muito fraca (≤ 1024 bits), o atacante pode fatorar o módulo e recuperar a chave privada. | Chave quebrada revela tanto a chave pública quanto a privada. | Chaves de pelo menos **2048 bits** (recomendado: 4096). |
+| **Intermédio em Man-in-the-Middle (MITM)** | O atacante intercepta o handshake TLS, substitui a chave pública por uma própria, decodifica os dados, retransmite para o destinatário. | O atacante pode ler/modificar todo o tráfego. | **Certificados** assinados pela CA (cadeia de confiança) + **pinning** de chave pública (ex.: SSH `known_hosts`). |
+| **Escambo de chaves / downgrade** | O atacante força as partes a usar uma versão mais antiga do TLS/RSA com um tamanho de chave mais fraco, quebrando a segurança. | Força o uso de um algoritmo mais fraco. | Enforce TLS 1.3+ ou pelo menos RSA ≥2048 bits, TLS 1.2. |
+| **Coleta de Assinaturas** | O atacante coleta muitas assinaturas de chaves privadas para ataques de bloco do CAD. | Acumular assinaturas de vários documentos leva a ataques de uma letra conhecida. | Use **hash** (SHA-256) antes de assinar, controle de acesso a chaves privadas, cofres de hardware (HSM). |
+| **Replay** | O atacante registra uma mensagem criptografada/assinada e reenvia mais tarde. | O mesmo conteúdo é reutilizado para enganar o sistema. | Adicione nonce/timestamp, use **chave simétrica de sessão** por apenas um curto período. |
+
+## 13. Fluxo Completo de PKI — Exemplo Prático
+
+O diagrama abaixo ilustra a cadeia de confiança que sustenta serviços seguros:
+
+```text
+               .——————.           Assinar
+              /          \\      (CA)
+         .————+    CA Root   +————.          /\\\
+        |    (autoassinado)   |    .————+   /  \\\
+       \/                  \/   /   \\\
+ Usuário     Certificado do Servidor   /     \\   CRL\n  (confia)      (servidor)   CA de Ativação (Listagem)\n```
+
+**Passos para um servidor seguro (ex.: web, SSH) usando PKI:**
+
+```bash
+# 1. Gerar chave e CSR de uma entidade de serviço
+openssl genpkey -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:2048
+openssl req -new -key server.key -out server.csr \
+  -subj "/C=BR/ST=SC/L=Florianopolis/O=SENAI/OU=Lab/CN=server.lab.local"
+
+# 2. Obter o certificado assinado por uma CA confiável (aqui, uma autoassinado CA do laboratório)
+# Servidor da CA (já existente – openssl req -x509 -key ca.key -out ca.crt ...)
+
+# 3. CA assina o CSR do servidor
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key \
+  -CAcreateserial -out server.crt -days 365 -sha256
+
+# 4. Colocar server.crt + server.key no host (HTTPS, SSH, etc.)
+
+# 5. Verificar a cadeia de confiança
+openssl verify -CAfile ca.crt server.crt
+# Saída esperada: server.crt: OK
+```
+
+**Chaves e certificados gerados (modelo para teste no laboratório):**
+
+```text
+/tmp/lab-pki/ca.key          # Chave privada da CA (SENAI Lab Root CA)
+/tmp/lab-pki/ca.crt          # Certificado autoassinado da CA (3660 dias)
+/tmp/lab-pki/server.key      # Chave privada do servidor (server.lab.local)
+/tmp/lab-pki/server.csr      # CSR para o servidor
+/tmp/lab-pki/server.crt      # Certificado assinado pela CA (365 dias)
+```
+
+**Como usar isso no laboratório:**
+
+```bash
+# Copiar os artefatos para um container Linux (ex.: nginx-aula) para HTTPS
+docker cp /tmp/lab-pki/server.crt srvdocker01:/etc/ssl/certs/
+docker cp /tmp/lab-pki/server.key srvdocker01:/etc/ssl/private/
+chmod 600 srvdocker01:/etc/ssl/private/server.key
+# Injetar o certificado da CA no container para clientes confiarem
+# (Nginx configurar `ssl_trusted_certificate ca.crt;`)
+```
+
+**Saída esperada dos comandos acima:**
+
+```
+$ openssl verify -CAfile ca.crt server.crt
+server.crt: OK
+
+$ openssl x509 -in server.crt -noout -subject -issuer
+subject= /C=BR/ST=SC/L=Florianopolis/O=SENAI/OU=Lab/CN=server.lab.local
+issuer= /C=BR/ST=SC/L=Florianopolis/O=SENAI/OU=Lab/CN=SENAI Lab Root CA
+```
+
+> **Por que isso é importante:** Cada cliente (navegador, cliente SSH) confia na CA raiz → confia na **certificação do servidor**. Se o certificado do servidor for comprometido (perda da chave privada, revogação), o servidor deve ter um novo certificado assinado por uma CA confiável — um processo simples de "certificado de substituição" para manter a confiança.
 
 ---
 
