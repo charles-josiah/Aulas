@@ -440,6 +440,12 @@ diff data.txt decrypted_data.txt && echo "Criptografia hibrida funcionou" || ech
 > **Por que isso funciona:** O RSA resolve o problema de compartilhamento de
 > chave. Apenas Bob pode descriptografar a chave simétrica. O AES-256-GCM
 > garante confidencialidade e integridade dos dados.
+>
+> ---
+>
+> **Veja a execução completa dos exemplos:**
+> [`Aula_OpenSSL_Criptografia_Simetrica_exemplos.md`](./Aula_OpenSSL_Criptografia_Simetrica_exemplos.md)
+> — documento com todos os comandos, saídas esperadas e validação em tempo real.
 
 ---
 
