@@ -49,10 +49,10 @@
 - [8. Exemplos Práticos No Linux](#8-exemplos-práticos-no-linux)
   - [8.1 Geração de Chave Secreta](#81-geração-de-chave-secreta)
   - [8.2 Exemplo 1: Criptografar e Descriptografar Arquivo](#82-exemplo-1-criptografar-e-descriptografar-arquivo)
-  - [8.3 Exemplo 2: AES-256-GCM (Modo Autenticado)](#83-exemplo-2-aes-256-gcm-modo-autenticado)
+  - [8.3 Exemplo 2: Autenticação na CLI (CBC + HMAC)](#83-exemplo-2-autenticação-na-cli-cbc-hmac)
   - [8.4 Exemplo 3: Verificação de Integridade com Hash](#84-exemplo-3-verificação-de-integridade-com-hash)
   - [8.5 Exemplo 4: HMAC (Autenticação + Integridade)](#85-exemplo-4-hmac-autenticação-integridade)
-  - [8.6 Exemplo 5: Criptografia Híbrida (AES-256-GCM + RSA)](#86-exemplo-5-criptografia-híbrida-aes-256-gcm--rsa)
+  - [8.6 Exemplo 5: Criptografia Híbrida (AES-256-CBC + RSA)](#86-exemplo-5-criptografia-híbrida-aes-256-cbc--rsa)
 - [9. Ataques Conhecidos e Mitigação](#9-ataques-conhecidos-e-mitigação)
 - [10. Modos de Operação — Guia Rápido](#10-modos-de-operação-guia-rápido)
 - [11. Resumo dos Comandos](#11-resumo-dos-comandos)
@@ -73,7 +73,7 @@ combina com a assimétrica na prática (criptografia híbrida).
 ## Exemplo Prático — Execução Detalhada
 
 Todos os exemplos desta aula foram **executados e validados** em ambiente real
-com OpenSSL 3.x via container Docker (`openssl:3`). Para a execução completa
+(host `srvdocker01`, Ubuntu 26.04 LTS, OpenSSL 3.5.5). Para a execução completa
 passo a passo com saídas de terminal, saídas esperadas e validação de cada
 comando, consulte:
 
@@ -83,7 +83,8 @@ Esse documento complementar contém:
 - Prompt do terminal, comandos exatos e saídas reais
 - Verificações de integridade (diff, HMAC, hash)
 - Fluxo completo de criptografia híbrida (AES + RSA)
-- Teste de detecção de adulteração com GCM (bad decrypt)
+- Teste de detecção de adulteração (Encrypt-then-MAC: o HMAC não confere;
+  e por que o `openssl enc` não suporta GCM)
 
 ---
 
@@ -97,7 +98,7 @@ tem a chave pode ler o arquivo; quem não tem, não pode.
 |---|---|
 | **Chave usada** | A **mesma** para criptografar e descriptografar |
 | **Velocidade** | Muito mais rápida que a assimétrica (centenas de vezes) |
-| **Exemplo** | AES-256-GCM (padrão moderno) |
+| **Exemplo** | AES-256-GCM (padrão moderno em TLS/bibliotecas; na CLI: CBC + HMAC) |
 | **Problema principal** | Como compartilhar a chave secreta de forma segura? |
 
 **Imagine um cofre com chave única**. Você tranca o cofre com uma chave. A mesma chave abre. Se você perder a chave, ninguém mais abre. Se alguém copiar a chave, essa pessoa pode abrir o cofre.
@@ -134,6 +135,14 @@ O AES criptografa blocos de 16 bytes. Como lidar com arquivos maiores?
 > **Por que GCM?** GCM combina criptografia + autenticação em um único passo
 > (AEAD — Authenticated Encryption with Associated Data). Qualquer adulteração
 > do ciphertext é detectada automaticamente. Não precisa de HMAC extra.
+>
+> **Atenção (CLI):** o comando `openssl enc` **não suporta** modos AEAD como
+> GCM/CCM — a execução retorna `enc: AEAD ciphers not supported` (decisão
+> oficial, documentada no manual do `enc`). Na linha de comando, o padrão
+> equivalente é o **Encrypt-then-MAC** (CBC + HMAC): veja o
+> [Exemplo 2 (8.3)](#83-exemplo-2-autenticação-na-cli-cbc-hmac) e a execução
+> completa no
+> [doc de exemplos](./Aula_OpenSSL_Criptografia_Simetrica_exemplos.md#11-detecção-de-adulteração-na-prática--encrypt-then-mac).
 
 ### 3.3 Padding e Derivação de Chave
 
@@ -189,11 +198,11 @@ quantidade de dados. Por isso, no TLS, a negociação inicial usa assimétrica
 | Caso | Exemplo |
 |---|---|
 | **Criptografia de arquivos locais** | `openssl enc -aes-256-cbc -in data.txt -out data.enc -pass file:./secret.key` |
-| **Backup criptografado** | `tar -cf - diretorio` pipeado para `openssl enc -aes-256-gcm -out backup.tar.gpg` |
+| **Backup criptografado** | `tar -cf - diretorio` pipeado para `openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -out backup.tar.gpg` (e HMAC do ciphertext) |
 | **Criptografia de disco** | LUKS (dm-crypt) usa AES para dados em repouso |
 | **Criptografia híbrida (TLS/HTTPS)** | Chave simétrica trocada via certificado X.509 |
 | **Verificação de integridade** | `openssl dgst -sha256` antes e depois da transmissão |
-| **HMAC para autenticação** | `openssl dgst -sha256 -mac HMAC -macopt key:./secret.key` |
+| **HMAC para autenticação** | `openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key)` |
 
 ---
 
@@ -348,31 +357,76 @@ diff data.txt decrypted_data.txt && echo "Arquivos identicos" || echo "Diferente
 # Saída esperada: Arquivos identicos
 ```
 
-### 8.3 Exemplo 2: AES-256-GCM (Modo Autenticado)
+### 8.3 Exemplo 2: Autenticação na CLI (CBC + HMAC)
 
-**Cenário:** Alice quer criptografar com autenticação embutida (GCM).
+**Cenário:** Alice quer criptografar **e** autenticar o arquivo na linha de
+comando. O modo autenticado do AES (GCM/CCM, AEAD) **não é suportado** pelo
+comando `openssl enc` — experimente:
 
 ```bash
 openssl enc -aes-256-gcm -pbkdf2 -iter 100000 -in data.txt -out encrypted_data.gcm -pass file:./secret.key
+# Saída real:
+# enc: AEAD ciphers not supported
+# enc: Use -help for summary.
 ```
 
-**Descriptografar:**
+> **Atenção (CLI):** `openssl enc` não suporta modos AEAD (GCM/CCM) por
+> decisão oficial. O padrão equivalente na linha de comando é o
+> **Encrypt-then-MAC**: criptografar com CBC e depois autenticar o
+> **ciphertext** com HMAC. O GCM continua recomendado em TLS e em bibliotecas
+> (OpenSSL C API, Python, Java).
+
+**Alice criptografa (CBC) e autentica o ciphertext com HMAC:**
 
 ```bash
-openssl enc -d -aes-256-gcm -pbkdf2 -iter 100000 -in encrypted_data.gcm -out decrypted_data.gcm -pass file:./secret.key
+# 1. Criptografar
+openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in data.txt -out encrypted_data.bin -pass file:./secret.key
+
+# 2. Autenticar o ciphertext (Encrypt-then-MAC)
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) encrypted_data.bin > encrypted_data.bin.hmac
+cat encrypted_data.bin.hmac
+# Saída: HMAC-SHA2-256(encrypted_data.bin)= <hash>
 ```
 
-**Verificar:**
+**Bob verifica a autenticação ANTES de descriptografar:**
 
 ```bash
-diff data.txt decrypted_data.gcm && echo "Arquivos identicos (GCM)" || echo "Diferentes (GCM)"
-# Saída esperada: Arquivos identicos (GCM)
+# 1. Recalcular o HMAC do ciphertext recebido
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) encrypted_data.bin > received.hmac
+
+# 2. Comparar HMACs
+diff encrypted_data.bin.hmac received.hmac && echo "Autenticado e integro" || echo "ADULTERADO"
+
+# 3. Descriptografar
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 -in encrypted_data.bin -out decrypted_data.txt -pass file:./secret.key
 ```
 
-> **Por que GCM:** Qualquer adulteração do ciphertext é detectada
-> automaticamente (AEAD). O CBC puro não rejeita adulteração — ele apenas
-> gera lixo no texto plano (difícil de detectar). Com GCM, o OpenSSL retorna
-> `bad decrypt` se os dados forem adulterados.
+**Testar adulteração (inverter 1 bit no meio do ciphertext):**
+
+O byte no offset 20 é aleatório a cada execução — o comando abaixo **lê o byte
+e inverte o bit menos significativo**, funcionando com qualquer chave/salt:
+
+```bash
+b=$(xxd -p -s 20 -l 1 encrypted_data.bin)   # lê o byte no offset 20
+flip=$(( 0x$b ^ 0x01 ))                     # inverte o bit menos significativo
+printf "\\x$(printf '%02x' $flip)" | dd of=encrypted_data.bin bs=1 seek=20 count=1 conv=notrunc
+
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) encrypted_data.bin > received.hmac
+diff encrypted_data.bin.hmac received.hmac && echo "Autenticado e integro" || echo "ADULTERADO"
+# Saída esperada: ADULTERADO
+```
+
+> **Atenção — `key:` vs `hexkey:`:** `openssl dgst -mac HMAC -macopt key:./secret.key`
+> usa a **string literal** `"./secret.key"` como chave do HMAC — o arquivo não
+> é lido, e o "HMAC" seria forjável por qualquer pessoa que visse o comando.
+> Use `-macopt hexkey:$(xxd -p -c 256 secret.key)` para usar o **conteúdo real**
+> da chave (veja o doc de exemplos, seção 10.1).
+
+> **Por que Encrypt-then-MAC:** o CBC puro não rejeita adulteração — ele
+> apenas gera lixo no texto plano (difícil de detectar). O HMAC calculado
+> sobre o **ciphertext** detecta qualquer alteração. Verifique o HMAC
+> **antes** de descriptografar. Execução completa no
+> [doc de exemplos](./Aula_OpenSSL_Criptografia_Simetrica_exemplos.md#11-detecção-de-adulteração-na-prática--encrypt-then-mac).
 
 ### 8.4 Exemplo 3: Verificação de Integridade com Hash
 
@@ -418,7 +472,7 @@ chave pode ter gerado o arquivo.
 **Alice gera o HMAC do arquivo original:**
 
 ```bash
-openssl dgst -sha256 -mac HMAC -macopt key:./secret.key data.txt > data_hmac.txt
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) data.txt > data_hmac.txt
 ```
 
 **Alice criptografa e envia: data.txt + encrypted_data.bin + data_hmac.txt**
@@ -430,7 +484,7 @@ openssl dgst -sha256 -mac HMAC -macopt key:./secret.key data.txt > data_hmac.txt
 openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 -in encrypted_data.bin -out received_data.txt -pass file:./secret.key
 
 # 2. Gerar HMAC do recebido
-openssl dgst -sha256 -mac HMAC -macopt key:./secret.key received_data.txt > received_hmac.txt
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) received_data.txt > received_hmac.txt
 
 # 3. Comparar HMACs
 diff data_hmac.txt received_hmac.txt && echo "HMAC confere" || echo "HMAC NAO CONFERE"
@@ -440,7 +494,7 @@ diff data_hmac.txt received_hmac.txt && echo "HMAC confere" || echo "HMAC NAO CO
 > garante que apenas quem tem a chave secreta pode ter gerado o código de
 > autenticação.
 
-### 8.6 Exemplo 5: Criptografia Híbrida (AES-256-GCM + RSA)
+### 8.6 Exemplo 5: Criptografia Híbrida (AES-256-CBC + RSA)
 
 **Cenário:** Alice quer enviar um arquivo **confidencial** para Bob usando
 AES (rápido) + RSA (seguro).
@@ -450,14 +504,14 @@ AES (rápido) + RSA (seguro).
 ```
 Alice:
   1. Gera chave simétrica aleatória
-  2. Criptografa o arquivo com essa chave (AES-256-GCM)
+  2. Criptografa o arquivo com essa chave (AES-256-CBC)
   3. Criptografa a chave simétrica com a chave pública de Bob (RSA-OAEP)
   4. Envia: (arquivo criptografado) + (chave simétrica criptografada)
 
 Bob:
   1. Descriptografa a chave simétrica com sua chave privada (RSA-OAEP)
-  2. Usa a chave simétrica para descriptografar o arquivo (AES-256-GCM)
-  3. Verifica a integridade (GCM AEAD)
+  2. Usa a chave simétrica para descriptografar o arquivo (AES-256-CBC)
+  3. Verifica a autenticação (HMAC sobre o ciphertext — veja o Exemplo 2)
 ```
 
 **Passo 1 — Alice gera chave simétrica e criptografa o arquivo:**
@@ -467,10 +521,10 @@ Bob:
 openssl rand -out symmetric.key 32
 
 # Criptografar o arquivo
-openssl enc -aes-256-gcm -pbkdf2 -iter 100000 -in data.txt -out encrypted_data.bin -pass file:./symmetric.key
+openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in data.txt -out encrypted_data.bin -pass file:./symmetric.key
 
-# Extrair o IV e a tag
-openssl enc -aes-256-gcm -pbkdf2 -iter 100000 -in data.txt -out encrypted_data.bin -pass file:./symmetric.key -P
+# Ver os parâmetros derivados (salt, chave, IV)
+openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in data.txt -out /dev/null -pass file:./symmetric.key -P
 ```
 
 **Passo 2 — Alice criptografa a chave simétrica com a chave pública de Bob:**
@@ -488,7 +542,7 @@ openssl pkeyutl -decrypt -inkey bob_private.key -in encrypted_symmetric_key.bin 
 **Passo 4 — Bob descriptografa o arquivo com a chave simétrica:**
 
 ```bash
-openssl enc -d -aes-256-gcm -pbkdf2 -iter 100000 -in encrypted_data.bin -out decrypted_data.txt -pass file:./symmetric.key
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 -in encrypted_data.bin -out decrypted_data.txt -pass file:./symmetric.key
 ```
 
 **Verificar:**
@@ -498,8 +552,9 @@ diff data.txt decrypted_data.txt && echo "Criptografia hibrida funcionou" || ech
 ```
 
 > **Por que isso funciona:** O RSA resolve o problema de compartilhamento de
-> chave. Apenas Bob pode descriptografar a chave simétrica. O AES-256-GCM
-> garante confidencialidade e integridade dos dados.
+> chave. Apenas Bob pode descriptografar a chave simétrica. O AES-256-CBC
+> garante confidencialidade dos dados (para autenticação, combine com HMAC —
+> veja o Exemplo 2).
 >
 > ---
 >
@@ -541,25 +596,29 @@ diff data.txt decrypted_data.txt && echo "Criptografia hibrida funcionou" || ech
 | Gerar chave via PBKDF2 | `openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -pass pass:"senha" -P` |
 | Criptografar (CBC) | `openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in arquivo -out arquivo.enc -pass file:./secret.key` |
 | Descriptografar (CBC) | `openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 -in arquivo.enc -out arquivo -pass file:./secret.key` |
-| Criptografar (GCM) | `openssl enc -aes-256-gcm -pbkdf2 -iter 100000 -in arquivo -out arquivo.gcm -pass file:./secret.key` |
-| Descriptografar (GCM) | `openssl enc -d -aes-256-gcm -pbkdf2 -iter 100000 -in arquivo.gcm -out arquivo -pass file:./secret.key` |
+| Autenticar (HMAC do ciphertext) | `openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) arquivo.enc > arquivo.enc.hmac` |
 | Gerar hash SHA-256 | `openssl dgst -sha256 arquivo.txt` |
-| Gerar HMAC | `openssl dgst -sha256 -mac HMAC -macopt key:./secret.key arquivo.txt` |
+| Gerar HMAC | `openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) arquivo.txt` |
 | Verificar HMAC | `diff arquivo_hmac.txt novo_hmac.txt` |
+
+> `openssl enc` não suporta GCM/CCM (modos AEAD) — para autenticação na CLI,
+> use CBC + HMAC (Encrypt-then-MAC).
 
 ---
 
 ## 12. Boas Práticas
 
-1. **Use AES-256-GCM** para dados confidenciais (autenticação automática).
+1. **Prefira modos autenticados (AEAD)** — ex.: AES-256-GCM em TLS e em
+   bibliotecas (OpenSSL C API, Python, Java). Na CLI do OpenSSL, use
+   **CBC + HMAC (Encrypt-then-MAC)**, pois `openssl enc` não suporta GCM.
 2. **Use `-pbkdf2 -iter 100000`** em vez de `-pass pass:` (protege contra
    ataques de dicionário).
 3. **IV aleatório** (nunca reutilize o mesmo IV para dois arquivos diferentes).
 4. **Nunca envie a chave simétrica pela rede** sem criptografia assimétrica
    (use criptografia híbrida para compartilhar).
 5. **Verifique o HMAC** antes de abrir o arquivo (integridade).
-6. **Teste a adulteração** do ciphertext (GCM rejeita automaticamente, CBC
-   precisa de verificação extra).
+6. **Teste a adulteração** do ciphertext (em bibliotecas, o GCM rejeita
+   automaticamente; na CLI, o HMAC não confere — veja o Exemplo 2).
 
 ---
 

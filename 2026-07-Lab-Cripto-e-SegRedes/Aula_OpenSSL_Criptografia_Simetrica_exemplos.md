@@ -1,8 +1,8 @@
 # Aula — Criptografia Simétrica com OpenSSL — Exemplos e Validação
 
 **Disciplina:** Criptografia e Segurança em Redes — SENAI
-**Pré-requisitos:** OpenSSL 3.x (ex.: container `openssl:3` do Docker Hub, ou build
-oficial do OpenSSL) ou máquina com Ubuntu 22.04+
+**Pré-requisitos:** host `srvdocker01` do laboratório (Ubuntu 26.04 LTS, OpenSSL
+3.5.5) ou qualquer máquina Linux com OpenSSL 3.x (Ubuntu 22.04+).
 
 > **Nota sobre a versão do OpenSSL:** Este material foi testado com OpenSSL 3.x
 > (versão atual). O OpenSSL 3.x requer `-pbkdf2` para derivação segura de chave
@@ -37,23 +37,46 @@ esperada.
 
 ## 2. Ambiente de Execução
 
+Todos os exemplos deste documento foram **executados e validados** no host
+`srvdocker01` (o servidor Docker do laboratório), com saída real de terminal
+salva no [Apêndice A (seção 17)](#17-apêndice-a-sessão-completa-no-srvdocker01).
+
 ```bash
+hostname
+# srvdocker01
+
+. /etc/os-release && echo "$PRETTY_NAME"
+# Ubuntu 26.04 LTS
+
 openssl version
-OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)
+# OpenSSL 3.5.5 27 Jan 2026 (Library: OpenSSL 3.5.5 27 Jan 2026)
+
+uname -r
+# 7.0.0-29-generic
+
+id
+# uid=1000(user1) gid=1000(user1) groups=1000(user1),27(sudo),983(docker)
+
+date
+# Sun Aug 16 02:08:22 PM UTC 2026
 ```
 
 **Diretório de trabalho:** `/tmp/lab-simetrica`
 
-**Para reproduzir com o container oficial (mesma versão usada aqui):**
+**Para reproduzir no próprio host do laboratório:**
 
 ```bash
-docker run --rm -v "$PWD:/work" -w /work openssl:3 openssl version
+ssh -i ~/.ssh/senai_lab_ed25519 user1@172.30.234.55
+mkdir -p /tmp/lab-simetrica && cd /tmp/lab-simetrica
+openssl version
 ```
 
-> **Observação sobre distribuições Linux:** builds empacotados por distribuições
-> (Debian/Ubuntu) podem exibir a mesma mensagem `AEAD ciphers not supported`
-> para GCM/CCM — comportamento idêntico ao oficial. Todos os exemplos deste
-> documento usam apenas o que o `enc` realmente suporta.
+> **Observação sobre o Docker:** a imagem `openssl:3` do Docker Hub **não
+> existe** (`pull access denied for openssl`) — a imagem oficial do projeto é
+> `openssl/openssl`. Por isso este material usa o OpenSSL **nativo** do
+> `srvdocker01` (3.5.5). Builds empacotados por distribuições exibem a mesma
+> mensagem `AEAD ciphers not supported` para GCM/CCM — comportamento idêntico
+> ao oficial. Todos os exemplos usam apenas o que o `enc` realmente suporta.
 
 ---
 
@@ -79,15 +102,15 @@ Nenhuma saída no terminal (apenas o arquivo é criado). Para verificar:
 
 ```bash
 ls -la secret.key
-# -rw-rw-r-- 1 ubuntu ubuntu 32 Aug 16 13:54 secret.key
+# -rw-rw-r-- 1 user1 user1 32 Aug 16 14:08 secret.key
 ```
 
 **Conteúdo em hex (exemplo real desta execução):**
 
 ```bash
 xxd secret.key
-# 00000000: eb0a c211 d64f 5a29 4e89 69aa 6697 da9e  .....OZ)N.i.f...
-# 00000010: 5cf3 372d 640e e63b e244 0dfd 3065 f900  \.7-d..;.D..0e..
+# 00000000: 5e29 1388 6c4c d1aa a1b5 4497 b257 f223  ^)..lL....D..W.#
+# 00000010: 1481 6eb7 d143 50c0 81f5 d8c8 c93f 24d9  ..n..CP......?$.
 ```
 
 > **Importante:** a chave é aleatória — a sua será diferente. Nunca versione
@@ -190,8 +213,8 @@ openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -salt \
   -in data.txt -out data_pw2.enc -pass pass:"MinhaSenhaForte!2026"
 
 sha256sum data_pw.enc data_pw2.enc
-# 015f6be05da4b4ec250e452575a180f70313315ae0dfeff9fe9d501f36f01e71  data_pw.enc
-# d0edab33fac4f09c09f225df03068be65e7ca8205c103fbc63c14435caafe003  data_pw2.enc
+# 1c0a4571aab059ae1e1bc4c634971b6b12a4ffc92fc04470c63a2025f3fd9cd8  data_pw.enc
+# e5de99b9eb670d09ce3249a74540245db6c876679902890c88c831501b3b3e16  data_pw2.enc
 ```
 
 ### 5.4 Ver os parâmetros derivados com `-P`
@@ -201,9 +224,9 @@ O `-P` imprime o salt, a chave e o IV derivados (sem gerar arquivo):
 ```bash
 openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -salt \
   -in data.txt -P -pass pass:"MinhaSenhaForte!2026"
-# salt=88C35B4836997E82
-# key=6D6FBEAACDD190B732B9D40C0AB392CF3C1BD45108FE72C427B1EFD1270C8FE7
-# iv =EABE22E60D22CBD3A62AF8D6A8D30145
+# salt=0AFF3F1552A50FD5
+# key=0BD56684E0EB900904741B31891262E4150F9520C7A3C775C0B990551AA92893
+# iv =2B162016B7B4E10DBD18878112A473B5
 ```
 
 > **Conclusão prática:** senha + PBKDF2 + salt = mesma segurança de chave para
@@ -258,13 +281,13 @@ done < wordlist.txt
 Medindo 5 tentativas com senha errada (mesma máquina):
 
 ```bash
-# iter 1000   -> 5 tentativas: 23 ms
-# iter 100000 -> 5 tentativas: 397 ms
+# iter 1000   -> 5 tentativas: 98 ms
+# iter 100000 -> 5 tentativas: 820 ms
 ```
 
-Com `-iter 100000` cada tentativa fica ~17× mais cara. Em um ataque real com
-milhões de senhas (wordlists de bilhões de entradas + GPUs), a diferença é
-decisiva.
+Com `-iter 100000` cada tentativa fica ~8× mais cara (820 ms vs 98 ms nesta
+máquina). Em um ataque real com milhões de senhas (wordlists de bilhões de
+entradas + GPUs), a diferença é decisiva.
 
 > **Mitigação (documento principal, seção 9):** use senha **longa e aleatória**
 > + `-pbkdf2 -iter 100000`. Senhas curtas/dicionário (`123456`, `senha123`)
@@ -298,19 +321,19 @@ openssl enc -aes-256-cbc -pbkdf2 -iter 100000 \
 
 ```bash
 xxd -l 64 pattern.ecb
-# 00000000: 5361 6c74 6564 5f5f 6cfb 7b5c 7fec 7554  Salted__l.{\..uT
-# 00000010: 834c 098f bf8e 864f 92c2 d22a 879c 0cee  .L.....O...*....
-# 00000020: 834c 098f bf8e 864f 92c2 d22a 879c 0cee  .L.....O...*....
-# 00000030: 834c 098f bf8e 864f 92c2 d22a 879c 0cee  .L.....O...*....
+# 00000000: 5361 6c74 6564 5f5f 3280 adaa 7df3 4785  Salted__2...}.G.
+# 00000010: 17e0 8594 b2ed 6b03 2b5e ed10 0987 4799  ......k.+^....G.
+# 00000020: 17e0 8594 b2ed 6b03 2b5e ed10 0987 4799  ......k.+^....G.
+# 00000030: 17e0 8594 b2ed 6b03 2b5e ed10 0987 4799  ......k.+^....G.
 
 xxd -l 64 pattern.cbc
-# 00000000: 5361 6c74 6564 5f5f adf2 c7a5 9029 70e7  Salted__.....)p.
-# 00000010: 51e8 7ae5 6895 a09b a37f 3664 411e 21fe  Q.z.h.....6dA.!.
-# 00000020: eeea 51a6 7fab 3d6a 6d03 312d 7e9d 20bb  ..Q...=jm.1-~. .
-# 00000030: 4f1f 90fe ee04 7134 46d0 73fc 381e aa54  O.....q4F.s.8..T
+# 00000000: 5361 6c74 6564 5f5f 0c35 def8 d414 88ac  Salted__.5......
+# 00000010: cfc7 0034 66d6 1bce c9a2 2489 9367 c2ba  ...4f.....$..g..
+# 00000020: 41ea 4c18 4261 9eeb bb35 d147 7737 ac9b  A.L.Ba...5.Gw7..
+# 00000030: 3a41 6ce0 9a7a ff5a 6e32 7d2e 441b ea48  :Al..z.Zn2}.D..H
 ```
 
-**ECB:** o bloco `834c098fbf8e864f92c2d22a879c0cee` se repete em todo o
+**ECB:** o bloco `17e08594b2ed6b032b5eed1009874799` se repete em todo o
 arquivo. **CBC:** nenhum bloco se repete.
 
 ### 7.4 Contar blocos únicos de 16 bytes
@@ -318,9 +341,9 @@ arquivo. **CBC:** nenhum bloco se repete.
 ```bash
 # ECB (contagem de cada bloco):
 xxd -p -c 4096 pattern.ecb | fold -w 32 | sort | uniq -c | sort -rn
-#      64 834c098fbf8e864f92c2d22a879c0cee   <- 64 blocos de dados IDÊNTICOS
-#       1 b4ec38c9a750bec137b8a26b2fc2f549   <- bloco de padding (PKCS#7)
-#       1 53616c7465645f5f6cfb7b5c7fec7554   <- cabeçalho Salted__ + salt
+#      64 17e08594b2ed6b032b5eed1009874799   <- 64 blocos de dados IDÊNTICOS
+#       1 bfa76c8bdb6995018f65fb273eef44f6   <- bloco de padding (PKCS#7)
+#       1 53616c7465645f5f3280adaa7df34785   <- cabeçalho Salted__ + salt
 
 # CBC (total de blocos únicos):
 xxd -p -c 4096 pattern.cbc | fold -w 32 | sort | uniq | wc -l
@@ -354,15 +377,22 @@ primeiro byte do ciphertext está no offset 16:
 
 ```bash
 xxd -s 16 -l 8 data.ctr
-# 00000010: 32ca 306c 542a 0074                      2.0lT*.t
+# 00000010: 268e f925 8ba2 2a0c                      &..%..*.
 ```
 
 ### 8.3 Adulterar 1 bit e descriptografar
 
+O 1º byte do ciphertext é aleatório a cada execução (aqui: `0x26`). O
+comando abaixo **lê o byte e inverte o bit menos significativo** — assim o
+experimento funciona com qualquer chave/salt:
+
 ```bash
-# Inverter o bit menos significativo do 1º byte (0x32 -> 0x33)
+# Inverter o bit menos significativo do 1º byte do ciphertext
+# (nesta execução: 0x26 -> 0x27)
 cp data.ctr data.ctr.flip
-printf '\x33' | dd of=data.ctr.flip bs=1 seek=16 count=1 conv=notrunc 2>/dev/null
+b=$(xxd -p -s 16 -l 1 data.ctr)            # lê o 1º byte do ciphertext
+flip=$(( 0x$b ^ 0x01 ))                    # inverte o bit menos significativo
+printf "\\x$(printf '%02x' $flip)" | dd of=data.ctr.flip bs=1 seek=16 count=1 conv=notrunc
 
 openssl enc -d -aes-256-ctr -pbkdf2 -iter 100000 \
   -in data.ctr.flip -out data.ctr.dec -pass file:./secret.key
@@ -451,10 +481,17 @@ chave pode ter gerado o arquivo.
 ### 10.1 Alice gera o HMAC
 
 ```bash
-openssl dgst -sha256 -mac HMAC -macopt key:./secret.key data.txt > data_hmac.txt
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) data.txt > data_hmac.txt
 cat data_hmac.txt
-# HMAC-SHA2-256(data.txt)= 0ee40dc02d286cb0675ccd4444e192dfb0f402332ed09fd705b2ccc8ec1b5e79
+# HMAC-SHA2-256(data.txt)= 214e67a6bf7c1e66a9d6911eb7e5a5e9d30d0a2e08dd28c420fe1a2687b6c27b
 ```
+
+> **Atenção — `key:` vs `hexkey:`:** `openssl dgst -mac HMAC -macopt key:./secret.key`
+> usa a **string literal** `"./secret.key"` como chave do HMAC — o arquivo
+> **não** é lido! Isso tornaria o "HMAC" forjável por qualquer pessoa que visse
+> o comando. Para usar o **conteúdo real** do arquivo de chave, converta-o para
+> hex e passe via `-macopt hexkey:` (como acima). Sem isso, a seção 11 não
+> faria sentido — o atacante conseguiria recomputar o HMAC.
 
 ### 10.2 Alice criptografa e envia
 
@@ -470,7 +507,7 @@ openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 \
   -in encrypted_data.bin -out received_data.txt -pass file:./secret.key
 
 # 2. Gerar HMAC do recebido
-openssl dgst -sha256 -mac HMAC -macopt key:./secret.key received_data.txt > received_hmac.txt
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) received_data.txt > received_hmac.txt
 
 # 3. Comparar HMACs
 diff data_hmac.txt received_hmac.txt && echo "HMAC confere" || echo "HMAC NAO CONFERE"
@@ -518,9 +555,9 @@ openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -salt \
   -in data.txt -out msg.cbc -pass file:./secret.key
 
 # 2. HMAC SOBRE O CIPHERTEXT (Encrypt-then-MAC)
-openssl dgst -sha256 -mac HMAC -macopt key:./secret.key msg.cbc > msg.cbc.hmac
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) msg.cbc > msg.cbc.hmac
 cat msg.cbc.hmac
-# HMAC-SHA2-256(msg.cbc)= e8eeab8c88a4bd97a3f56f68e6cf25a25dde2b60647824142eb44f6b5bba501f
+# HMAC-SHA2-256(msg.cbc)= 68bd1f272a6ecdb29637304449daab655a42305ad6e02f130c2c6bd7e5726a13
 
 # (envia: msg.cbc + msg.cbc.hmac)
 ```
@@ -529,7 +566,10 @@ cat msg.cbc.hmac
 
 ```bash
 cp msg.cbc msg.cbc.flip
-printf '\x85' | dd of=msg.cbc.flip bs=1 seek=20 count=1 conv=notrunc 2>/dev/null
+b=$(xxd -p -s 20 -l 1 msg.cbc)             # lê o byte no offset 20
+flip=$(( 0x$b ^ 0x01 ))                    # inverte o bit menos significativo
+printf "\\x$(printf '%02x' $flip)" | dd of=msg.cbc.flip bs=1 seek=20 count=1 conv=notrunc
+# byte no offset 20: 0x60 -> 0x61   (nesta execução)
 ```
 
 ### 11.4 Bob descriptografa o arquivo adulterado (silenciosamente!)
@@ -541,29 +581,34 @@ openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 \
   -in msg.cbc.flip -out msg.dec -pass file:./secret.key
 # (nenhum erro de descriptografia!)
 
-diff data.txt msg.dec
+diff data.txt msg.dec | cat -v
 # 1c1
 # < Mensagem secreta: a prova esta no /tmp
 # ---
-# > ..OH..k...#PR4:: a qrova esta no /tmp
+# > M-^HM-MM-%M-:M-,-Q$VM-^YM-^TM-MM-\$M-MP: a qrova esta no /tmp
 ```
 
+> O `cat -v` exibe os **bytes não imprimíveis** do bloco corrompido como
+> sequências `M-^X` (ex.: `M-^H` = byte `0x88`); no terminal sem `cat -v`,
+> eles aparecem como "caracteres estranhos".
+
 O que aconteceu (comportamento clássico do CBC):
-- **Bloco 0** ("Mensagem secreta") virou lixo — o AES tem efeito avalanche: 1
+- **Bloco 0** ("Mensagem secreta: ") virou lixo — o AES tem efeito avalanche: 1
   bit alterado no ciphertext altera ~metade do bloco no plaintext
 - **Bloco 1** sofreu exatamente o bit-flip: "p**r**ova" → "p**q**rova"
+  (byte no offset 20 → bit 4 do bloco 1)
 - **Padding intacto** → nenhum erro de padding → descriptografia "bem-sucedida"
 
 ### 11.5 Bob verifica o HMAC e detecta
 
 ```bash
-openssl dgst -sha256 -mac HMAC -macopt key:./secret.key msg.cbc.flip > msg.cbc.flip.hmac
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) msg.cbc.flip > msg.cbc.flip.hmac
 
 diff msg.cbc.hmac msg.cbc.flip.hmac
 # 1c1
-# < HMAC-SHA2-256(msg.cbc)= e8eeab8c88a4bd97a3f56f68e6cf25a25dde2b60647824142eb44f6b5bba501f
+# < HMAC-SHA2-256(msg.cbc)= 68bd1f272a6ecdb29637304449daab655a42305ad6e02f130c2c6bd7e5726a13
 # ---
-# > HMAC-SHA2-256(msg.cbc.flip)= ecb0507ff684b3bdcc04fcbaf8bc444dcabc7c6459af9d555fea6668522c4fb0
+# > HMAC-SHA2-256(msg.cbc.flip)= b466bdda09be6d63d88c55a8a876e2c82e7098ee5a493cdd9dd4b8a296593f3a
 
 # (HMAC diferente => arquivo adulterado => descartar)
 ```
@@ -658,7 +703,7 @@ tar -czf - -C backup_src docs | openssl enc -aes-256-cbc -pbkdf2 -iter 100000 \
   -salt -pass pass:"BackupSeguro!2026" -out backup.tgz.enc
 
 ls -la backup.tgz.enc
-# -rw-rw-r-- 1 ubuntu ubuntu 240 Aug 16 13:54 backup.tgz.enc
+# -rw-rw-r-- 1 user1 user1 256 Aug 16 14:08 backup.tgz.enc
 ```
 
 **Explicação dos componentes:**
@@ -671,7 +716,7 @@ ls -la backup.tgz.enc
 ### 13.3 Calcular o HMAC do backup (integridade)
 
 ```bash
-openssl dgst -sha256 -mac HMAC -macopt key:./secret.key backup.tgz.enc > backup.tgz.hmac
+openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) backup.tgz.enc > backup.tgz.hmac
 # (guarde backup.tgz.hmac junto com a senha, separado do arquivo criptografado)
 ```
 
@@ -691,9 +736,14 @@ diff -r backup_src/docs docs && echo "Backup restaurado: diretórios idênticos"
 
 ```bash
 openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 \
-  -pass pass:"senhaErrada" -in backup.tgz.enc -out backup_errado.tgz
+  -pass pass:"senhaErrada" -in backup.tgz.enc -out backup_errado.tgz 2>&1
 # bad decrypt
+# 40072C72447D0000:error:1C800064:Provider routines:ossl_cipher_unpadblock:bad decrypt:../providers/implementations/ciphers/ciphercommon_block.c:107:
 ```
+
+> O prefixo hexadecimal (`40072C72447D0000`) é um identificador de thread
+> aleatório — muda a cada execução. O que importa é o `bad decrypt` final:
+> o arquivo **não** é criado com a senha errada.
 
 > **Historinha 6.1:** se a senha for perdida, o backup vira lixo. Armazene a
 > senha em cofre (ex.: gerenciador de senhas) e considere usar ferramentas
@@ -714,15 +764,15 @@ openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 \
 | 6.2 | Loop `openssl enc -d ... -pass "pass:$pwd"` + `cmp -s` | Força bruta com wordlist → `senha123` |
 | 7.2 | `openssl enc -aes-256-ecb/-cbc ...` em `pattern.txt` | ECB repete blocos; CBC não |
 | 8.1 | `openssl enc -aes-256-ctr -pbkdf2 -iter 100000 -in data.txt -out data.ctr -pass file:./secret.key` | Criptografa em modo stream |
-| 8.3 | `printf '\x33' \| dd of=data.ctr.flip bs=1 seek=16 count=1 conv=notrunc` + decrypt | Bit-flip silencioso (M→L) |
+| 8.3 | Flip do bit menos significativo do byte no offset 16 + decrypt | Bit-flip silencioso (M→L) |
 | 9.1 | `openssl dgst -sha256 data.txt > data_hash.txt` | Gera hash SHA-256 |
-| 10.1 | `openssl dgst -sha256 -mac HMAC -macopt key:./secret.key data.txt` | Gera HMAC |
-| 11.2 | `openssl dgst -sha256 -mac HMAC -macopt key:./secret.key msg.cbc` | HMAC do ciphertext (EtM) |
+| 10.1 | `openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) data.txt` | Gera HMAC com a chave real |
+| 11.2 | `openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) msg.cbc` | HMAC do ciphertext (EtM) |
 | 11.4 | `diff data.txt msg.dec` | CBC adulterado decodifica sem erro (texto corrompido) |
 | 11.5 | `diff msg.cbc.hmac msg.cbc.flip.hmac` | HMAC não confere → adulteração detectada |
 | 12 | `openssl pkeyutl -encrypt/-decrypt ... rsa_padding_mode:oaep` + AES-CBC | Criptografia híbrida |
 | 13.2 | `tar -czf - -C backup_src docs \| openssl enc -aes-256-cbc ... -out backup.tgz.enc` | Backup criptografado |
-| 13.3 | `openssl dgst -sha256 -mac HMAC -macopt key:./secret.key backup.tgz.enc` | HMAC do backup |
+| 13.3 | `openssl dgst -sha256 -mac HMAC -macopt hexkey:$(xxd -p -c 256 secret.key) backup.tgz.enc` | HMAC do backup |
 | 13.5 | `openssl enc -d ... -pass pass:"senhaErrada"` | `bad decrypt` |
 
 ---
@@ -734,7 +784,8 @@ openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 \
 - [ ] **Senha forte + `-pbkdf2 -iter 100000`** (senha fraca quebrada em segundos) ✅
 - [ ] **ECB nunca usado** (blocos idênticos vazam padrões) ✅
 - [ ] **CTR/stream sem autenticação = bit-flip silencioso** ✅
-- [ ] **HMAC gerado com `-mac HMAC` sobre o ciphertext (Encrypt-then-MAC)** ✅
+- [ ] **HMAC gerado com `-mac HMAC -macopt hexkey:`** sobre o ciphertext (Encrypt-then-MAC) ✅
+- [ ] **HMAC usa o conteúdo real da chave** (`hexkey`), não a string do caminho (`key:` — armadilha comum) ✅
 - [ ] **Adulteração detectada pelo HMAC** ✅
 - [ ] **Criptografia híbrida (RSA + AES) validada** ✅
 - [ ] **Backup com tar + AES + HMAC restaurado e verificado** ✅
@@ -753,3 +804,114 @@ openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 \
 - [NIST SP 800-38D — GCM](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf)
 - [RFC 5288 — AES-GCM for TLS](https://datatracker.ietf.org/doc/html/rfc5288)
 - [OWASP — Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)
+
+---
+
+## 17. Apêndice A — Sessão Completa no srvdocker01
+
+Saída de terminal **integral** da execução que gerou os valores das seções 3 a 13
+(salva em `/tmp/lab-simetrica/log-srvdocker01.txt` no host `srvdocker01`):
+
+```text
+=================== SECAO 2: AMBIENTE ===================
+srvdocker01
+Ubuntu 26.04 LTS
+OpenSSL 3.5.5 27 Jan 2026 (Library: OpenSSL 3.5.5 27 Jan 2026)
+7.0.0-29-generic
+uid=1000(user1) gid=1000(user1) groups=1000(user1),27(sudo),983(docker)
+Sun Aug 16 02:08:22 PM UTC 2026
+Diretorio de trabalho: /tmp/lab-simetrica
+
+=================== SECAO 3: GERACAO DE CHAVE ===================
+-rw-rw-r-- 1 user1 user1 32 Aug 16 14:08 secret.key
+00000000: 5e29 1388 6c4c d1aa a1b5 4497 b257 f223  ^)..lL....D..W.#
+00000010: 1481 6eb7 d143 50c0 81f5 d8c8 c93f 24d9  ..n..CP......?$.
+
+=================== SECAO 4: AES-256-CBC ===================
+Mensagem secreta: a prova esta no /tmp
+Mensagem secreta: a prova esta no /tmp
+Arquivos identicos
+
+=================== SECAO 5: SENHA + PBKDF2 + SALT ===================
+OK: senha como chave funciona
+1c0a4571aab059ae1e1bc4c634971b6b12a4ffc92fc04470c63a2025f3fd9cd8  data_pw.enc
+e5de99b9eb670d09ce3249a74540245db6c876679902890c88c831501b3b3e16  data_pw2.enc
+salt=0AFF3F1552A50FD5
+key=0BD56684E0EB900904741B31891262E4150F9520C7A3C775C0B990551AA92893
+iv =2B162016B7B4E10DBD18878112A473B5
+
+=================== SECAO 6: ATAQUE DE DICIONARIO ===================
+SENHA ENCONTRADA: senha123
+Custo por tentativa (5 tentativas, senha errada):
+iter 1000 -> 5 tentativas: 98 ms
+iter 100000 -> 5 tentativas: 820 ms
+
+=================== SECAO 7: ECB vs CBC ===================
+xxd -l 64 pattern.ecb:
+00000000: 5361 6c74 6564 5f5f 3280 adaa 7df3 4785  Salted__2...}.G.
+00000010: 17e0 8594 b2ed 6b03 2b5e ed10 0987 4799  ......k.+^....G.
+00000020: 17e0 8594 b2ed 6b03 2b5e ed10 0987 4799  ......k.+^....G.
+00000030: 17e0 8594 b2ed 6b03 2b5e ed10 0987 4799  ......k.+^....G.
+xxd -l 64 pattern.cbc:
+00000000: 5361 6c74 6564 5f5f 0c35 def8 d414 88ac  Salted__.5......
+00000010: cfc7 0034 66d6 1bce c9a2 2489 9367 c2ba  ...4f.....$..g..
+00000020: 41ea 4c18 4261 9eeb bb35 d147 7737 ac9b  A.L.Ba...5.Gw7..
+00000030: 3a41 6ce0 9a7a ff5a 6e32 7d2e 441b ea48  :Al..z.Zn2}.D..H
+ECB (contagem de cada bloco):
+     64 17e08594b2ed6b032b5eed1009874799
+      1 bfa76c8bdb6995018f65fb273eef44f6
+      1 53616c7465645f5f3280adaa7df34785
+CBC (total de blocos unicos):
+66
+
+=================== SECAO 8: CTR BIT-FLIP ===================
+xxd -s 16 -l 8 data.ctr:
+00000010: 268e f925 8ba2 2a0c                      &..%..*.
+byte no offset 16: 0x26 -> 0x27
+Conteudo descriptografado (adulterado):
+Lensagem secreta: a prova esta no /tmp
+cmp -l data.txt data.ctr.dec:
+ 1 115 114
+
+=================== SECAO 9: HASH ===================
+SHA2-256(data.txt)= 761fdf13cfd172b7a84422e4b5d23f1eec0de269a390dc91fb92e604657e6e1c
+
+=================== SECAO 10: HMAC ===================
+HMAC-SHA2-256(data.txt)= 214e67a6bf7c1e66a9d6911eb7e5a5e9d30d0a2e08dd28c420fe1a2687b6c27b
+
+=================== SECAO 11: ENCRYPT-THEN-MAC ===================
+11.1 - tentativa de GCM via enc:
+enc: AEAD ciphers not supported
+enc: Use -help for summary.
+11.2 - CBC + HMAC do ciphertext:
+HMAC-SHA2-256(msg.cbc)= 68bd1f272a6ecdb29637304449daab655a42305ad6e02f130c2c6bd7e5726a13
+11.3 - atacante adultera o ciphertext (1 bit, offset 20):
+byte no offset 20: 0x60 -> 0x61
+11.4 - Bob descriptografa o arquivo adulterado (sem erro!):
+1c1
+< Mensagem secreta: a prova esta no /tmp
+---
+> M-^HM-MM-%M-:M-,-Q$VM-^YM-^TM-MM-\$M-MP: a qrova esta no /tmp
+11.5 - Bob verifica o HMAC e detecta:
+1c1
+< HMAC-SHA2-256(msg.cbc)= 68bd1f272a6ecdb29637304449daab655a42305ad6e02f130c2c6bd7e5726a13
+---
+> HMAC-SHA2-256(msg.cbc.flip)= b466bdda09be6d63d88c55a8a876e2c82e7098ee5a493cdd9dd4b8a296593f3a
+
+=================== SECAO 12: HIBRIDA (AES + RSA) ===================
+...+...+..+......+.+++++++++++++++++++++++++++++++++++++++*....+++++++++++++++++++++++++++++++++++++++*...+...+.....+...+....+...+...+.........+......+.........+......+......+...+.....+......+......+.........+.........+...+...+.......+............+...+.........+.....+...+..........+...+..+.+..+....+.....+.+.................+............+......+...+.+.....+....+..+.............+...........+.........+.......+..+.+......+.....+.+..+.+...........+......+....+...+.....+......+.+.......................+.......+...+........+..........+.....+.........+...................+.........+..+.+..+............+......+.........+....++++++
+.+++++++++++++++++++++++++++++++++++++++*...+............+++++++++++++++++++++++++++++++++++++++*........+...........+....+.....+......+...+....+......+..............+.......+.....+...+...+...+....+......+......+.........+......+...........+....+...+..+.+..+......+....+...+..............+.+...+......+.........+.................+....+........+.+.....+.+.....+.+.....+............+.......+...+...............+......+...........+....+..............+.+............+........+.+.....+...+......+................+.....+....+..+...+....+..+...+.+..+....+..............+............+....+...+......+..............+......+.......+............+...+...+..+......................+..+...+...............+............+.+.........+.........+.....+.......+.....+...+....+...+...............+.....+.........+...+.+............+..............+...+......+..........+.........+..................+...+.........+......+......+...............+...+...+........+.+...+...+..+.......+........+...+...+.+......+..+............+......+...+....+..+.+...+...............+.....+.+.........+..+....+.....+.+..+.+...........+....+..+.........+.........+..........+.........+........+....+........+.............+..+............+.+...+.....+......+......+.......+...+...............+.....+...+......+..........+.....+....+...............+..+.........+.+..+............+.+..++++++
+writing RSA key
+Criptografia hibrida funcionou
+
+=================== SECAO 13: BACKUP (tar + CBC + HMAC) ===================
+-rw-rw-r-- 1 user1 user1 256 Aug 16 14:08 backup.tgz.enc
+(HMAC do backup salvo em backup.tgz.hmac)
+Backup restaurado: diretorios identicos
+13.5 - senha errada:
+bad decrypt
+40072C72447D0000:error:1C800064:Provider routines:ossl_cipher_unpadblock:bad decrypt:../providers/implementations/ciphers/ciphercommon_block.c:107:
+
+=================== FIM ===================
+
+```
