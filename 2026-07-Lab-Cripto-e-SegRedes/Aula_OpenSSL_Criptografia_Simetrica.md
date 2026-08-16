@@ -40,13 +40,9 @@ tem a chave pode ler o arquivo; quem não tem, não pode.
 | **Exemplo** | AES-256-GCM (padrão moderno) |
 | **Problema principal** | Como compartilhar a chave secreta de forma segura? |
 
-**Exemplo intuitivo:** Imagine um **cofre com chave única**. Você tranca o
-cofre com uma chave. A mesma chave abre. Se você perder a chave, ninguém mais
-abre. Se alguém copiar a chave, essa pessoa pode abrir o cofre.
+**Imagine um cofre com chave única**. Você tranca o cofre com uma chave. A mesma chave abre. Se você perder a chave, ninguém mais abre. Se alguém copiar a chave, essa pessoa pode abrir o cofre.
 
-**Onde entra a segurança:** A segurança depende do sigilo da chave (nunca
-expô-la) e da qualidade do algoritmo de criptografia. O AES-256 é o padrão
-atual do NIST para dados sensíveis.
+A segurança depende do sigilo da chave (nunca expô-la) e da qualidade do algoritmo de criptografia. O AES-256 é o padrão atual do NIST para dados sensíveis.
 
 ---
 
@@ -132,12 +128,12 @@ quantidade de dados. Por isso, no TLS, a negociação inicial usa assimétrica
 
 | Caso | Exemplo |
 |---|---|
-| **Criptografia de arquivos locais** | Proteger `data.txt` com `openssl enc -aes-256-cbc` |
-| **Backup criptografado** | `tar | openssl enc -aes-256-gcm > backup.tar.gpg` |
-| **Criptografia de disco** | LUKS (dm-crypt) usa AES para dados |
-| **Criptografia híbrida (TLS/HTTPS)** | Chave simétrica + certificado X.509 |
+| **Criptografia de arquivos locais** | `openssl enc -aes-256-cbc -in data.txt -out data.enc -pass file:./secret.key` |
+| **Backup criptografado** | `tar -cf - diretorio` pipeado para `openssl enc -aes-256-gcm -out backup.tar.gpg` |
+| **Criptografia de disco** | LUKS (dm-crypt) usa AES para dados em repouso |
+| **Criptografia híbrida (TLS/HTTPS)** | Chave simétrica trocada via certificado X.509 |
 | **Verificação de integridade** | `openssl dgst -sha256` antes e depois da transmissão |
-| **HMAC para autenticação** | `openssl dgst -mac HMAC -macopt key:./secret.key` |
+| **HMAC para autenticação** | `openssl dgst -sha256 -mac HMAC -macopt key:./secret.key` |
 
 ---
 
