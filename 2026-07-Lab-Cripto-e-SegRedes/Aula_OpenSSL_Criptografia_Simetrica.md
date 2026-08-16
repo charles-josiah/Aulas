@@ -15,6 +15,49 @@
 >
 > **Integração Docker:** O script de exemplo completo pode ser executado
 > diretamente num container `openssl:3`.
+>
+> **Conexão entre as partes:** Cada exemplo prático está vinculado a uma história
+> do mundo real, tornando abstrata criptografia concreta para desenvolvedores e
+> engenheiros de segurança.
+>
+> **Veja também:**
+> [`Aula_OpenSSL_Criptografia_Simetrica_exemplos.md`](./Aula_OpenSSL_Criptografia_Simetrica_exemplos.md)
+> — execução completa passo a passo com saídas de terminal e validação prática.
+
+---
+
+## Índice
+
+- [1. Objetivo](#1-objetivo)
+- [2. O que é Criptografia Simétrica](#2-o-que-é-criptografia-simétrica)
+- [3. Conceitos Fundamentais](#3-conceitos-fundamentais)
+  - [3.1 Algoritmo de Criptografia (AES)](#31-algoritmo-de-criptografia-aes)
+  - [3.2 Modos de Operação](#32-modos-de-operação)
+  - [3.3 Padding e Derivação de Chave](#33-padding-e-derivação-de-chave)
+  - [3.4 IV (Initialization Vector)](#34-iv-initialization-vector)
+  - [3.5 HMAC (Hash-based Message Authentication Code)](#35-hmac-hash-based-message-authentication-code)
+- [4. Por que a Criptografia Simétrica é Rápida](#4-por-que-a-criptografia-simétrica-é-rápida)
+- [5. Usabilidade e Casos de Uso](#5-usabilidade-e-casos-de-uso)
+- [6. Historinhas: O Que Acontece Quando a Segurança Simétrica Falha](#6-historinhas-o-que-acontece-quando-a-segurança-simétrica-falha)
+  - [6.1 O Backup Criptografado sem Chave](#61-o-backup-criptografado-sem-chave)
+  - [6.2 O Vazamento de um Arquivo Criptografado com Chave Fraca](#62-o-vazamento-de-um-arquivo-criptografado-com-chave-fraca)
+  - [6.3 O Ataque de Padding Oracle](#63-o-ataque-de-padding-oracle)
+- [7. Limitações Práticas da Criptografia Simétrica](#7-limitações-práticas-da-criptografia-simétrica)
+  - [7.1 Compartilhamento de Chave](#71-compartilhamento-de-chave)
+  - [7.2 Tamanho do Arquivo](#72-tamanho-do-arquivo)
+  - [7.3 Ataques de Dicionário](#73-ataques-de-dicionário)
+- [8. Exemplos Práticos No Linux](#8-exemplos-práticos-no-linux)
+  - [8.1 Geração de Chave Secreta](#81-geração-de-chave-secreta)
+  - [8.2 Exemplo 1: Criptografar e Descriptografar Arquivo](#82-exemplo-1-criptografar-e-descriptografar-arquivo)
+  - [8.3 Exemplo 2: AES-256-GCM (Modo Autenticado)](#83-exemplo-2-aes-256-gcm-modo-autenticado)
+  - [8.4 Exemplo 3: Verificação de Integridade com Hash](#84-exemplo-3-verificação-de-integridade-com-hash)
+  - [8.5 Exemplo 4: HMAC (Autenticação + Integridade)](#85-exemplo-4-hmac-autenticação-integridade)
+  - [8.6 Exemplo 5: Criptografia Híbrida (AES-256-GCM + RSA)](#86-exemplo-5-criptografia-híbrida-aes-256-gcm--rsa)
+- [9. Ataques Conhecidos e Mitigação](#9-ataques-conhecidos-e-mitigação)
+- [10. Modos de Operação — Guia Rápido](#10-modos-de-operação-guia-rápido)
+- [11. Resumo dos Comandos](#11-resumo-dos-comandos)
+- [12. Boas Práticas](#12-boa-práticas)
+- [13. Referências](#13-referências)
 
 ---
 
@@ -24,6 +67,23 @@ Aprender a usar o OpenSSL para operações de **criptografia simétrica** no Lin
 gerar chaves secretas, criptografar/descriptografar arquivos com AES, verificar
 integridade com hashes e HMACs, e entender como a criptografia simétrica se
 combina com a assimétrica na prática (criptografia híbrida).
+
+---
+
+## Exemplo Prático — Execução Detalhada
+
+Todos os exemplos desta aula foram **executados e validados** em ambiente real
+com OpenSSL 3.x via container Docker (`openssl:3`). Para a execução completa
+passo a passo com saídas de terminal, saídas esperadas e validação de cada
+comando, consulte:
+
+[**Aula_OpenSSL_Criptografia_Simetrica_exemplos.md**](./Aula_OpenSSL_Criptografia_Simetrica_exemplos.md)
+
+Esse documento complementar contém:
+- Prompt do terminal, comandos exatos e saídas reais
+- Verificações de integridade (diff, HMAC, hash)
+- Fluxo completo de criptografia híbrida (AES + RSA)
+- Teste de detecção de adulteração com GCM (bad decrypt)
 
 ---
 
