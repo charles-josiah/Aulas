@@ -64,8 +64,8 @@ criptografia simétrica. Suporta chaves de 128, 192 ou 256 bits.
 O AES criptografa blocos de 16 bytes. Como lidar com arquivos maiores?
 **Modos de operação:**
 
-| Modo | Autenticação | Quem é recomendado |
-|---|---|
+| Modo | Autenticação | Recomendado |
+|---|---|---|
 | **CBC** (Cipher Block Chaining) | Não | Requer HMAC ou MAC externo |
 | **GCM** (Galois/Counter Mode) | Sim (AEAD) | **Recomendado** para tráfego moderno |
 | **CTR** (Counter Mode) | Não | Bom para paralelização |
