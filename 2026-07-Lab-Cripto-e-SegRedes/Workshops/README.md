@@ -69,5 +69,22 @@ Tópicos abordados:
 
 ---
 
+## Workshop: Criptografia Híbrida Corporativa (Simétrica + Assimétrica)
+
+Acesse o [workshop completo](05-Criptografia_Simetrica_e_Assimetrica_Corporativa.md).
+
+Tópicos abordados:
+- Cenário corporativo: compartilhar relatório confidencial com garantia de autoria, integridade e sigilo
+- As três chaves em uso combinado: chave privada, chave pública e chave simétrica
+- Hash SHA-256, efeito avalanche e verificação de integridade
+- Cifragem simétrica com AES-256-CBC e compactação + cifragem de múltiplos arquivos
+- Assinatura digital com RSA-2048: diferença entre criptografar e assinar
+- Distribuição segura da chave simétrica (envelopamento RSA) — base da criptografia híbrida
+- Mensagem secreta de retorno destinada exclusivamente ao dono da chave privada
+- Ataques: vazamento de chave simétrica, chave privada incorreta, substituição de chave pública (MITM), adulteração de arquivo e senha fraca (dicionário)
+- Desafio final com solução comentada (Diretor Financeiro → Diretor Jurídico)
+
+---
+
 📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/README.md.svg)
 
