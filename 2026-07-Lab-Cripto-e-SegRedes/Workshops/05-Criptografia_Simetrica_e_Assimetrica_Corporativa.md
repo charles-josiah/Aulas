@@ -76,13 +76,13 @@ layout: default
 
 ### Contextualização
 
-Você é **Ana**, analista de segurança de uma empresa. Precisa enviar um **relatório corporativo confidencial** para **Bruno**, o gerente responsável. Simplesmente anexar o arquivo em um e-mail ou enviar por chat **não é suficiente**, porque isso não resolve nenhum destes problemas:
+Você é **Alex**, analista de segurança de uma empresa. Precisa enviar um **relatório corporativo confidencial** para **Sam**, o gerente responsável. Simplesmente anexar o arquivo em um e-mail ou enviar por chat **não é suficiente**, porque isso não resolve nenhum destes problemas:
 
 - Qualquer pessoa com acesso ao canal (e-mail, chat, servidor de arquivos) consegue **ler** o conteúdo.
-- Bruno não tem como comprovar que o arquivo **realmente veio de Ana** — poderia ser qualquer um se passando por ela.
+- Sam não tem como comprovar que o arquivo **realmente veio de Alex** — poderia ser qualquer um se passando por ela.
 - Se alguém alterar uma vírgula, um número ou uma frase no meio do caminho, **ninguém percebe**.
-- Se Ana usar uma senha simples para proteger o arquivo, ela pode ser adivinhada ou quebrada.
-- Depois, **Carla**, colega de equipe de Ana, também precisa mandar uma mensagem que **só Bruno** consiga ler — e nem Ana, nem ninguém mais.
+- Se Alex usar uma senha simples para proteger o arquivo, ela pode ser adivinhada ou quebrada.
+- Depois, **Jamie**, colega de equipe de Alex, também precisa mandar uma mensagem que **só Sam** consiga ler — e nem Alex, nem ninguém mais.
 
 Este workshop resolve esse problema construindo, passo a passo, um fluxo de **criptografia híbrida**: simétrica (AES-256) para os dados grandes, assimétrica (RSA-2048) para proteger a chave simétrica e provar autoria, e hash (SHA-256) para garantir integridade.
 
@@ -180,7 +180,7 @@ SÓ CRIPTOGRAFIA SIMÉTRICA (AES)                SÓ CRIPTOGRAFIA ASSIMÉTRICA (
            ┌────────────┴────────────┐
            │                         │
            ▼                         ▼
-   CHAVE SIMÉTRICA AES        CHAVE PRIVADA (Ana)
+   CHAVE SIMÉTRICA AES        CHAVE PRIVADA (Alex)
            │                         │
            ▼                         ▼
     CIFRA O RELATÓRIO          ASSINA O HASH
@@ -192,19 +192,19 @@ SÓ CRIPTOGRAFIA SIMÉTRICA (AES)                SÓ CRIPTOGRAFIA ASSIMÉTRICA (
            ▼
 CHAVE SIMÉTRICA PROTEGIDA
 COM A CHAVE PÚBLICA
-DO DESTINATÁRIO (Bruno)
+DO DESTINATÁRIO (Sam)
            │
            ▼
        TRANSPORTE
            │
            ▼
-     DESTINATÁRIO (Bruno)
+     DESTINATÁRIO (Sam)
            │
-           ├── chave privada (Bruno)     → recupera chave simétrica
+           ├── chave privada (Sam)     → recupera chave simétrica
            │
            ├── chave simétrica           → recupera relatório
            │
-           ├── chave pública (Ana)       → valida assinatura
+           ├── chave pública (Alex)       → valida assinatura
            │
            └── SHA-256                   → valida integridade
 ```
@@ -230,10 +230,10 @@ ls -la
 **Explicação dos comandos:**
 
 - `mkdir -p empresa/{remetente,equipe,destinatario,interceptador}`: cria de uma vez os quatro diretórios que representam os participantes.
-- `remetente/` → **Ana**, analista que envia o relatório.
-- `equipe/` → **Carla**, colega de Ana, que mais tarde envia uma mensagem confidencial só para Bruno.
-- `destinatario/` → **Bruno**, gerente que recebe o relatório e a mensagem.
-- `interceptador/` → **Diego**, atacante simulado, usado somente na seção de ataques.
+- `remetente/` → **Alex**, analista que envia o relatório.
+- `equipe/` → **Jamie**, colega de Alex, que mais tarde envia uma mensagem confidencial só para Sam.
+- `destinatario/` → **Sam**, gerente que recebe o relatório e a mensagem.
+- `interceptador/` → **Morgan**, atacante simulado, usado somente na seção de ataques.
 
 **Resultado esperado:**
 
@@ -247,7 +247,7 @@ drwxr-xr-x  2 aluno aluno 4096 ago 25 09:00 interceptador
 
 **Validação:** `ls empresa/` deve listar exatamente os 4 diretórios.
 
-Agora crie os arquivos corporativos fictícios de Ana:
+Agora crie os arquivos corporativos fictícios de Alex:
 
 ```bash
 cd remetente
@@ -309,7 +309,7 @@ Proximos passos:
 2. Acionar equipe juridica
 3. Preparar comunicado as autoridades reguladoras (LGPD)
 
-Assinado eletronicamente por: Ana - Analista de Seguranca
+Assinado eletronicamente por: Alex - Analista de Seguranca
 EOF
 
 cat relatorio_financeiro.txt
@@ -387,7 +387,7 @@ diff <(sha256sum relatorio_financeiro.txt | cut -d' ' -f1) \
 rm relatorio_adulterado_teste.txt
 ```
 
-**Pergunta ao aluno:** o hash sozinho garante que o arquivo **veio de Ana**? *(Não — qualquer pessoa pode calcular o SHA-256 de qualquer arquivo. Hash prova só integridade; autenticidade vem da assinatura digital, na Etapa 7.)*
+**Pergunta ao aluno:** o hash sozinho garante que o arquivo **veio de Alex**? *(Não — qualquer pessoa pode calcular o SHA-256 de qualquer arquivo. Hash prova só integridade; autenticidade vem da assinatura digital, na Etapa 7.)*
 
 ---
 
@@ -534,30 +534,30 @@ tar: This does not look like a tar archive
 
 ### Etapa 6: Par de chaves assimétricas
 
-**Objetivo:** gerar os pares de chave privada/pública de Ana (remetente) e de Bruno (destinatário).
+**Objetivo:** gerar os pares de chave privada/pública de Alex (remetente) e de Sam (destinatário).
 
 **Conceito:** cada pessoa tem **seu próprio** par RSA-2048. A privada nunca sai do dono; a pública é livremente distribuída.
 
-**Comandos — Ana (remetente):**
+**Comandos — Alex (remetente):**
 
 ```bash
 cd ~/empresa/remetente
-openssl genrsa -out ana_privada.pem 2048
-openssl rsa -in ana_privada.pem -pubout -out ana_publica.pem
-chmod 600 ana_privada.pem
-chmod 644 ana_publica.pem
-ls -l ana_*.pem
+openssl genrsa -out alex_privada.pem 2048
+openssl rsa -in alex_privada.pem -pubout -out alex_publica.pem
+chmod 600 alex_privada.pem
+chmod 644 alex_publica.pem
+ls -l alex_*.pem
 ```
 
-**Comandos — Bruno (destinatario):**
+**Comandos — Sam (destinatario):**
 
 ```bash
 cd ~/empresa/destinatario
-openssl genrsa -out bruno_privada.pem 2048
-openssl rsa -in bruno_privada.pem -pubout -out bruno_publica.pem
-chmod 600 bruno_privada.pem
-chmod 644 bruno_publica.pem
-ls -l bruno_*.pem
+openssl genrsa -out sam_privada.pem 2048
+openssl rsa -in sam_privada.pem -pubout -out sam_publica.pem
+chmod 600 sam_privada.pem
+chmod 644 sam_publica.pem
+ls -l sam_*.pem
 ```
 
 **Explicação dos comandos:**
@@ -570,14 +570,14 @@ ls -l bruno_*.pem
 **Resultado esperado:**
 
 ```text
--rw------- 1 aluno aluno 1704 ago 25 09:10 ana_privada.pem
--rw-r--r-- 1 aluno aluno  451 ago 25 09:10 ana_publica.pem
+-rw------- 1 aluno aluno 1704 ago 25 09:10 alex_privada.pem
+-rw-r--r-- 1 aluno aluno  451 ago 25 09:10 alex_publica.pem
 ```
 
 **Validação:**
 
 ```bash
-openssl rsa -in ana_privada.pem -check -noout
+openssl rsa -in alex_privada.pem -check -noout
 ```
 
 Deve responder `RSA key ok`.
@@ -585,17 +585,17 @@ Deve responder `RSA key ok`.
 Agora troquem as chaves públicas (simulação de distribuição):
 
 ```bash
-cp ~/empresa/remetente/ana_publica.pem ~/empresa/destinatario/
-cp ~/empresa/destinatario/bruno_publica.pem ~/empresa/remetente/
+cp ~/empresa/remetente/alex_publica.pem ~/empresa/destinatario/
+cp ~/empresa/destinatario/sam_publica.pem ~/empresa/remetente/
 ```
 
-**Pergunta ao aluno:** se o arquivo `ana_privada.pem` estivesse com permissão `644` (qualquer usuário do sistema podendo ler), o que um outro usuário da mesma máquina conseguiria fazer? *(Assinar documentos se passando por Ana e descriptografar tudo que foi cifrado para ela.)*
+**Pergunta ao aluno:** se o arquivo `alex_privada.pem` estivesse com permissão `644` (qualquer usuário do sistema podendo ler), o que um outro usuário da mesma máquina conseguiria fazer? *(Assinar documentos se passando por Alex e descriptografar tudo que foi cifrado para ela.)*
 
 ---
 
 ### Etapa 7: Provar que "eu sou eu" (assinatura digital)
 
-**Objetivo:** Ana assina o relatório para que Bruno consiga comprovar a autoria.
+**Objetivo:** Alex assina o relatório para que Sam consiga comprovar a autoria.
 
 **Conceito — diferença fundamental:**
 
@@ -612,14 +612,14 @@ Só o dono da privada correspondente   Qualquer um com a pública do autor
 
 ```bash
 cd ~/empresa/remetente
-openssl dgst -sha256 -sign ana_privada.pem -out relatorio_corporativo.sig relatorio_corporativo.tar.gz
+openssl dgst -sha256 -sign alex_privada.pem -out relatorio_corporativo.sig relatorio_corporativo.tar.gz
 ls -lh relatorio_corporativo.sig
 ```
 
 **Explicação dos comandos:**
 
 - `dgst -sha256`: calcula o hash SHA-256 do pacote.
-- `-sign ana_privada.pem`: cifra esse hash com a chave privada de Ana — isso **é** a assinatura digital.
+- `-sign alex_privada.pem`: cifra esse hash com a chave privada de Alex — isso **é** a assinatura digital.
 - `-out relatorio_corporativo.sig`: arquivo de assinatura, separado do pacote.
 
 **Resultado esperado:**
@@ -628,24 +628,24 @@ ls -lh relatorio_corporativo.sig
 -rw-r--r-- 1 aluno aluno 256 ago 25 09:12 relatorio_corporativo.sig
 ```
 
-Envie a assinatura para Bruno (junto com o pacote, que vamos preparar na Etapa 8):
+Envie a assinatura para Sam (junto com o pacote, que vamos preparar na Etapa 8):
 
 ```bash
 cp relatorio_corporativo.sig ~/empresa/destinatario/
 ```
 
-**Validação — Bruno verifica com a chave pública de Ana:**
+**Validação — Sam verifica com a chave pública de Alex:**
 
 ```bash
 cd ~/empresa/destinatario
-openssl dgst -sha256 -verify ana_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
+openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
 ```
 
-> **Atenção:** neste ponto Bruno ainda não tem `relatorio_corporativo.tar.gz` (só chega na Etapa 8). Para validar isoladamente agora, copie o pacote cifrado de teste:
+> **Atenção:** neste ponto Sam ainda não tem `relatorio_corporativo.tar.gz` (só chega na Etapa 8). Para validar isoladamente agora, copie o pacote cifrado de teste:
 
 ```bash
 cp ~/empresa/remetente/relatorio_corporativo.tar.gz .
-openssl dgst -sha256 -verify ana_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
+openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
 ```
 
 **Resultado esperado:**
@@ -654,20 +654,20 @@ openssl dgst -sha256 -verify ana_publica.pem -signature relatorio_corporativo.si
 Verified OK
 ```
 
-**Pergunta ao aluno:** se Diego (interceptador) tivesse gerado seu próprio par de chaves e assinado um relatório falso com a **privada dele**, o que aconteceria quando Bruno tentasse verificar com a **pública de Ana**? *(Falharia — `Verification Failure` — porque a assinatura só "casa" com a chave pública do par que a gerou.)*
+**Pergunta ao aluno:** se Morgan (interceptador) tivesse gerado seu próprio par de chaves e assinado um relatório falso com a **privada dele**, o que aconteceria quando Sam tentasse verificar com a **pública de Alex**? *(Falharia — `Verification Failure` — porque a assinatura só "casa" com a chave pública do par que a gerou.)*
 
 ---
 
 ### Etapa 8: Distribuição segura da chave simétrica
 
-**Objetivo:** resolver o problema central do workshop — enviar `chave_pacote.bin` para Bruno sem transmiti-la em texto puro.
+**Objetivo:** resolver o problema central do workshop — enviar `chave_pacote.bin` para Sam sem transmiti-la em texto puro.
 
 **Conceito:**
 
 ```text
 RELATÓRIO                              CHAVE AES (chave_pacote.bin)
    ↓                                          ↓
-AES-256 (chave_pacote.bin)          chave pública de Bruno (RSA)
+AES-256 (chave_pacote.bin)          chave pública de Sam (RSA)
    ↓                                          ↓
 RELATÓRIO CIFRADO                    CHAVE AES PROTEGIDA (.enc)
 ```
@@ -678,14 +678,14 @@ Isso é a **essência da criptografia híbrida**: a chave simétrica, pequena, c
 
 ```bash
 cd ~/empresa/remetente
-openssl rsautl -encrypt -inkey bruno_publica.pem -pubin -in chave_pacote.bin -out chave_pacote.bin.enc
+openssl rsautl -encrypt -inkey sam_publica.pem -pubin -in chave_pacote.bin -out chave_pacote.bin.enc
 ls -lh chave_pacote.bin.enc
 ```
 
 **Explicação dos comandos:**
 
 - `rsautl -encrypt`: modo de cifra com RSA.
-- `-inkey bruno_publica.pem -pubin`: usa a chave **pública** de Bruno — só a privada dele vai conseguir reverter.
+- `-inkey sam_publica.pem -pubin`: usa a chave **pública** de Sam — só a privada dele vai conseguir reverter.
 - `-in chave_pacote.bin`: a chave AES que protege o pacote.
 - `-out chave_pacote.bin.enc`: chave AES agora protegida (envelopada).
 
@@ -701,19 +701,19 @@ ls -lh chave_pacote.bin.enc
 hexdump -C chave_pacote.bin.enc | head -3
 ```
 
-Deve mostrar bytes aparentemente aleatórios — impossível recuperar `chave_pacote.bin` sem a privada de Bruno.
+Deve mostrar bytes aparentemente aleatórios — impossível recuperar `chave_pacote.bin` sem a privada de Sam.
 
-Agora monte e envie o pacote final para Bruno:
+Agora monte e envie o pacote final para Sam:
 
 ```bash
 cp relatorio_corporativo.tar.gz.enc chave_pacote.bin.enc relatorio_corporativo.sig ~/empresa/destinatario/
 ```
 
-**No destinatário (Bruno) — recuperar a chave:**
+**No destinatário (Sam) — recuperar a chave:**
 
 ```bash
 cd ~/empresa/destinatario
-openssl rsautl -decrypt -inkey bruno_privada.pem -in chave_pacote.bin.enc -out chave_pacote_recuperada.bin
+openssl rsautl -decrypt -inkey sam_privada.pem -in chave_pacote.bin.enc -out chave_pacote_recuperada.bin
 diff chave_pacote_recuperada.bin ~/empresa/remetente/chave_pacote.bin && echo "Chave recuperada com sucesso!"
 ```
 
@@ -740,48 +740,48 @@ clientes.csv
 resultado_trimestral.txt
 
 RELATORIO FINANCEIRO CONFIDENCIAL - Q3 2026
-[... conteúdo original, agora legível só por Bruno ...]
+[... conteúdo original, agora legível só por Sam ...]
 ```
 
 **Validação:** a assinatura ainda é válida para o pacote recém-descriptografado:
 
 ```bash
-openssl dgst -sha256 -verify ana_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
+openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
 ```
 
 Deve retornar `Verified OK`.
 
-**Pergunta ao aluno:** neste fluxo, a chave simétrica foi cifrada com a **pública de quem**? E foi decifrada com a **privada de quem**? *(Cifrada com a pública de Bruno; decifrada com a privada de Bruno — só ele consegue.)*
+**Pergunta ao aluno:** neste fluxo, a chave simétrica foi cifrada com a **pública de quem**? E foi decifrada com a **privada de quem**? *(Cifrada com a pública de Sam; decifrada com a privada de Sam — só ele consegue.)*
 
 ---
 
 ### Etapa 9: Mensagem secreta de retorno
 
-**Objetivo:** Carla (equipe) envia uma mensagem que **somente Bruno** consiga ler — nem Ana, nem ninguém mais.
+**Objetivo:** Jamie (equipe) envia uma mensagem que **somente Sam** consiga ler — nem Alex, nem ninguém mais.
 
-**Conceito:** mesmo fluxo híbrido, mas agora é Carla quem usa a chave **pública de Bruno** (não a de Ana) para proteger a chave simétrica da mensagem. Só a privada de Bruno reverte.
+**Conceito:** mesmo fluxo híbrido, mas agora é Jamie quem usa a chave **pública de Sam** (não a de Alex) para proteger a chave simétrica da mensagem. Só a privada de Sam reverte.
 
-**Comandos — Carla prepara a mensagem:**
+**Comandos — Jamie prepara a mensagem:**
 
 ```bash
 cd ~/empresa/equipe
-cp ~/empresa/destinatario/bruno_publica.pem .
+cp ~/empresa/destinatario/sam_publica.pem .
 
 cat > mensagem_confidencial.txt << 'EOF'
-Bruno,
+Sam,
 
 Confirmo que o servidor de pagamentos foi isolado da rede as 08h45.
 Nao compartilhe este numero de incidente por canais nao criptografados: INC-2026-0847.
 
-Carla
+Jamie
 EOF
 
 openssl rand -out chave_msg.bin 32
 openssl enc -aes-256-cbc -in mensagem_confidencial.txt -out mensagem_confidencial.enc -pass file:chave_msg.bin -S 0
-openssl rsautl -encrypt -inkey bruno_publica.pem -pubin -in chave_msg.bin -out chave_msg.bin.enc
+openssl rsautl -encrypt -inkey sam_publica.pem -pubin -in chave_msg.bin -out chave_msg.bin.enc
 ```
 
-**Explicação dos comandos:** exatamente o mesmo padrão da Etapa 8 (gerar chave AES → cifrar dados → cifrar a chave com RSA pública do destinatário), mas agora a chave pública usada é a de **Bruno**, porque é para ele que a mensagem se destina.
+**Explicação dos comandos:** exatamente o mesmo padrão da Etapa 8 (gerar chave AES → cifrar dados → cifrar a chave com RSA pública do destinatário), mas agora a chave pública usada é a de **Sam**, porque é para ele que a mensagem se destina.
 
 **Resultado esperado:**
 
@@ -790,17 +790,17 @@ openssl rsautl -encrypt -inkey bruno_publica.pem -pubin -in chave_msg.bin -out c
 -rw-r--r-- 1 aluno aluno  256 chave_msg.bin.enc
 ```
 
-Envie para Bruno:
+Envie para Sam:
 
 ```bash
 cp mensagem_confidencial.enc chave_msg.bin.enc ~/empresa/destinatario/
 ```
 
-**No destinatário (Bruno) — só ele consegue abrir:**
+**No destinatário (Sam) — só ele consegue abrir:**
 
 ```bash
 cd ~/empresa/destinatario
-openssl rsautl -decrypt -inkey bruno_privada.pem -in chave_msg.bin.enc -out chave_msg_recuperada.bin
+openssl rsautl -decrypt -inkey sam_privada.pem -in chave_msg.bin.enc -out chave_msg_recuperada.bin
 openssl enc -aes-256-cbc -d -in mensagem_confidencial.enc -out mensagem_confidencial.txt -pass file:chave_msg_recuperada.bin -S 0
 cat mensagem_confidencial.txt
 ```
@@ -808,28 +808,28 @@ cat mensagem_confidencial.txt
 **Resultado esperado:**
 
 ```text
-Bruno,
+Sam,
 
 Confirmo que o servidor de pagamentos foi isolado da rede as 08h45.
 Nao compartilhe este numero de incidente por canais nao criptografados: INC-2026-0847.
 
-Carla
+Jamie
 ```
 
-**Validação — prova de que só Bruno conseguiria:** tente decifrar com a chave privada de Ana (deve falhar):
+**Validação — prova de que só Sam conseguiria:** tente decifrar com a chave privada de Alex (deve falhar):
 
 ```bash
-openssl rsautl -decrypt -inkey ~/empresa/remetente/ana_privada.pem -in chave_msg.bin.enc -out /tmp/tentativa_ana.bin 2>&1 | head -3
+openssl rsautl -decrypt -inkey ~/empresa/remetente/alex_privada.pem -in chave_msg.bin.enc -out /tmp/tentativa_alex.bin 2>&1 | head -3
 ```
 
 **Resultado esperado:**
 
 ```text
 RSA operation error
-... (falha — a chave foi cifrada para a pública de Bruno, não a de Ana)
+... (falha — a chave foi cifrada para a pública de Sam, não a de Alex)
 ```
 
-**Pergunta ao aluno:** por que nem Ana, dona do relatório original, consegue ler a mensagem de Carla para Bruno? *(Porque a chave simétrica da mensagem foi protegida com a chave pública de Bruno — só a privada dele reverte, independente de quem mais tenha outras chaves privadas.)*
+**Pergunta ao aluno:** por que nem Alex, dona do relatório original, consegue ler a mensagem de Jamie para Sam? *(Porque a chave simétrica da mensagem foi protegida com a chave pública de Sam — só a privada dele reverte, independente de quem mais tenha outras chaves privadas.)*
 
 ---
 
@@ -847,7 +847,7 @@ Integridade       → SHA-256 (detecta qualquer alteração)
 Autenticidade     → Assinatura digital com RSA (prova quem enviou)
 ```
 
-**Comandos — checagem completa no lado de Bruno:**
+**Comandos — checagem completa no lado de Sam:**
 
 ```bash
 cd ~/empresa/destinatario
@@ -856,10 +856,10 @@ cd ~/empresa/destinatario
 sha256sum relatorio_corporativo.tar.gz
 sha256sum ~/empresa/remetente/relatorio_corporativo.tar.gz
 
-# 2. Autenticidade: assinatura de Ana confere?
-openssl dgst -sha256 -verify ana_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
+# 2. Autenticidade: assinatura de Alex confere?
+openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
 
-# 3. Confidencialidade: o conteúdo só existia em claro após a chave privada de Bruno reverter o envelope
+# 3. Confidencialidade: o conteúdo só existia em claro após a chave privada de Sam reverter o envelope
 ls -la relatorio_financeiro.txt
 ```
 
@@ -885,7 +885,7 @@ Verified OK
 
 ### Ataque 1: Vazamento da chave simétrica
 
-**Cenário:** Diego (interceptador) obtém, de alguma forma (backup mal protegido, USB perdido), o arquivo cifrado **e** a chave simétrica usada.
+**Cenário:** Morgan (interceptador) obtém, de alguma forma (backup mal protegido, USB perdido), o arquivo cifrado **e** a chave simétrica usada.
 
 ```bash
 cd ~/empresa/interceptador
@@ -910,14 +910,14 @@ resultado_trimestral.txt
 
 ### Ataque 2: Chave privada incorreta
 
-**Cenário:** Diego intercepta o envelope de chave (`chave_pacote.bin.enc`) mas tenta usar sua **própria** chave privada, não a de Bruno.
+**Cenário:** Morgan intercepta o envelope de chave (`chave_pacote.bin.enc`) mas tenta usar sua **própria** chave privada, não a de Sam.
 
 ```bash
 cd ~/empresa/interceptador
-openssl genrsa -out diego_privada.pem 2048 2>/dev/null
+openssl genrsa -out morgan_privada.pem 2048 2>/dev/null
 cp ~/empresa/remetente/chave_pacote.bin.enc .
 
-openssl rsautl -decrypt -inkey diego_privada.pem -in chave_pacote.bin.enc -out tentativa_diego.bin
+openssl rsautl -decrypt -inkey morgan_privada.pem -in chave_pacote.bin.enc -out tentativa_morgan.bin
 ```
 
 **Resultado esperado:**
@@ -927,7 +927,7 @@ RSA operation error
 40447A08F87B0000:error:...:padding check failed...
 ```
 
-**Análise:** a operação falha porque `chave_pacote.bin.enc` só foi cifrada para a chave **pública de Bruno** — nenhuma outra chave privada, nem mesmo uma tecnicamente válida, consegue reverter.
+**Análise:** a operação falha porque `chave_pacote.bin.enc` só foi cifrada para a chave **pública de Sam** — nenhuma outra chave privada, nem mesmo uma tecnicamente válida, consegue reverter.
 
 **Propriedade demonstrada:** o envelopamento assimétrico é seletivo — só o par correto funciona.
 
@@ -935,46 +935,46 @@ RSA operation error
 
 ### Ataque 3: Substituição da chave pública (MITM)
 
-**Cenário:** Diego se posiciona entre Ana e Bruno e entrega a **própria** chave pública para Ana, fingindo ser a de Bruno.
+**Cenário:** Morgan se posiciona entre Alex e Sam e entrega a **própria** chave pública para Alex, fingindo ser a de Sam.
 
 ```
-Ana ──── "me manda sua chave pública" ────→ Diego intercepta
-Ana ←──── chave pública de Diego (fingindo ser de Bruno) ──── Diego
-Ana cifra a chave simétrica com a chave "de Bruno" (na verdade, de Diego)
-Diego descriptografa com a própria privada e lê tudo
+Alex ──── "me manda sua chave pública" ────→ Morgan intercepta
+Alex ←──── chave pública de Morgan (fingindo ser de Sam) ──── Morgan
+Alex cifra a chave simétrica com a chave "de Sam" (na verdade, de Morgan)
+Morgan descriptografa com a própria privada e lê tudo
 ```
 
 ```bash
 cd ~/empresa/interceptador
-openssl rsa -in diego_privada.pem -pubout -out diego_publica.pem
+openssl rsa -in morgan_privada.pem -pubout -out morgan_publica.pem
 
-# Simule Ana recebendo a chave errada, pensando ser a de Bruno:
+# Simule Alex recebendo a chave errada, pensando ser a de Sam:
 cd ~/empresa/remetente
-cp ~/empresa/interceptador/diego_publica.pem chave_publica_recebida.pem
+cp ~/empresa/interceptador/morgan_publica.pem chave_publica_recebida.pem
 
-# Ana cifra a chave simétrica com a chave que ACHA ser de Bruno:
-openssl rsautl -encrypt -inkey chave_publica_recebida.pem -pubin -in chave_pacote.bin -out chave_para_suposto_bruno.enc
+# Alex cifra a chave simétrica com a chave que ACHA ser de Sam:
+openssl rsautl -encrypt -inkey chave_publica_recebida.pem -pubin -in chave_pacote.bin -out chave_para_suposto_sam.enc
 
-# Diego intercepta e descriptografa com a própria privada:
+# Morgan intercepta e descriptografa com a própria privada:
 cd ~/empresa/interceptador
-openssl rsautl -decrypt -inkey diego_privada.pem -in ../remetente/chave_para_suposto_bruno.enc -out chave_interceptada.bin
-diff chave_interceptada.bin ~/empresa/remetente/chave_pacote.bin && echo "Diego leu a chave simétrica!"
+openssl rsautl -decrypt -inkey morgan_privada.pem -in ../remetente/chave_para_suposto_sam.enc -out chave_interceptada.bin
+diff chave_interceptada.bin ~/empresa/remetente/chave_pacote.bin && echo "Morgan leu a chave simétrica!"
 ```
 
 **Resultado esperado:**
 
 ```text
-Diego leu a chave simétrica!
+Morgan leu a chave simétrica!
 ```
 
 **Relação com conceitos maiores:**
 
 - Este é um **Man-in-the-Middle (MITM)** clássico contra troca de chaves públicas.
-- A causa raiz: Ana nunca verificou se a chave pública recebida **realmente pertencia** a Bruno.
+- A causa raiz: Alex nunca verificou se a chave pública recebida **realmente pertencia** a Sam.
 - Mitigação real: **certificados digitais** (X.509) assinados por uma **Autoridade Certificadora (PKI)**, ou verificação manual de **fingerprint** (`openssl rsa -pubin -in chave.pem -outform DER | sha256sum`) por um canal alternativo confiável (telefone, presencialmente).
 - Não é necessário implementar PKI completa neste workshop — o importante é entender que **receber uma chave pública não prova, por si só, de quem ela é**.
 
-**Pergunta ao aluno:** o que Ana poderia ter feito, de forma simples, para confirmar que a chave pública recebida era realmente de Bruno? *(Comparar o fingerprint da chave por um canal diferente — telefone, chat já validado — ou exigir um certificado assinado por CA confiável.)*
+**Pergunta ao aluno:** o que Alex poderia ter feito, de forma simples, para confirmar que a chave pública recebida era realmente de Sam? *(Comparar o fingerprint da chave por um canal diferente — telefone, chat já validado — ou exigir um certificado assinado por CA confiável.)*
 
 ---
 
@@ -1000,7 +1000,7 @@ sha256sum relatorio_corporativo.tar.gz relatorio_corporativo_adulterado.tar.gz
 Agora tente validar a assinatura contra o arquivo adulterado:
 
 ```bash
-openssl dgst -sha256 -verify ana_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo_adulterado.tar.gz
+openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo_adulterado.tar.gz
 ```
 
 **Resultado esperado:**
@@ -1087,7 +1087,7 @@ Monte a estrutura de diretórios, gere as chaves e execute o fluxo completo ante
 
 ## Solução Comentada do Desafio
 
-**1. Pares de chave necessários:** dois — um para o Diretor Financeiro (assinatura) e um para o Diretor Jurídico (recebimento). Cada papel tem sua própria privada/pública, exatamente como Ana e Bruno.
+**1. Pares de chave necessários:** dois — um para o Diretor Financeiro (assinatura) e um para o Diretor Jurídico (recebimento). Cada papel tem sua própria privada/pública, exatamente como Alex e Sam.
 
 ```bash
 mkdir -p desafio/{financeiro,juridico}
@@ -1181,17 +1181,17 @@ Recapitulando o fio condutor do workshop: nenhuma dessas ferramentas resolve o p
 - [ ] Confirmei que compactar sozinho não protege (extração livre antes de cifrar)
 
 **Chaves assimétricas e assinatura**
-- [ ] Gerei os pares RSA-2048 de Ana e de Bruno
+- [ ] Gerei os pares RSA-2048 de Alex e de Sam
 - [ ] Apliquei `chmod 600` nas chaves privadas
-- [ ] Ana assinou o pacote com sua chave privada
-- [ ] Bruno validou a assinatura com a chave pública de Ana (`Verified OK`)
+- [ ] Alex assinou o pacote com sua chave privada
+- [ ] Sam validou a assinatura com a chave pública de Alex (`Verified OK`)
 
 **Criptografia híbrida**
-- [ ] Cifrei a chave simétrica com a chave pública de Bruno
-- [ ] Bruno recuperou a chave simétrica com sua chave privada
-- [ ] Bruno recuperou o relatório original a partir da chave recuperada
-- [ ] Carla enviou mensagem secreta só para Bruno (chave pública de Bruno)
-- [ ] Confirmei que nem Ana consegue ler a mensagem de Carla para Bruno
+- [ ] Cifrei a chave simétrica com a chave pública de Sam
+- [ ] Sam recuperou a chave simétrica com sua chave privada
+- [ ] Sam recuperou o relatório original a partir da chave recuperada
+- [ ] Jamie enviou mensagem secreta só para Sam (chave pública de Sam)
+- [ ] Confirmei que nem Alex consegue ler a mensagem de Jamie para Sam
 
 **Ataques**
 - [ ] Reproduzi o vazamento de chave simétrica (Ataque 1)
