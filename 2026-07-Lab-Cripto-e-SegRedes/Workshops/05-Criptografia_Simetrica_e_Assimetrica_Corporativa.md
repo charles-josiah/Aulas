@@ -67,6 +67,7 @@ layout: default
 - [6. Desafio Final](#6-desafio-final)
 - [Solução Comentada do Desafio](#solução-comentada-do-desafio)
 - [7. Fechamento](#7-fechamento)
+- [8. Atividade Extra: Transporte Seguro com TLS (Curiosidade)](#8-atividade-extra-transporte-seguro-com-tls-curiosidade)
 - [Checklist de Validação do Aluno](#checklist-de-validação-do-aluno)
 - [Troubleshooting](#troubleshooting)
 
@@ -1194,7 +1195,213 @@ Recapitulando o fio condutor do workshop: nenhuma dessas ferramentas resolve o p
 
 ---
 
-## Checklist de Validação do Aluno
+## 8. Atividade Extra: Transporte Seguro com TLS (Curiosidade)
+
+> [!NOTE]
+> Esta seção é **opcional** e demonstra um conceito extra: proteger a **conversa** entre duas máquinas, não apenas o **arquivo**. Se o tempo de aula esgotar, pule para o Checklist.
+
+### O que já fizemos e o que falta
+
+Até aqui, o fluxo completo foi executado — mas tudo aconteceu **em uma única máquina** (diretórios `empresa/remetente/`, `empresa/destinatario/`, etc.) usando `cp` para simular o "transporte".
+
+Na **realidade corporativa**, os arquivos atravessam a rede (e-mail, SFTP, HTTP, chat, etc.) e é aí que surgem dois problemas que parecem contraditórios:
+
+1. **Já ciframos o arquivo com AES-256.** Por que precisar de mais criptografia no canal?
+2. **Mas e os metadados?** O nome do arquivo, tamanho, hora de envio — mesmo que o arquivo esteja cifrado, esses dados viajam legíveis.
+
+### A resposta: camada do objeto vs camada do canal
+
+```text
+CAMADA DO OBJETO (arquivo)          CAMADA DO CANAL (transporte)
+──────────────────────────          ─────────────────────────────
+AES-256-CBC                         TLS 1.2/1.3
+├─ Cifra o conteúdo                 ├─ Cifra toda a conversa
+├─ Sobrevive ao armazenamento       ├─ Protege metadados
+│  (arquivo fica cifrado em disco)  │  (nome, tamanho, IP origem/destino)
+└─ Válido mesmo depois de anos      └─ Válido durante a transmissão
+
+CENÁRIO 1 — Arquivo com AES, mas SEM TLS:
+┌─────────────────────────────────────────┐
+│ tcpdump mostra:                         │
+│ ├─ Destinatário: 192.168.1.10           │  ← qual endereço está recebendo?
+│ ├─ Nome: relatorio_corporativo.tar.gz   │  ← qual é o assunto?
+│ └─ [bytes cifrados aqui]                │  ← conteúdo OK, protegido
+│                                         │
+│ Problema: metadata leak — atacante      │
+│ sabe QUEM fala com QUEM e SOBRE O QUÊ  │
+└─────────────────────────────────────────┘
+
+CENÁRIO 2 — Arquivo com AES E com TLS:
+┌─────────────────────────────────────────┐
+│ tcpdump mostra:                         │
+│ ├─ TLS Handshake...                     │  ← só o certificado fica visível
+│ ├─ [bytes de dados cifrado]             │  ← conteúdo cifrado
+│ └─ [bytes de mais dados cifrado]        │  ← metadados também cifrados
+│                                         │
+│ Resultado: nem conteúdo, nem metadata  │
+│ — atacante vê só que HOUVE transferência
+└─────────────────────────────────────────┘
+```
+
+**Regra de ouro:** 
+- **AES protege o objeto** — o arquivo, mesmo que interceptado e armazenado, permanece ilegível.
+- **TLS protege a conversa** — ninguém (nem seu ISP, nem um atacante na rede local) vê o que está sendo transferido.
+
+Em um ambiente corporativo real, você usa **ambas**: AES no arquivo (proteção permanente) + TLS no canal (proteção da transmissão).
+
+### Fluxo prático: enviar o pacote via nc + TLS
+
+Vamos simular duas máquinas diferentes (na prática, você rodaria em dois terminais ou dois computadores). O objetivo é capturar o tráfego e comparar.
+
+#### Passo 1: Preparar certificado TLS (openssl)
+
+O TLS exige um certificado. Vamos gerar um autoassinado (válido só para demo, não em produção):
+
+```bash
+cd ~/empresa/destinatario
+openssl req -x509 -newkey rsa:2048 -keyout srv.key -out srv.crt -days 1 -nodes \
+  -subj "/CN=sam.local/O=Empresa/C=BR"
+```
+
+**Explicação dos flags:**
+- `-x509`: gera certificado autoassinado (X.509).
+- `-newkey rsa:2048`: gera chave privada RSA-2048 junto.
+- `-keyout srv.key`: salva a chave privada.
+- `-out srv.crt`: salva o certificado.
+- `-days 1`: válido por 1 dia (é um lab).
+- `-nodes`: não cifra a chave privada com senha (simplifica demo).
+- `-subj ...`: dados do certificado (CN = Common Name = nome do servidor).
+
+**Resultado esperado:**
+```text
+-rw------- 1 aluno aluno 1704 ago 25 20:30 srv.key
+-rw-r--r-- 1 aluno aluno 1223 ago 25 20:30 srv.crt
+```
+
+#### Passo 2: Servidor (Sam/destinatário) aguarda conexão cifrada
+
+```bash
+cd ~/empresa/destinatario
+openssl s_server -cert srv.crt -key srv.key -port 4444 -quiet < /dev/null > relatorio_recebido.tar.gz.enc
+```
+
+**Explicação:**
+- `-cert srv.crt -key srv.key`: usa o certificado e chave gerados acima.
+- `-port 4444`: escuta na porta 4444.
+- `-quiet`: não mostra logs do handshake (apenas passa dados).
+- `< /dev/null > relatorio_recebido.tar.gz.enc`: redireciona para salvar o que receber.
+
+**Resultado esperado:** o comando **fica em espera**, esperando conexão. (Não retorna prompt — é normal; deixe esse terminal aberto.)
+
+#### Passo 3: Cliente (Alex/remetente) conecta e envia
+
+Em outro terminal:
+
+```bash
+cd ~/empresa/remetente
+cat relatorio_corporativo.tar.gz.enc | \
+  openssl s_client -connect localhost:4444 -quiet 2>/dev/null
+```
+
+**Explicação:**
+- `cat relatorio_corporativo.tar.gz.enc`: lê o arquivo cifrado (já gerado na Etapa 5).
+- `openssl s_client`: cliente TLS.
+- `-connect localhost:4444`: conecta ao servidor na porta 4444 (use IP real se em máquinas diferentes).
+- `-quiet`: sem logs.
+- `2>/dev/null`: silencia avisos de certificado autoassinado.
+- A saída (`|`) vai direto para o `s_client`, que a transmite cifrada.
+
+**Resultado esperado:** conexão estabelecida, arquivo enviado em segundos, comando retorna. No outro terminal, o servidor recebe o arquivo e fecha.
+
+#### Passo 4: Validar que o arquivo chegou íntegro
+
+```bash
+cd ~/empresa/destinatario
+diff <(sha256sum relatorio_corporativo.tar.gz | cut -d' ' -f1) \
+     <(sha256sum relatorio_recebido.tar.gz.enc | cut -d' ' -f1) && \
+  echo "✓ Arquivo recebido e integro!"
+```
+
+**Resultado esperado:**
+```text
+✓ Arquivo recebido e integro!
+```
+
+### Captura com tcpdump: vendo a diferença
+
+Este é o **ponto de conexão visual** com os Workshops 01-04.
+
+#### Sem TLS (apenas para referência — não rodamos aqui)
+
+Nos Workshops 01-04, você viu:
+```bash
+sudo tcpdump -i any -s 0 -A "host 192.168.1.10 and port 21" | grep -A 5 "PASS\|USER\|SELECT"
+# Resultado: credenciais e queries em TEXTO CLARO
+```
+
+#### Com TLS (agora, no Workshop 05)
+
+Abra um terceiro terminal e rode **enquanto** os dois anteriores estão trocando dados:
+
+```bash
+sudo tcpdump -i lo -s 0 'tcp port 4444' -A | head -50
+```
+
+**Explicação:**
+- `-i lo`: interface loopback (localhost → localhost).
+- `-s 0`: captura pacotes completos.
+- `'tcp port 4444'`: filtra só a porta 4444 (onde TLS está rodando).
+- `-A`: mostra payload em ASCII.
+- `| head -50`: limita a 50 linhas (TLS handshake é verboso).
+
+**Resultado esperado:**
+
+```text
+....... .......
+14:22:15.234567 IP localhost.45678 > localhost.4444: Flags [P.], seq 1:243, ack 1
+...X.....<.....A.M.6.w.2..y...U.3.e......[.7..E.....&..m!..Aq.~..S..
+14:22:15.235678 IP localhost.4444 > localhost.45678: Flags [P.], seq 1:1234, ack 243
+.c...C.@.......z.H.....^...x%.!7Q...)......#7."b...+.E....V...
+[mais bytes aparentemente aleatórios — é o conteúdo cifrado]
+```
+
+**Análise:** compare com o `tcpdump` dos Workshops 01-04:
+- **Lá:** você viu `USER admin`, `PASS 123456`, comandos SQL `SELECT *` em texto puro.
+- **Aqui:** você vê apenas bytes aparentemente aleatórios — **a mesma informação, mas cifrada**.
+
+Seu arquivo `relatorio_corporativo.tar.gz.enc` contém um relatório sensível. Mesmo capturado pela rede, ele permanece ilegível. Os metadados (quem fala com quem) também estão protegidos pelo TLS Handshake.
+
+### Alternativa mais simples: ncat com --ssl
+
+Se `openssl s_server` parecer complicado, existe um atalho usando `ncat` (pacote `nmap`):
+
+```bash
+# Servidor (Sam)
+sudo apt install nmap  # se não tiver
+ncat --ssl -l 4444 > relatorio_recebido.tar.gz.enc
+
+# Cliente (Alex), em outro terminal
+ncat --ssl localhost 4444 < relatorio_corporativo.tar.gz.enc
+```
+
+**Vantagem:** ncat gera certificado autoassinado automaticamente, sem `openssl req`.
+
+**Desvantagem:** menos educacional — você não vê o certificado sendo construído.
+
+### Resumindo a curiosidade
+
+| Aspecto | Workshops 01-04 | Workshop 05 base | Workshop 05 Extra (TLS) |
+|--------|-----------------|-----------------|------------------------|
+| **Conteúdo** | HTTP, FTP, MySQL, MQTT | Arquivo cifrado com AES | Conversa cifrada com TLS |
+| **tcpdump mostra** | Credenciais, queries | Bytes aleatórios (AES) | Bytes aleatórios (TLS) |
+| **Quem vê** | Atacante em rede local | Ninguém (arquivo protegido) | Ninguém (canal + arquivo) |
+| **Proteção** | Nenhuma | Permanente (objeto) | Permanente (objeto) + Transmissão (canal) |
+
+**A lição:** um arquivo cifrado com AES-256 é seguro **para sempre** — mesmo capturado, mesmo copiado, mesmo anos depois. Mas a **transmissão** também importa. TLS resolve metadados que AES não cobre. Juntos = defesa em profundidade.
+
+---
+
+
 
 **Preparação**
 - [ ] Criei a estrutura `empresa/{remetente,equipe,destinatario,interceptador}`
@@ -1235,6 +1442,13 @@ Recapitulando o fio condutor do workshop: nenhuma dessas ferramentas resolve o p
 - [ ] Resolvi o desafio do Diretor Financeiro/Jurídico antes de ler a solução
 - [ ] Confirmei as três propriedades (confidencialidade, integridade, autenticidade) no resultado final
 
+**Atividade Extra (TLS)**
+- [ ] Gerei certificado autoassinado com `openssl req -x509`
+- [ ] Rodei servidor TLS com `openssl s_server`
+- [ ] Conectei cliente com `openssl s_client` e enviei o arquivo
+- [ ] Validei que o arquivo chegou íntegro (hash bateu)
+- [ ] Capturei tráfego com `tcpdump` e confirmei que estava cifrado (bytes aleatórios)
+
 ---
 
 ## Troubleshooting
@@ -1249,6 +1463,9 @@ Recapitulando o fio condutor do workshop: nenhuma dessas ferramentas resolve o p
 | `rsautl: command not found` (OpenSSL 3.x recentes) | Comando legado ainda funciona na maioria das builds; alternativa moderna: `openssl pkeyutl -encrypt/-decrypt` com os mesmos parâmetros `-inkey`/`-pubin` |
 | `tar: This does not look like a tar archive` ao abrir `.enc` direto | Esperado — o arquivo está cifrado; descriptografe primeiro com `openssl enc -d` |
 | Hashes não batem entre remetente e destinatário | Confirme que copiou o arquivo `.tar.gz` (ou `.enc`) exato, sem re-gerar em outro momento |
+| `s_server`/`s_client` não conecta | Confirme que o servidor está rodando **antes** do cliente conectar; confira a porta (`4444`) livre com `ss -tulpn \| grep 4444` |
+| Certificado autoassinado gera aviso | Normal em ambiente de laboratório; use `2>/dev/null` no `s_client` para silenciar, ou aceite manualmente se solicitado |
+| `tcpdump` não captura nada na interface `lo` | Em algumas distros, use `-i any` em vez de `-i lo`, ou confirme que o tráfego é mesmo loopback (`localhost`) |
 
 ---
 
