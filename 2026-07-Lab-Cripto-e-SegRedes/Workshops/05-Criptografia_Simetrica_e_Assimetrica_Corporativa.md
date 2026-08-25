@@ -90,6 +90,9 @@ Este workshop resolve esse problema construindo, passo a passo, um fluxo de **cr
 
 > "Como enviar um relatório para que **só o destinatário certo** consiga ler, **prove quem enviou**, **detecte qualquer alteração**, e faça tudo isso **sem nunca transmitir a chave secreta em texto puro**?"
 
+> [!NOTE]
+> **Contexto dos Workshops 01–04:** nos laboratórios anteriores, você viu como relatórios e dados em **texto claro** (HTTP, FTP, MySQL, MQTT sem criptografia) podem ser capturados, lidos, remontados e até alterados durante o transporte, sem ninguém perceber. Este workshop resolve esse problema combinando **criptografia simétrica** (confidencialidade), **criptografia assimétrica** (autenticidade + distribuição segura de chave), **hash** (integridade) e **assinatura digital** — exatamente o que falta nos cenários anteriores.
+
 ### Objetivos de aprendizagem
 
 Ao final deste workshop, você será capaz de:
