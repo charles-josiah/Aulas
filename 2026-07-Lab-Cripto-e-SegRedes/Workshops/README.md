@@ -4,7 +4,7 @@ Workshops práticos da disciplina de Criptografia e Segurança em Redes — 2026
 
 ## Workshop: Criptografia e Assinatura Digital com GPG
 
-Acesse o [workshop completo](Workshop-Criptografia-e-Assinatura-Digital-com-GPG/README.md).
+Acesse o [workshop completo](00-Criptografia_e_Assinatura_Digital_com_GPG/README.md).
 
 Tópicos abordados:
 - Criptografia de arquivos com GPG/PGP
