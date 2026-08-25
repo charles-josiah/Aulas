@@ -212,7 +212,35 @@ DO DESTINATÁRIO (Sam)
            └── SHA-256                   → valida integridade
 ```
 
-> **Pergunta ao aluno:** olhando o diagrama acima, qual das três chaves aparece **duas vezes** protegendo coisas diferentes (uma vez para cifrar dados, outra para ser protegida)? Guarde a resposta — vamos confirmar na Etapa 8.
+### Lendo o diagrama em palavras
+
+O diagrama acima parece complexo à primeira vista, mas é só uma história em duas metades. Acompanhe:
+
+**Lado do remetente (Alex, a analista que escreveu o relatório):**
+
+1. Alex termina de escrever o **relatório corporativo**. Ele existe em texto puro na máquina dela.
+2. Alex passa o relatório por uma função **hash SHA-256**, obtendo uma impressão digital curta do conteúdo.
+3. Alex **assina** essa impressão digital com a **chave privada dela** — é isso que prova, depois, que o documento saiu das mãos de Alex e de mais ninguém.
+4. Em paralelo, Alex gera uma **chave simétrica AES** nova e usa essa chave para **cifrar o relatório**, que vira um arquivo ilegível.
+5. Sobra um problema: Sam precisa dessa chave AES para abrir o arquivo, mas ela não pode viajar em texto puro. Então Alex **cifra a própria chave AES** usando a **chave pública de Sam**.
+6. Alex envia três coisas pelo transporte (e-mail, chat, servidor de arquivos — não importa): o relatório cifrado, a chave AES protegida e a assinatura.
+
+**Lado do destinatário (Sam, o gerente que vai receber):**
+
+7. Sam usa a **chave privada dele** para abrir o envelope e recuperar a **chave AES** — ninguém mais no mundo consegue esse passo.
+8. Com a chave AES em mãos, Sam **decifra o relatório** e finalmente lê o conteúdo.
+9. Sam usa a **chave pública de Alex** para **conferir a assinatura**: se bater, o documento veio mesmo de Alex.
+10. E o **SHA-256** confirma que nem um byte foi alterado no caminho.
+
+Repare que ninguém precisou combinar uma senha secreta antes, e a chave simétrica nunca trafegou legível. É exatamente isso que torna o modelo híbrido viável em uma empresa real.
+
+> **Pergunta ao aluno:** no fluxo que você acabou de ler, o relatório foi **escrito por Alex** e será **lido por Sam**. Sabendo disso, responda:
+>
+> 1. Qual das três chaves aparece **duas vezes** no diagrama, com papéis diferentes — uma vez cifrando o relatório e outra vez sendo ela mesma protegida?
+> 2. A assinatura foi feita com a chave privada **de quem**, e será verificada com a chave pública **de quem**?
+> 3. Se Alex tivesse usado a **própria** chave pública (em vez da de Sam) para proteger a chave AES, quem conseguiria abrir o relatório no final?
+>
+> Guarde suas respostas — vamos confirmar todas na Etapa 8.
 
 ---
 
