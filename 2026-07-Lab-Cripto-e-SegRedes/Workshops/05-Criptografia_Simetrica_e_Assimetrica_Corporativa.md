@@ -68,7 +68,6 @@ layout: default
 - [Solução Comentada do Desafio](#solução-comentada-do-desafio)
 - [7. Fechamento](#7-fechamento)
 - [8. Atividade Extra: Transporte Seguro com TLS (Curiosidade)](#8-atividade-extra-transporte-seguro-com-tls-curiosidade)
-- [Checklist de Validação do Aluno](#checklist-de-validação-do-aluno)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -1398,56 +1397,6 @@ ncat --ssl localhost 4444 < relatorio_corporativo.tar.gz.enc
 | **Proteção** | Nenhuma | Permanente (objeto) | Permanente (objeto) + Transmissão (canal) |
 
 **A lição:** um arquivo cifrado com AES-256 é seguro **para sempre** — mesmo capturado, mesmo copiado, mesmo anos depois. Mas a **transmissão** também importa. TLS resolve metadados que AES não cobre. Juntos = defesa em profundidade.
-
----
-
-
-
-**Preparação**
-- [ ] Criei a estrutura `empresa/{remetente,equipe,destinatario,interceptador}`
-- [ ] Criei os arquivos corporativos fictícios (relatório, CSV, resultado trimestral)
-
-**Integridade e cifra simétrica**
-- [ ] Calculei o hash SHA-256 do relatório original
-- [ ] Demonstrei o efeito avalanche alterando o conteúdo e recalculando o hash
-- [ ] Gerei uma chave AES-256 aleatória com `openssl rand`
-- [ ] Cifrei o relatório e confirmei que o resultado é ilegível (`file`/`cat`)
-
-**Compactação**
-- [ ] Compactei múltiplos arquivos em um `.tar.gz`
-- [ ] Cifrei o pacote com uma chave simétrica dedicada
-- [ ] Confirmei que compactar sozinho não protege (extração livre antes de cifrar)
-
-**Chaves assimétricas e assinatura**
-- [ ] Gerei os pares RSA-2048 de Alex e de Sam
-- [ ] Apliquei `chmod 600` nas chaves privadas
-- [ ] Alex assinou o pacote com sua chave privada
-- [ ] Sam validou a assinatura com a chave pública de Alex (`Verified OK`)
-
-**Criptografia híbrida**
-- [ ] Cifrei a chave simétrica com a chave pública de Sam
-- [ ] Sam recuperou a chave simétrica com sua chave privada
-- [ ] Sam recuperou o relatório original a partir da chave recuperada
-- [ ] Jamie enviou mensagem secreta só para Sam (chave pública de Sam)
-- [ ] Confirmei que nem Alex consegue ler a mensagem de Jamie para Sam
-
-**Ataques**
-- [ ] Reproduzi o vazamento de chave simétrica (Ataque 1)
-- [ ] Reproduzi a falha ao usar chave privada incorreta (Ataque 2)
-- [ ] Reproduzi a substituição de chave pública / MITM (Ataque 3)
-- [ ] Reproduzi a detecção de arquivo adulterado (Ataque 4)
-- [ ] Reproduzi o dicionário contra senha fraca (Ataque 5)
-
-**Desafio final**
-- [ ] Resolvi o desafio do Diretor Financeiro/Jurídico antes de ler a solução
-- [ ] Confirmei as três propriedades (confidencialidade, integridade, autenticidade) no resultado final
-
-**Atividade Extra (TLS)**
-- [ ] Gerei certificado autoassinado com `openssl req -x509`
-- [ ] Rodei servidor TLS com `openssl s_server`
-- [ ] Conectei cliente com `openssl s_client` e enviei o arquivo
-- [ ] Validei que o arquivo chegou íntegro (hash bateu)
-- [ ] Capturei tráfego com `tcpdump` e confirmei que estava cifrado (bytes aleatórios)
 
 ---
 
