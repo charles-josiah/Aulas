@@ -1420,5 +1420,5 @@ ncat --ssl localhost 4444 < relatorio_corporativo.tar.gz.enc
 
 <p align="right">
   <sub></sub><br>
-  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_Simetrica_e_Assimetrica_Corporativa.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/06-Criptografia_Simetrica_e_Assimetrica_Corporativa.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
 </p>

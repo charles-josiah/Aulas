@@ -77,7 +77,7 @@ Funciona como um "carimbo digital" que qualquer pessoa pode verificar usando a c
 
 ## 3. O que foi feito?
 
-Assinamos digitalmente o **README.md** usando nossa **chave privada GPG**. O GPG calcula um **hash** (resumo criptográfico) do arquivo original, cifra esse hash com nossa chave privada e gera o arquivo de assinatura (`.asc`). Quem receber o arquivo pode usar nossa **[chave pública](https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/senai-public-key.asc)** para decifrar o hash, recalcular o hash do arquivo recebido e comparar os dois: se forem iguais, o arquivo é autêntico e não foi alterado.
+Assinamos digitalmente o **README.md** usando nossa **chave privada GPG**. O GPG calcula um **hash** (resumo criptográfico) do arquivo original, cifra esse hash com nossa chave privada e gera o arquivo de assinatura (`.asc`). Quem receber o arquivo pode usar nossa **[chave pública](https://raw.githubusercontent.com/charles-josiah/Aulas/refs/heads/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/senai-public-key.asc)** para decifrar o hash, recalcular o hash do arquivo recebido e comparar os dois: se forem iguais, o arquivo é autêntico e não foi alterado.
 
 ```
 ┌─────────────────────────────────────┐
@@ -128,13 +128,13 @@ gpg --armor --detach-sign README.md
 
 ```bash
 # Baixar o arquivo original
-curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/README.md
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/README.md
 
 # Baixar a assinatura
-curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/README.md.asc
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/README.md.asc
 
 # Baixar a chave pública do professor
-curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/senai-public-key.asc
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/senai-public-key.asc
 ```
 
 ### 5.2 — Importar a chave pública
@@ -173,9 +173,9 @@ gpg: Good signature from "Charles Alandt <charles.alandt@edu.sc.senai.br>"
 
 ```bash
 # 1. Baixar tudo
-curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/README.md
-curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/README.md.asc
-curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/senai-public-key.asc
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/README.md
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/README.md.asc
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/senai-public-key.asc
 
 # 2. Importar a chave pública
 gpg --import senai-public-key.asc
@@ -228,8 +228,8 @@ O arquivo `mensagem_de_boas_vindas.md` foi **criptografado** e **assinado** com 
 ### 8.1 — Baixar os arquivos
 
 ```bash
-curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/mensagem_de_boas_vindas.md.gpg
-curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/mensagem_de_boas_vindas.md.sig
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/mensagem_de_boas_vindas.md.gpg
+curl -O https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/mensagem_de_boas_vindas.md.sig
 ```
 
 ---
@@ -337,4 +337,4 @@ gpg --decrypt arquivo.txt.gpg
 **Data:** 29/07/2026
 
 ---
-📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/00-Criptografia_e_Assinatura_Digital_com_GPG/README.md.svg)
+📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/05-Criptografia_e_Assinatura_Digital_com_GPG/README.md.svg)
