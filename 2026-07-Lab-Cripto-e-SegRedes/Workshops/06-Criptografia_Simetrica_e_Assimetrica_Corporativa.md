@@ -713,6 +713,27 @@ openssl rsautl -encrypt -inkey sam_publica.pem -pubin -in chave_pacote.bin -out 
 ls -lh chave_pacote.bin.enc
 ```
 
+> [!IMPORTANT]
+> **Sobre o `rsautl` no OpenSSL 3.x:** a partir da versão 3.0, o `rsautl` foi marcado como **obsoleto (deprecated)**. Ele **continua funcionando normalmente**, mas exibe o aviso:
+>
+> ```text
+> The command rsautl was deprecated in version 3.0. Use 'pkeyutl' instead.
+> ```
+>
+> O aviso **não é erro** — o arquivo é gerado corretamente. Este workshop mantém `rsautl` porque o nome deixa explícito que a operação é RSA, o que ajuda na leitura didática.
+>
+> **Equivalente moderno (sem aviso):** troque `rsautl` por `pkeyutl`, mantendo exatamente os mesmos parâmetros:
+>
+> ```bash
+> # Cifrar com a chave pública
+> openssl pkeyutl -encrypt -inkey sam_publica.pem -pubin -in chave_pacote.bin -out chave_pacote.bin.enc
+>
+> # Decifrar com a chave privada
+> openssl pkeyutl -decrypt -inkey sam_privada.pem -in chave_pacote.bin.enc -out chave_pacote_recuperada.bin
+> ```
+>
+> Ambas as formas foram validadas no `srvdocker01` com OpenSSL 3.5.5 e produzem resultados idênticos. Se preferir a sintaxe moderna, aplique a mesma troca em **todos** os comandos `rsautl` deste workshop.
+
 **Explicação dos comandos:**
 
 - `rsautl -encrypt`: modo de cifra com RSA.
@@ -1409,7 +1430,7 @@ ncat --ssl localhost 4444 < relatorio_corporativo.tar.gz.enc
 | `bad decrypt` no AES | Chave errada ou `-S` diferente do usado na cifragem; confira `chave_*.bin` correta |
 | `RSA operation error` no `rsautl` | Chave privada não corresponde à pública usada para cifrar (ver Ataque 2) |
 | `Verification Failure` na assinatura | Arquivo foi alterado, ou a chave pública usada não é a do autor real |
-| `rsautl: command not found` (OpenSSL 3.x recentes) | Comando legado ainda funciona na maioria das builds; alternativa moderna: `openssl pkeyutl -encrypt/-decrypt` com os mesmos parâmetros `-inkey`/`-pubin` |
+| `rsautl` exibe "deprecated in version 3.0" | Normal no OpenSSL 3.x — o comando funciona normalmente. Aviso é apenas informativo. Use `openssl pkeyutl -encrypt/-decrypt` se preferir evitar o aviso (sintaxe idêntica, resultados iguais). |
 | `tar: This does not look like a tar archive` ao abrir `.enc` direto | Esperado — o arquivo está cifrado; descriptografe primeiro com `openssl enc -d` |
 | Hashes não batem entre remetente e destinatário | Confirme que copiou o arquivo `.tar.gz` (ou `.enc`) exato, sem re-gerar em outro momento |
 | `s_server`/`s_client` não conecta | Confirme que o servidor está rodando **antes** do cliente conectar; confira a porta (`4444`) livre com `ss -tulpn \| grep 4444` |
