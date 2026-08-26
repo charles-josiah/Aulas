@@ -450,7 +450,7 @@ ls -lh chave_aes.bin
 Agora cifre o relatório:
 
 ```bash
-openssl enc -aes-256-cbc -in relatorio_financeiro.txt -out relatorio_financeiro.enc -pass file:chave_aes.bin -S 0 -P
+openssl enc -aes-256-cbc -in relatorio_financeiro.txt -out relatorio_financeiro.enc -pass file:chave_aes.bin -S 0 -p
 ```
 
 **Explicação dos comandos:**
@@ -459,7 +459,7 @@ openssl enc -aes-256-cbc -in relatorio_financeiro.txt -out relatorio_financeiro.
 - `-in / -out`: arquivo original e arquivo cifrado.
 - `-pass file:chave_aes.bin`: usa o conteúdo do arquivo como material de chave (**chave**, não senha digitada — diferença importante).
 - `-S 0`: fixa o salt em zero, só para o laboratório ser reprodutível em aula; **em produção, use salt aleatório** (comportamento padrão do OpenSSL sem `-S`).
-- `-P`: imprime a chave derivada e o IV usados, para fins didáticos (nunca faça isso em produção).
+- `-p` (minúsculo): imprime a chave derivada e o IV usados **e executa a cifragem**, para fins didáticos (nunca faça isso em produção). **Atenção:** `-P` (maiúsculo) apenas imprime os parâmetros e **sai sem cifrar**, gerando um arquivo de saída vazio.
 
 **Resultado esperado:**
 
