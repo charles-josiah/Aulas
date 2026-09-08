@@ -993,13 +993,13 @@ openssl x509 -in morgan.crt -noout -subject -issuer
 **Resultado esperado:**
 
 ```text
-subject=CN=servidor.local, O=Empresa, C=BR
-issuer=CN=servidor.local, O=Empresa, C=BR
+subject=CN=servidor.local, O=Atacante, C=BR
+issuer=CN=servidor.local, O=Atacante, C=BR
 ```
 
 **Análise — o truque e a defesa:**
 
-- **O truque:** o certificado de Morgan tem o mesmo `CN` (servidor.local). Se o cliente validasse **só o nome**, Morgan passaria.
+- **O truque:** o certificado de Morgan tem o mesmo `CN` (servidor.local) do servidor legítimo — mas repare que o `O` (Organization) já denuncia: `O=Atacante`, não `O=Empresa`. Se o cliente validasse **só o nome (CN)**, Morgan passaria.
 - **A defesa:** o cliente valida a **cadeia de confiança**. O certificado de Morgan é autoassinado (issuer = subject) e **não está no cofre do cliente** — a validação falha:
 
 ```bash
@@ -1009,7 +1009,7 @@ openssl verify -CAfile ca.crt morgan.crt
 **Resultado esperado:**
 
 ```text
-CN=servidor.local, O=Empresa, C=BR
+CN=servidor.local, O=Atacante, C=BR
 error 18 at 0 depth lookup: self-signed certificate
 error morgan.crt: verification failed
 ```
