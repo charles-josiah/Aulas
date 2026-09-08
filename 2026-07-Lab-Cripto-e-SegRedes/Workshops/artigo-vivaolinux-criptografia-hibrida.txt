@@ -1,0 +1,437 @@
+TÍTULO: Criptografia híbrida na prática com OpenSSL: protegendo um relatório corporativo com AES-256, RSA-2048 e assinatura digital
+
+DESCRIÇÃO: Aprenda, passo a passo, a combinar criptografia simétrica (AES-256) e assimétrica (RSA-2048) com hash SHA-256 e assinatura digital para enviar um documento confidencial de forma segura, provando autoria e detectando qualquer adulteração — tudo com comandos OpenSSL no Linux.
+
+CATEGORIA: Linux
+SUBCATEGORIA: Segurança
+
+AUTOR: Charles Alandt
+
+---
+
+INTRODUÇÃO
+
+Você precisa enviar um relatório corporativo confidencial para o seu gerente. Simplesmente anexar o arquivo em um e-mail ou enviar por um chat não resolve nada, porque nenhum desses canais oferece, por si só, as quatro garantias que um documento sensível exige:
+
+- Confidencialidade: só o destinatário certo consegue ler o conteúdo.
+- Integridade: qualquer alteração, mesmo de um único byte, é detectada.
+- Autenticidade: dá para comprovar quem realmente enviou o arquivo.
+- Chave protegida: o segredo usado para cifrar nunca viaja em texto puro.
+
+Neste artigo, vamos construir, do zero e com comandos OpenSSL no Linux, um fluxo de criptografia híbrida. A ideia central é simples: usamos criptografia simétrica (AES-256) para proteger os dados grandes, porque é rápida; usamos criptografia assimétrica (RSA-2048) para proteger a chave simétrica e provar autoria, porque resolve o problema de distribuir um segredo sem combiná-lo antes; e usamos hash SHA-256 para garantir integridade.
+
+Tudo foi validado em um Ubuntu 26.04 LTS com OpenSSL 3.x. Em outras distribuições ou versões de OpenSSL, a saída pode variar levemente, mas os comandos são os mesmos.
+
+POR QUE NÃO USAR SÓ UMA DAS DUAS?
+
+Antes de digitar qualquer comando, vale entender o problema que estamos resolvendo.
+
+A criptografia simétrica (AES) é muito rápida — na casa de gigabytes por segundo — e ideal para arquivos grandes. Mas ela tem um problema grave: como enviar a chave para o destinatário com segurança? Se a chave vazar, tudo vaza.
+
+A criptografia assimétrica (RSA) resolve o problema de compartilhar segredos: não é preciso combinar nada antes, e ela ainda permite assinatura digital. Porém, é muito lenta para arquivos grandes, e o RSA só consegue cifrar poucos bytes por vez (cerca de 245 bytes em uma chave RSA-2048).
+
+A solução é a criptografia híbrida: usamos o AES para os dados e o RSA para proteger a chave simétrica e assinar. Cada ferramenta faz o que faz de melhor.
+
+AS TRÊS CHAVES
+
+Ao longo do fluxo, lidamos com três chaves diferentes. É fundamental não confundi-las:
+
+- Chave privada: fica somente com o dono, nunca sai da máquina. Serve para assinar documentos e para descriptografar o que foi cifrado com a chave pública correspondente. Se vazar, é uma catástrofe: qualquer um pode se passar pelo dono e ler tudo que foi cifrado para ele.
+- Chave pública: pode ser distribuída livremente. Terceiros a usam para cifrar dados destinados exclusivamente ao dono da privada correspondente, ou para verificar assinaturas feitas por ele.
+- Chave simétrica: é a chave AES usada para cifrar os dados grandes. Deve ser gerada com aleatoriedade criptográfica real (openssl rand), nunca "inventada" por um humano. Nunca pode viajar em texto puro.
+
+PREPARANDO O LABORATÓRIO
+
+Vamos simular uma empresa com quatro papéis: Alex (remetente, analista de segurança), Sam (destinatário, gerente), Jamie (colega de equipe) e Morgan (interceptador, usado só na seção de ataques). Cada papel é um diretório, como se fosse uma máquina diferente.
+
+mkdir -p empresa/{remetente,equipe,destinatario,interceptador}
+cd empresa
+
+Crie os arquivos corporativos fictícios de Alex:
+
+cd remetente
+
+cat > clientes.csv << 'EOF'
+id,nome,valor_contrato
+1,Empresa Alfa Ltda,150000.00
+2,Beta Comercio SA,89000.00
+3,Gamma Industria,320000.00
+EOF
+
+cat > resultado_trimestral.txt << 'EOF'
+RESULTADO TRIMESTRAL - Q3 2026
+Receita: R$ 4.200.000,00
+Despesas: R$ 2.850.000,00
+Lucro liquido: R$ 1.350.000,00
+EOF
+
+Agora o relatório principal, que é o documento confidencial que vamos proteger:
+
+cat > relatorio_financeiro.txt << 'EOF'
+RELATORIO FINANCEIRO CONFIDENCIAL - Q3 2026
+============================================
+Classificacao: CONFIDENCIAL - USO INTERNO
+
+Resumo Executivo:
+- Vulnerabilidade critica identificada em servidor de pagamentos
+- Exposicao potencial de dados de 12.000 clientes
+- Valor de impacto estimado: R$ 5.000.000,00
+- Recomendacao: acionar plano de resposta a incidentes imediatamente
+
+Proximos passos:
+1. Notificar diretoria executiva
+2. Acionar equipe juridica
+3. Preparar comunicado as autoridades reguladoras (LGPD)
+
+Assinado eletronicamente por: Alex - Analista de Seguranca
+EOF
+
+ETAPA 1: INTEGRIDADE COM HASH SHA-256
+
+Uma função hash criptográfica produz sempre a mesma saída para a mesma entrada, mas qualquer mudança na entrada — mesmo de um único bit — muda completamente a saída. Isso é chamado de efeito avalanche. O hash não é cifra: não existe "descriptografar" um hash.
+
+Vamos calcular a impressão digital do relatório e guardá-la:
+
+sha256sum relatorio_financeiro.txt | tee relatorio_financeiro.txt.sha256
+
+O comando tee mostra o resultado na tela e também grava em arquivo, para comparação futura.
+
+Para provar o efeito avalanche, altere um único valor e recalcule o hash:
+
+cp relatorio_financeiro.txt relatorio_adulterado_teste.txt
+sed -i 's/5.000.000,00/50.000,00/' relatorio_adulterado_teste.txt
+sha256sum relatorio_adulterado_teste.txt
+
+Os dois hashes serão completamente diferentes, mesmo tendo mudado apenas alguns caracteres. Compare:
+
+diff <(sha256sum relatorio_financeiro.txt | cut -d' ' -f1) \
+     <(sha256sum relatorio_adulterado_teste.txt | cut -d' ' -f1) && echo "IGUAIS (erro!)" || echo "DIFERENTES (esperado)"
+rm relatorio_adulterado_teste.txt
+
+Importante: o hash sozinho não prova que o arquivo veio de Alex. Qualquer pessoa pode calcular o SHA-256 de qualquer arquivo. O hash prova apenas integridade; a autenticidade vem da assinatura digital, mais adiante.
+
+ETAPA 2: CRIPTOGRAFIA SIMÉTRICA COM AES-256
+
+Vamos gerar uma chave simétrica de 256 bits com aleatoriedade real e cifrar o relatório com ela:
+
+openssl rand -out chave_aes.bin 32
+ls -lh chave_aes.bin
+
+O comando openssl rand gera bytes pseudoaleatórios criptograficamente seguros. O "32" significa 32 bytes, que é exatamente o tamanho exigido pelo AES-256.
+
+Agora ciframos o relatório:
+
+openssl enc -aes-256-cbc -in relatorio_financeiro.txt -out relatorio_financeiro.enc -pass file:chave_aes.bin -S 0 -p
+
+Explicando as opções:
+
+- enc -aes-256-cbc: algoritmo AES com chave de 256 bits no modo CBC (encadeamento de blocos).
+- -in / -out: arquivo original e arquivo cifrado.
+- -pass file:chave_aes.bin: usa o conteúdo do arquivo como material de chave. Repare que é uma chave, não uma senha digitada.
+- -S 0: fixa o salt em zero, apenas para o laboratório ser reprodutível em aula. Em produção, use salt aleatório (o comportamento padrão do OpenSSL sem -S).
+- -p (minúsculo): imprime a chave derivada e o IV usados e executa a cifragem, para fins didáticos. Nunca faça isso em produção. Atenção: -P (maiúsculo) apenas imprime os parâmetros e sai sem cifrar, gerando um arquivo de saída vazio.
+
+Confirme que o arquivo ficou ilegível:
+
+file relatorio_financeiro.enc
+cat relatorio_financeiro.enc
+
+O comando file deve indicar "data" (binário) e o cat deve exibir apenas bytes ilegíveis. A confidencialidade está ativa.
+
+ETAPA 3: COMPACTAR E CIFRAR O PACOTE COMPLETO
+
+Compactar não é proteger. Um arquivo .tar.gz continua legível por qualquer um que o abrir. Vamos compactar os três documentos e depois cifrar o pacote inteiro com uma chave simétrica dedicada:
+
+tar -czf relatorio_corporativo.tar.gz relatorio_financeiro.txt clientes.csv resultado_trimestral.txt
+tar -tzf relatorio_corporativo.tar.gz
+
+O tar -czf cria (c) e comprime com gzip (z) em um arquivo (f). O tar -tzf lista o conteúdo sem extrair.
+
+Para provar que compactar não protege, extraia e leia:
+
+mkdir -p /tmp/teste_extracao && tar -xzf relatorio_corporativo.tar.gz -C /tmp/teste_extracao
+cat /tmp/teste_extracao/clientes.csv
+rm -rf /tmp/teste_extracao
+
+Qualquer um consegue abrir — nada está protegido ainda. Agora ciframos o pacote com uma chave simétrica nova:
+
+openssl rand -out chave_pacote.bin 32
+openssl enc -aes-256-cbc -in relatorio_corporativo.tar.gz -out relatorio_corporativo.tar.gz.enc -pass file:chave_pacote.bin -S 0
+ls -lh relatorio_corporativo.*
+
+Repare que geramos uma chave nova (chave_pacote.bin) em vez de reaproveitar a da etapa anterior. Boa prática: cada objeto protegido idealmente tem sua própria chave, limitando o impacto se uma delas vazar.
+
+Tente descompactar o arquivo .enc direto — deve falhar, provando que a proteção está ativa:
+
+tar -tzf relatorio_corporativo.tar.gz.enc
+
+ETAPA 4: GERAR OS PARES DE CHAVES ASSIMÉTRICAS
+
+Cada pessoa tem seu próprio par RSA-2048. A privada nunca sai do dono; a pública é distribuída livremente. Vamos gerar o par de Alex (remetente):
+
+cd ~/empresa/remetente
+openssl genrsa -out alex_privada.pem 2048
+openssl rsa -in alex_privada.pem -pubout -out alex_publica.pem
+chmod 600 alex_privada.pem
+chmod 644 alex_publica.pem
+
+E o par de Sam (destinatário):
+
+cd ~/empresa/destinatario
+openssl genrsa -out sam_privada.pem 2048
+openssl rsa -in sam_privada.pem -pubout -out sam_publica.pem
+chmod 600 sam_privada.pem
+chmod 644 sam_publica.pem
+
+O genrsa gera a chave privada RSA de 2048 bits; o rsa -pubout extrai a chave pública correspondente. O chmod 600 garante que só o dono leia a privada; o chmod 644 permite que qualquer um leia a pública, que é para isso que ela existe.
+
+Valide a chave privada:
+
+openssl rsa -in alex_privada.pem -check -noout
+
+Deve responder "RSA key ok".
+
+Agora troquem as chaves públicas (simulação de distribuição):
+
+cp ~/empresa/remetente/alex_publica.pem ~/empresa/destinatario/
+cp ~/empresa/destinatario/sam_publica.pem ~/empresa/remetente/
+
+ETAPA 5: ASSINATURA DIGITAL — PROVAR QUE "EU SOU EU"
+
+Aqui está a diferença fundamental que confunde muita gente:
+
+- Criptografar usa a chave pública do destinatário e garante confidencialidade.
+- Assinar digitalmente usa a chave privada do autor e garante autenticidade e integridade.
+
+Alex assina o pacote com a própria chave privada:
+
+cd ~/empresa/remetente
+openssl dgst -sha256 -sign alex_privada.pem -out relatorio_corporativo.sig relatorio_corporativo.tar.gz
+ls -lh relatorio_corporativo.sig
+
+O dgst -sha256 calcula o hash SHA-256 do pacote, e o -sign alex_privada.pem cifra esse hash com a chave privada de Alex. Isso é a assinatura digital.
+
+Envie a assinatura para Sam:
+
+cp relatorio_corporativo.sig ~/empresa/destinatario/
+
+Sam verifica com a chave pública de Alex. Como neste ponto Sam ainda não tem o pacote (ele chega na próxima etapa), copie o pacote para validar isoladamente:
+
+cd ~/empresa/destinatario
+cp ~/empresa/remetente/relatorio_corporativo.tar.gz .
+openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
+
+Deve responder "Verified OK". Se Morgan tivesse assinado um relatório falso com a própria chave privada, a verificação com a pública de Alex falharia com "Verification Failure", porque a assinatura só "casa" com a chave pública do par que a gerou.
+
+ETAPA 6: DISTRIBUIÇÃO SEGURA DA CHAVE SIMÉTRICA
+
+Este é o coração da criptografia híbrida. Precisamos enviar a chave_pacote.bin para Sam sem transmiti-la em texto puro. Como a chave simétrica é pequena (32 bytes), ela cabe dentro do limite do RSA (que cifra no máximo cerca de 245 bytes em RSA-2048). Então Alex cifra a chave simétrica com a chave pública de Sam:
+
+cd ~/empresa/remetente
+openssl rsautl -encrypt -inkey sam_publica.pem -pubin -in chave_pacote.bin -out chave_pacote.bin.enc
+ls -lh chave_pacote.bin.enc
+
+Explicando:
+
+- rsautl -encrypt: modo de cifra com RSA.
+- -inkey sam_publica.pem -pubin: usa a chave pública de Sam — só a privada dele vai conseguir reverter.
+- -in chave_pacote.bin: a chave AES que protege o pacote.
+- -out chave_pacote.bin.enc: a chave AES agora protegida (envelopada).
+
+Observação sobre o OpenSSL 3.x: a partir da versão 3.0, o comando rsautl foi marcado como obsoleto (deprecated). Ele continua funcionando normalmente, mas exibe o aviso "The command rsautl was deprecated in version 3.0. Use 'pkeyutl' instead." O aviso não é erro — o arquivo é gerado corretamente. Se preferir a sintaxe moderna, use pkeyutl com os mesmos parâmetros:
+
+openssl pkeyutl -encrypt -inkey sam_publica.pem -pubin -in chave_pacote.bin -out chave_pacote.bin.enc
+
+Confirme que o envelope não revela a chave:
+
+hexdump -C chave_pacote.bin.enc | head -3
+
+Deve mostrar bytes aparentemente aleatórios — impossível recuperar a chave sem a privada de Sam.
+
+Agora monte e envie o pacote final para Sam:
+
+cp relatorio_corporativo.tar.gz.enc chave_pacote.bin.enc relatorio_corporativo.sig ~/empresa/destinatario/
+
+No destinatário, Sam recupera a chave simétrica com a própria chave privada:
+
+cd ~/empresa/destinatario
+openssl rsautl -decrypt -inkey sam_privada.pem -in chave_pacote.bin.enc -out chave_pacote_recuperada.bin
+diff chave_pacote_recuperada.bin ~/empresa/remetente/chave_pacote.bin && echo "Chave recuperada com sucesso!"
+
+Depois recupera o relatório:
+
+openssl enc -aes-256-cbc -d -in relatorio_corporativo.tar.gz.enc -out relatorio_corporativo.tar.gz -pass file:chave_pacote_recuperada.bin -S 0
+tar -tzf relatorio_corporativo.tar.gz
+tar -xzf relatorio_corporativo.tar.gz
+cat relatorio_financeiro.txt
+
+E valida a assinatura contra o pacote recém-descriptografado:
+
+openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
+
+Deve retornar "Verified OK". Neste fluxo, a chave simétrica foi cifrada com a pública de Sam e decifrada com a privada de Sam — só ele consegue.
+
+ETAPA 7: MENSAGEM SECRETA DE RETORNO
+
+Agora Jamie (equipe) envia uma mensagem que somente Sam consiga ler — nem Alex, nem ninguém mais. É o mesmo fluxo híbrido, mas Jamie usa a chave pública de Sam (não a de Alex) para proteger a chave simétrica da mensagem:
+
+cd ~/empresa/equipe
+cp ~/empresa/destinatario/sam_publica.pem .
+
+cat > mensagem_confidencial.txt << 'EOF'
+Sam,
+
+Confirmo que o servidor de pagamentos foi isolado da rede as 08h45.
+Nao compartilhe este numero de incidente por canais nao criptografados: INC-2026-0847.
+
+Jamie
+EOF
+
+openssl rand -out chave_msg.bin 32
+openssl enc -aes-256-cbc -in mensagem_confidencial.txt -out mensagem_confidencial.enc -pass file:chave_msg.bin -S 0
+openssl rsautl -encrypt -inkey sam_publica.pem -pubin -in chave_msg.bin -out chave_msg.bin.enc
+
+Envie para Sam:
+
+cp mensagem_confidencial.enc chave_msg.bin.enc ~/empresa/destinatario/
+
+No destinatário, só Sam consegue abrir:
+
+cd ~/empresa/destinatario
+openssl rsautl -decrypt -inkey sam_privada.pem -in chave_msg.bin.enc -out chave_msg_recuperada.bin
+openssl enc -aes-256-cbc -d -in mensagem_confidencial.enc -out mensagem_confidencial.txt -pass file:chave_msg_recuperada.bin -S 0
+cat mensagem_confidencial.txt
+
+Para provar que só Sam conseguiria, tente decifrar com a chave privada de Alex — deve falhar:
+
+openssl rsautl -decrypt -inkey ~/empresa/remetente/alex_privada.pem -in chave_msg.bin.enc -out /tmp/tentativa_alex.bin 2>&1 | head -3
+
+A operação falha porque a chave simétrica da mensagem foi protegida com a chave pública de Sam — só a privada dele reverte, independentemente de quem mais tenha outras chaves privadas.
+
+ETAPA 8: VALIDAÇÃO FINAL
+
+Consolidando as três propriedades no lado de Sam:
+
+cd ~/empresa/destinatario
+
+# 1. Integridade: o hash do arquivo recebido bate com o original?
+sha256sum relatorio_corporativo.tar.gz
+sha256sum ~/empresa/remetente/relatorio_corporativo.tar.gz
+
+# 2. Autenticidade: a assinatura de Alex confere?
+openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo.tar.gz
+
+# 3. Confidencialidade: o conteúdo só existia em claro após a privada de Sam reverter o envelope
+ls -la relatorio_financeiro.txt
+
+Os dois hashes devem ser idênticos e a verificação deve dizer "Verified OK". Se apenas o hash batesse mas a assinatura falhasse, isso significaria que o arquivo não foi alterado (integridade OK), mas não veio de quem alega ter enviado (autenticidade comprometida).
+
+OS CINCO ATAQUES MAIS COMUNS
+
+Para entender por que cada peça importa, vale demonstrar os ataques mais comuns. Todas as demonstrações abaixo ocorrem exclusivamente dentro de um ambiente controlado e autorizado — nunca aplique essas técnicas fora dele.
+
+ATAQUE 1: VAZAMENTO DA CHAVE SIMÉTRICA
+
+Se Morgan obtiver o arquivo cifrado e a chave simétrica usada, ele descriptografa tudo:
+
+cd ~/empresa/interceptador
+cp ~/empresa/remetente/relatorio_corporativo.tar.gz.enc .
+cp ~/empresa/remetente/chave_pacote.bin .   # simulando o vazamento
+
+openssl enc -aes-256-cbc -d -in relatorio_corporativo.tar.gz.enc -out relatorio_roubado.tar.gz -pass file:chave_pacote.bin -S 0
+tar -tzf relatorio_roubado.tar.gz
+
+Propriedade comprometida: confidencialidade. Com o par (arquivo cifrado + chave), qualquer pessoa descriptografa — RSA e assinatura não entram nessa conta. É por isso que a chave simétrica precisa estar sempre protegida e nunca em backups em texto puro.
+
+ATAQUE 2: CHAVE PRIVADA INCORRETA
+
+Morgan intercepta o envelope de chave, mas tenta usar a própria chave privada, não a de Sam:
+
+cd ~/empresa/interceptador
+openssl genrsa -out morgan_privada.pem 2048 2>/dev/null
+cp ~/empresa/remetente/chave_pacote.bin.enc .
+
+openssl rsautl -decrypt -inkey morgan_privada.pem -in chave_pacote.bin.enc -out tentativa_morgan.bin
+
+A operação falha com "RSA operation error" e "padding check failed", porque o envelope só foi cifrado para a chave pública de Sam. Nenhuma outra chave privada, nem mesmo uma tecnicamente válida, consegue reverter. O envelopamento assimétrico é seletivo — só o par correto funciona.
+
+ATAQUE 3: SUBSTITUIÇÃO DA CHAVE PÚBLICA (MITM)
+
+Morgan se posiciona entre Alex e Sam e entrega a própria chave pública para Alex, fingindo ser a de Sam. Alex cifra a chave simétrica com a chave "de Sam" (na verdade, de Morgan), e Morgan descriptografa com a própria privada:
+
+cd ~/empresa/interceptador
+openssl rsa -in morgan_privada.pem -pubout -out morgan_publica.pem
+
+# Simule Alex recebendo a chave errada, pensando ser a de Sam:
+cd ~/empresa/remetente
+cp ~/empresa/interceptador/morgan_publica.pem chave_publica_recebida.pem
+
+# Alex cifra a chave simétrica com a chave que ACHA ser de Sam:
+openssl rsautl -encrypt -inkey chave_publica_recebida.pem -pubin -in chave_pacote.bin -out chave_para_suposto_sam.enc
+
+# Morgan intercepta e descriptografa com a própria privada:
+cd ~/empresa/interceptador
+openssl rsautl -decrypt -inkey morgan_privada.pem -in ../remetente/chave_para_suposto_sam.enc -out chave_interceptada.bin
+diff chave_interceptada.bin ~/empresa/remetente/chave_pacote.bin && echo "Morgan leu a chave simétrica!"
+
+Este é um Man-in-the-Middle (MITM) clássico contra troca de chaves públicas. A causa raiz: Alex nunca verificou se a chave pública recebida realmente pertencia a Sam. A mitigação real é usar certificados digitais (X.509) assinados por uma Autoridade Certificadora (PKI), ou verificar manualmente o fingerprint da chave por um canal alternativo confiável (telefone, presencialmente). A lição central: receber uma chave pública não prova, por si só, de quem ela é.
+
+ATAQUE 4: ALTERAÇÃO DO ARQUIVO (INTEGRIDADE QUEBRADA)
+
+O pacote é modificado no meio do transporte:
+
+cd ~/empresa/destinatario
+cp relatorio_corporativo.tar.gz relatorio_corporativo_adulterado.tar.gz
+printf '\x00\x00\x00\x00' | dd of=relatorio_corporativo_adulterado.tar.gz bs=1 seek=10 conv=notrunc 2>/dev/null
+
+sha256sum relatorio_corporativo.tar.gz relatorio_corporativo_adulterado.tar.gz
+
+Os hashes são diferentes. Agora tente validar a assinatura contra o arquivo adulterado:
+
+openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.sig relatorio_corporativo_adulterado.tar.gz
+
+Deve retornar "Verification Failure". O hash original difere do hash do arquivo adulterado, e por consequência a assinatura (calculada sobre o hash original) também não confere mais. Isso prova, em conjunto, integridade (via hash) e reforça a autenticidade (a assinatura amarra o conteúdo exato ao autor).
+
+ATAQUE 5: CHAVE OU SENHA FRACA
+
+Em vez de gerar uma chave aleatória de 256 bits, alguém decide "proteger" o pacote com uma senha previsível:
+
+cd ~/empresa/interceptador
+echo "conteudo super confidencial da empresa" > teste_senha_fraca.txt
+openssl enc -aes-256-cbc -pbkdf2 -in teste_senha_fraca.txt -out teste_senha_fraca.enc -pass pass:senai2024
+
+Demonstração de dicionário simples:
+
+cat > wordlist.txt << 'EOF'
+123456
+senha123
+empresa2024
+senai2024
+admin123
+EOF
+
+for senha in $(cat wordlist.txt); do
+  if openssl enc -aes-256-cbc -pbkdf2 -d -in teste_senha_fraca.enc -pass pass:"$senha" 2>/dev/null > /dev/null; then
+    echo "SENHA ENCONTRADA: $senha"
+    break
+  fi
+done
+
+A senha senai2024 estava em uma wordlist de apenas 5 tentativas — em segundos, foi encontrada. Compare com a chave_pacote.bin: 256 bits de aleatoriedade real, impossível de estar em qualquer wordlist ou de ser adivinhada por força bruta com a tecnologia atual. Senha fraca vira o elo mais fraco da corrente, mesmo com AES-256 "por baixo". Nunca proteja dados sensíveis com senha "de cabeça"; use chave gerada por openssl rand. Se uma senha humana for inevitável, use um KDF lento (PBKDF2 com iteração alta, Argon2) e uma frase longa e não previsível.
+
+CONCLUSÃO
+
+Nenhuma dessas ferramentas resolve o problema sozinha:
+
+- AES sem RSA não resolve "como enviar a chave".
+- RSA sem AES é lento demais para relatórios reais.
+- Hash sem assinatura não prova autoria.
+- Assinatura sem hash não escala para arquivos grandes.
+
+A resposta corporativa real é sempre a combinação das três chaves, cada uma cumprindo o papel para o qual foi desenhada: a chave privada é o segredo do proprietário e nunca é compartilhada; a chave pública pode ser distribuída livremente; a chave simétrica protege eficientemente os dados; o hash SHA-256 verifica integridade; a assinatura digital comprova autenticidade e integridade juntas; e a criptografia híbrida combina a eficiência do AES com a distribuição segura de chave via RSA.
+
+Com esses comandos, você consegue proteger um documento corporativo de ponta a ponta: só o destinatário certo lê, a autoria é comprovada, qualquer alteração é detectada e a chave secreta nunca trafega em texto puro. É exatamente o modelo que empresas reais usam todos os dias.
+
+SOBRE O AUTOR
+
+Charles Alandt é professor de Criptografia e Segurança em Redes no SENAI/UniSENAI Florianópolis. Este artigo é uma adaptação do workshop prático "Criptografia Híbrida Corporativa" usado em sala de aula, validado em Ubuntu 26.04 LTS com OpenSSL 3.x.

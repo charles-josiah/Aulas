@@ -86,5 +86,26 @@ Tópicos abordados:
 
 ---
 
+## Workshop: Certificados Digitais, PKI e TLS na Prática
+
+Acesse o [workshop completo](07-Certificados_Digitais_PKI_e_TLS.md).
+
+Tópicos abordados:
+- O problema: como confiar em uma chave pública (MITM do Workshop 06)
+- Certificado digital X.509: campos, SAN, validade, assinatura da CA
+- PKI, Autoridade Certificadora (AC) e ICP-Brasil (A1/A3/A4/S/T)
+- Cadeia de confiança: do certificado até a raiz confiável
+- Certificado autoassinado × emitido por CA
+- Geração de certificado autoassinado e inspeção com `openssl x509`
+- Mini-CA com OpenSSL: AC raiz, CSR e emissão de certificado para servidor
+- Verificação de cadeia com `openssl verify` e hostname com `-checkhost`
+- HTTPS na prática: `s_server`/`s_client` com validação de ponta a ponta
+- HTTP × HTTPS com tcpdump (fechando o ciclo dos Workshops 01–04)
+- Auditoria com `testssl.sh` (opcional)
+- Ataques: certificado expirado, hostname mismatch, cadeia quebrada, autoassinado não confiável e MITM com certificado falso
+- Desafio final com solução comentada (portal interno da empresa)
+
+---
+
 📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/README.md.svg)
 

@@ -234,7 +234,7 @@ O diagrama acima parece complexo à primeira vista, mas é só uma história em 
 
 Repare que ninguém precisou combinar uma senha secreta antes, e a chave simétrica nunca trafegou legível. É exatamente isso que torna o modelo híbrido viável em uma empresa real.
 
-> **Pergunta ao aluno:** no fluxo que você acabou de ler, o relatório foi **escrito por Alex** e será **lido por Sam**. Sabendo disso, responda:
+> 🤔 **Pense um pouco:** no fluxo que você acabou de ler, o relatório foi **escrito por Alex** e será **lido por Sam**. Sabendo disso, responda:
 >
 > 1. Qual das três chaves aparece **duas vezes** no diagrama, com papéis diferentes — uma vez cifrando o relatório e outra vez sendo ela mesma protegida?
 > 2. A assinatura foi feita com a chave privada **de quem**, e será verificada com a chave pública **de quem**?
@@ -307,7 +307,7 @@ ls -la
 -rw-r--r-- 1 aluno aluno 110 ago 25 09:01 resultado_trimestral.txt
 ```
 
-**Pergunta ao aluno:** por que criamos esses arquivos **antes** de falar em criptografia? (Resposta: porque a proteção sempre vem *depois* de existir algo a proteger — o dado é o ativo, a chave é a ferramenta.)
+🤔 **Pense um pouco:** por que criamos esses arquivos **antes** de falar em criptografia? (Resposta: porque a proteção sempre vem *depois* de existir algo a proteger — o dado é o ativo, a chave é a ferramenta.)
 
 ---
 
@@ -361,7 +361,7 @@ RELATORIO FINANCEIRO CONFIDENCIAL - Q3 2026
 
 **Validação:** o conteúdo deve aparecer legível no terminal — é exatamente esse o problema que vamos resolver.
 
-**Pergunta ao aluno:** se você anexasse este arquivo, do jeito que está, num e-mail comum, quais das quatro garantias (confidencialidade, integridade, autenticidade, chave protegida) você teria? *(Resposta: nenhuma das quatro.)*
+🤔 **Pense um pouco:** se você anexasse este arquivo, do jeito que está, num e-mail comum, quais das quatro garantias (confidencialidade, integridade, autenticidade, chave protegida) você teria? *(Resposta: nenhuma das quatro.)*
 
 ---
 
@@ -418,7 +418,7 @@ diff <(sha256sum relatorio_financeiro.txt | cut -d' ' -f1) \
 rm relatorio_adulterado_teste.txt
 ```
 
-**Pergunta ao aluno:** o hash sozinho garante que o arquivo **veio de Alex**? *(Não — qualquer pessoa pode calcular o SHA-256 de qualquer arquivo. Hash prova só integridade; autenticidade vem da assinatura digital, na Etapa 7.)*
+🤔 **Pense um pouco:** o hash sozinho garante que o arquivo **veio de Alex**? *(Não — qualquer pessoa pode calcular o SHA-256 de qualquer arquivo. Hash prova só integridade; autenticidade vem da assinatura digital, na Etapa 7.)*
 
 ---
 
@@ -478,7 +478,7 @@ cat relatorio_financeiro.enc
 
 O `file` deve indicar `data` (binário) e o `cat` deve exibir apenas bytes ilegíveis — prova de que a confidencialidade está ativa.
 
-**Pergunta ao aluno:** qual das três chaves (privada / pública / simétrica) você acabou de usar aqui, e ela poderia ser divulgada publicamente? *(Chave simétrica; não, nunca pode ser divulgada.)*
+🤔 **Pense um pouco:** qual das três chaves (privada / pública / simétrica) você acabou de usar aqui, e ela poderia ser divulgada publicamente? *(Chave simétrica; não, nunca pode ser divulgada.)*
 
 ---
 
@@ -559,7 +559,7 @@ tar -tzf relatorio_corporativo.tar.gz.enc
 tar: This does not look like a tar archive
 ```
 
-**Pergunta ao aluno:** por que geramos uma chave **nova** (`chave_pacote.bin`) em vez de reaproveitar `chave_aes.bin` da Etapa 4? *(Boa prática: cada objeto protegido idealmente tem sua própria chave, limitando o impacto se uma delas vazar.)*
+🤔 **Pense um pouco:** por que geramos uma chave **nova** (`chave_pacote.bin`) em vez de reaproveitar `chave_aes.bin` da Etapa 4? *(Boa prática: cada objeto protegido idealmente tem sua própria chave, limitando o impacto se uma delas vazar.)*
 
 ---
 
@@ -620,7 +620,7 @@ cp ~/empresa/remetente/alex_publica.pem ~/empresa/destinatario/
 cp ~/empresa/destinatario/sam_publica.pem ~/empresa/remetente/
 ```
 
-**Pergunta ao aluno:** se o arquivo `alex_privada.pem` estivesse com permissão `644` (qualquer usuário do sistema podendo ler), o que um outro usuário da mesma máquina conseguiria fazer? *(Assinar documentos se passando por Alex e descriptografar tudo que foi cifrado para ela.)*
+🤔 **Pense um pouco:** se o arquivo `alex_privada.pem` estivesse com permissão `644` (qualquer usuário do sistema podendo ler), o que um outro usuário da mesma máquina conseguiria fazer? *(Assinar documentos se passando por Alex e descriptografar tudo que foi cifrado para ela.)*
 
 ---
 
@@ -685,7 +685,7 @@ openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.s
 Verified OK
 ```
 
-**Pergunta ao aluno:** se Morgan (interceptador) tivesse gerado seu próprio par de chaves e assinado um relatório falso com a **privada dele**, o que aconteceria quando Sam tentasse verificar com a **pública de Alex**? *(Falharia — `Verification Failure` — porque a assinatura só "casa" com a chave pública do par que a gerou.)*
+🤔 **Pense um pouco:** se Morgan (interceptador) tivesse gerado seu próprio par de chaves e assinado um relatório falso com a **privada dele**, o que aconteceria quando Sam tentasse verificar com a **pública de Alex**? *(Falharia — `Verification Failure` — porque a assinatura só "casa" com a chave pública do par que a gerou.)*
 
 ---
 
@@ -803,7 +803,7 @@ openssl dgst -sha256 -verify alex_publica.pem -signature relatorio_corporativo.s
 
 Deve retornar `Verified OK`.
 
-**Pergunta ao aluno:** neste fluxo, a chave simétrica foi cifrada com a **pública de quem**? E foi decifrada com a **privada de quem**? *(Cifrada com a pública de Sam; decifrada com a privada de Sam — só ele consegue.)*
+🤔 **Pense um pouco:** neste fluxo, a chave simétrica foi cifrada com a **pública de quem**? E foi decifrada com a **privada de quem**? *(Cifrada com a pública de Sam; decifrada com a privada de Sam — só ele consegue.)*
 
 ---
 
@@ -881,7 +881,7 @@ RSA operation error
 ... (falha — a chave foi cifrada para a pública de Sam, não a de Alex)
 ```
 
-**Pergunta ao aluno:** por que nem Alex, dona do relatório original, consegue ler a mensagem de Jamie para Sam? *(Porque a chave simétrica da mensagem foi protegida com a chave pública de Sam — só a privada dele reverte, independente de quem mais tenha outras chaves privadas.)*
+🤔 **Pense um pouco:** por que nem Alex, dona do relatório original, consegue ler a mensagem de Jamie para Sam? *(Porque a chave simétrica da mensagem foi protegida com a chave pública de Sam — só a privada dele reverte, independente de quem mais tenha outras chaves privadas.)*
 
 ---
 
@@ -926,7 +926,7 @@ Verified OK
 
 **Validação:** os dois hashes devem ser **idênticos** e a verificação deve dizer `Verified OK`.
 
-**Pergunta ao aluno:** se apenas o hash batesse mas a assinatura falhasse, o que isso significaria? *(O arquivo não foi alterado — integridade OK — mas não veio de quem alega ter enviado, ou a chave pública usada está errada — autenticidade comprometida.)*
+🤔 **Pense um pouco:** se apenas o hash batesse mas a assinatura falhasse, o que isso significaria? *(O arquivo não foi alterado — integridade OK — mas não veio de quem alega ter enviado, ou a chave pública usada está errada — autenticidade comprometida.)*
 
 ---
 
@@ -1026,7 +1026,7 @@ Morgan leu a chave simétrica!
 - Mitigação real: **certificados digitais** (X.509) assinados por uma **Autoridade Certificadora (PKI)**, ou verificação manual de **fingerprint** (`openssl rsa -pubin -in chave.pem -outform DER | sha256sum`) por um canal alternativo confiável (telefone, presencialmente).
 - Não é necessário implementar PKI completa neste workshop — o importante é entender que **receber uma chave pública não prova, por si só, de quem ela é**.
 
-**Pergunta ao aluno:** o que Alex poderia ter feito, de forma simples, para confirmar que a chave pública recebida era realmente de Sam? *(Comparar o fingerprint da chave por um canal diferente — telefone, chat já validado — ou exigir um certificado assinado por CA confiável.)*
+🤔 **Pense um pouco:** o que Alex poderia ter feito, de forma simples, para confirmar que a chave pública recebida era realmente de Sam? *(Comparar o fingerprint da chave por um canal diferente — telefone, chat já validado — ou exigir um certificado assinado por CA confiável.)*
 
 ---
 
