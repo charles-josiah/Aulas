@@ -316,13 +316,43 @@ E uma página inicial simples (`nginx/html/index.html`) com links para as duas p
 
 ### Etapa 5: Copiando os certificados da nossa PKI
 
-Copie os certificados do Workshop 07 para a pasta `pki/`:
+Crie a pasta `pki/` (se você baixou os arquivos prontos do repositório na Etapa 1, ela ainda não existe) e copie os certificados do Workshop 07:
 
 ```bash
+mkdir -p /tmp/lab-nginx-tls/pki
+
 cp /tmp/lab-w7-user1/servidor/servidor.crt /tmp/lab-nginx-tls/pki/
 cp /tmp/lab-w7-user1/servidor/servidor.key /tmp/lab-nginx-tls/pki/
 cp /tmp/lab-w7-user1/ca/ca.crt            /tmp/lab-nginx-tls/pki/
 ```
+
+Confira se os três arquivos estão lá:
+
+```bash
+ls -la /tmp/lab-nginx-tls/pki/
+# servidor.crt  servidor.key  ca.crt
+```
+
+> [!IMPORTANT]
+> **A pasta `pki/` fica na RAIZ do laboratório** — ao lado do `docker-compose.yml` e da pasta `nginx/`, **não dentro de `nginx/`**. O `docker-compose.yml` monta `./pki:/etc/nginx/pki:ro` (caminho relativo ao arquivo compose). Se os certificados forem colocados em outro lugar (ex.: `nginx/pki/`), o nginx falha ao iniciar com:
+>
+> ```
+> [emerg] cannot load certificate "/etc/nginx/pki/servidor.crt": BIO_new_file() failed
+> (SSL: ... No such file or directory ...)
+> ```
+>
+> Estrutura correta:
+>
+> ```
+> lab-nginx-tls/
+> ├── docker-compose.yml   ← o compose monta ./pki (raiz)
+> ├── nginx/
+> │   └── ...
+> └── pki/                 ← os certificados ficam AQUI
+>     ├── servidor.crt
+>     ├── servidor.key
+>     └── ca.crt
+> ```
 
 > [!WARNING]
 > **Nunca suba `servidor.key` para o git ou compartilhe.** A chave privada é o segredo mais sensível da PKI. No laboratório ela fica apenas no servidor, dentro da pasta do lab (e o container a lê via bind mount, somente leitura).
