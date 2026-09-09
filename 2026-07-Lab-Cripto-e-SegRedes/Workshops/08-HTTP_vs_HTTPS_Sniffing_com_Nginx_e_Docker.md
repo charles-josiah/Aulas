@@ -164,6 +164,43 @@ lab-nginx-tls/
     └── ca.crt
 ```
 
+#### Baixando os arquivos prontos do repositório (alternativa à digitação manual)
+
+Os arquivos de configuração deste laboratório (`docker-compose.yml`, `default.conf`, `index.html`, `documento-secreto.txt` e `htpasswd`) estão publicados no repositório da disciplina. Escolha **uma** das opções abaixo:
+
+**Opção A — clone completo do repositório (mais simples):**
+
+```bash
+git clone --depth 1 https://github.com/charles-josiah/Aulas.git
+cd Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/08-HTTP_vs_HTTPS_Sniffing_com_Nginx_e_Docker
+```
+
+**Opção B — sparse checkout (baixa apenas a pasta do laboratório):**
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/charles-josiah/Aulas.git
+cd Aulas
+git sparse-checkout set 2026-07-Lab-Cripto-e-SegRedes/Workshops/08-HTTP_vs_HTTPS_Sniffing_com_Nginx_e_Docker
+```
+
+**Opção C — baixar arquivo por arquivo com `curl` (sem precisar de git):**
+
+```bash
+mkdir -p lab-nginx-tls/nginx/conf.d lab-nginx-tls/nginx/html/secreto
+BASE=https://raw.githubusercontent.com/charles-josiah/Aulas/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/08-HTTP_vs_HTTPS_Sniffing_com_Nginx_e_Docker
+curl -o lab-nginx-tls/docker-compose.yml                    "$BASE/docker-compose.yml"
+curl -o lab-nginx-tls/nginx/conf.d/default.conf             "$BASE/nginx/conf.d/default.conf"
+curl -o lab-nginx-tls/nginx/html/index.html                 "$BASE/nginx/html/index.html"
+curl -o lab-nginx-tls/nginx/html/secreto/documento-secreto.txt "$BASE/nginx/html/secreto/documento-secreto.txt"
+curl -o lab-nginx-tls/nginx/htpasswd                        "$BASE/nginx/htpasswd"
+```
+
+> [!IMPORTANT]
+> **Os certificados NÃO estão no repositório** (por segurança — a chave privada nunca deve ser versionada). A pasta `pki/` você cria na **Etapa 5**, copiando os certificados gerados no seu próprio Workshop 07. Os arquivos baixados aqui são apenas as configurações e o conteúdo do site.
+
+> [!NOTE]
+> O `htpasswd` baixado já contém o usuário `aluno` com a senha `Senha@123` (hash `apr1`). Se preferir gerar o seu, refaça a Etapa 3 — o arquivo será sobrescrito com o seu hash.
+
 ### Etapa 2: Configuração do nginx (portas 80 e 443)
 
 Crie o arquivo `nginx/conf.d/default.conf` com **dois** server blocks: um para a porta 80 (HTTP) e outro para a porta 443 (HTTPS). Ambos servem o mesmo conteúdo e protegem a mesma área `/secreto/` com basic auth.
