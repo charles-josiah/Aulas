@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Laboratório HTTP vs HTTPS</title>
+    <style>
+        body { font-family: monospace; background: #1e1e2e; color: #cdd6f4; margin: 40px; }
+        h1 { color: #89b4fa; }
+        a { color: #a6e3a1; }
+        .box { border: 1px solid #45475a; padding: 16px; margin: 16px 0; border-radius: 8px; }
+        .http  { border-left: 6px solid #f38ba8; }
+        .https { border-left: 6px solid #a6e3a1; }
+        code { background: #313244; padding: 2px 6px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Laboratório HTTP vs HTTPS</h1>
+    <p>Servidor nginx com o certificado da <code>AC-Raiz-Empresa</code> (Workshop 07).</p>
+
+    <div class="box http">
+        <h2>Porta 80 — HTTP (SEM criptografia)</h2>
+        <p>Abra o documento secreto em claro: <a href="http://172.30.234.55/secreto/documento-secreto.txt">http://172.30.234.55/secreto/documento-secreto.txt</a></p>
+        <p>Peça a senha ao professor. <strong>No sniffing, tudo aparece legível.</strong></p>
+    </div>
+
+    <div class="box https">
+        <h2>Porta 443 — HTTPS (criptografado)</h2>
+        <p>Abra o mesmo documento com TLS: <a href="https://servidor.local/secreto/documento-secreto.txt">https://servidor.local/secreto/documento-secreto.txt</a></p>
+        <p>O navegador vai reclamar do certificado (nossa CA não é pública) — aceite o aviso ou importe o <code>ca.crt</code>.</p>
+        <p><strong>No sniffing, só aparecem bytes criptografados.</strong></p>
+    </div>
+</body>
+</html>

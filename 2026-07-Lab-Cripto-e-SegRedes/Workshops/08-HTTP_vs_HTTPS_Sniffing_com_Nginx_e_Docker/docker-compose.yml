@@ -1,0 +1,31 @@
+# ============================================================================
+# Laboratório HTTP vs HTTPS — nginx com certificado da nossa CA
+#
+# Uso:
+#   docker compose up -d
+#
+# Depois, de outra estação, sniffar:
+#   sudo tcpdump -i <interface> -A -s 0 'port 80 or port 443'
+#   (ou capturar com -w arquivo.pcap e abrir no Wireshark)
+# ============================================================================
+
+services:
+  nginx-tls:
+    image: nginx:alpine
+    container_name: lab-nginx-tls
+    restart: unless-stopped
+    ports:
+      - "80:80"    # HTTP  -> SEM criptografia (pacotes legíveis)
+      - "443:443"  # HTTPS -> TLS com o certificado da nossa CA
+    volumes:
+      # Configuração dos dois server blocks (80 e 443)
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      # Usuário/senha da área restrita (basic auth)
+      - ./nginx/htpasswd:/etc/nginx/htpasswd:ro
+      # Páginas e documento secreto
+      - ./nginx/html:/usr/share/nginx/html:ro
+      # Certificados da nossa PKI (Workshop 07)
+      - ./pki:/etc/nginx/pki:ro
+    # O nginx precisa ler a chave privada — roda como root (master) e
+    # faz downgrade para o usuário nginx nos workers.
+    user: "0:0"

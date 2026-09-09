@@ -107,5 +107,19 @@ Tópicos abordados:
 
 ---
 
+## Workshop: HTTP vs HTTPS — Sniffing com Nginx em Docker
+
+Acesse o [workshop completo](08-HTTP_vs_HTTPS_Sniffing_com_Nginx_e_Docker.md) e os [arquivos do laboratório](08-HTTP_vs_HTTPS_Sniffing_com_Nginx_e_Docker/).
+
+Tópicos abordados:
+- Servidor nginx em Docker usando os certificados da PKI criada no Workshop 07
+- Duas portas servindo o mesmo conteúdo: 80 (HTTP, sem criptografia) e 443 (HTTPS, com TLS)
+- Área restrita com login e senha (basic auth) nas duas portas
+- Sniffing com tcpdump de outra estação e comparação dos pacotes
+- Prova: senha em base64 e documento inteiro legíveis no HTTP; apenas handshake ilegível no HTTPS
+- Decodificação da senha capturada (`base64 -d`) e por que base64 não é criptografia
+
+---
+
 📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/README.md.svg)
 
