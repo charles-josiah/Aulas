@@ -58,6 +58,7 @@ layout: default
   - [Etapa 7: HTTPS na prática com s_server e s_client](#etapa-7-https-na-prática-com-s_server-e-s_client)
   - [Etapa 8: HTTP × HTTPS com tcpdump](#etapa-8-http--https-com-tcpdump)
   - [Etapa 9: Auditoria com testssl.sh (opcional)](#etapa-9-auditoria-com-testsslsh-opcional)
+  - [Etapa 10: Certificados públicos reais — extraindo e conferindo cadeias](#etapa-10-certificados-públicos-reais--extraindo-e-conferindo-cadeias)
 - [5. Ataques e Falhas](#5-ataques-e-falhas)
   - [Ataque 1: Certificado expirado](#ataque-1-certificado-expirado)
   - [Ataque 2: Hostname errado (mismatch)](#ataque-2-hostname-errado-mismatch)
@@ -185,6 +186,61 @@ Um certificado X.509 contém, essencialmente:
 | **Número de série** | Identificador único emitido pela CA | `12:B9:5D:87:...` |
 | **Assinatura da CA** | A assinatura digital da autoridade sobre tudo acima | SHA-256 com RSA |
 | **SAN (Subject Alternative Name)** | Nomes de host/IP que o certificado cobre | `DNS:servidor.local, IP:127.0.0.1` |
+
+#### De onde vem o nome "X.509"?
+
+O **X.509** é uma recomendação da **ITU-T** (órgão de padronização de telecomunicações da ONU). O nome segue a nomenclatura da série **X** (redes de dados): o X.509 faz parte da sub-série **X.500**, que padroniza diretórios eletrônicos — e é a parte que trata de **autenticação e certificados de chave pública**. Para a internet, o IETF publicou o **RFC 5280**, que é o perfil X.509 que o OpenSSL, os navegadores e os servidores usam na prática.
+
+#### Analogia: o "RG digital"
+
+Pense no certificado X.509 como um **documento de identidade digital com formato padronizado**. Assim como um RG tem campos definidos (foto, nome, órgão emissor, validade), o X.509 define os campos do "RG digital". Qualquer sistema que siga o padrão consegue **ler e validar** o documento de qualquer outro sistema — é isso que permite que navegadores do mundo inteiro entendam certificados emitidos por CAs diferentes.
+
+#### Na prática: o nosso certificado real
+
+Quando você roda `openssl x509 -in cert.crt -noout -text`, está lendo exatamente a estrutura definida pelo X.509. Veja o certificado do `servidor.local` emitido neste workshop:
+
+```
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            54:a2:6f:14:53:a5:d9:29:20:8f:73:9b:7c:67:15:bb:23:ad:03:eb
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: CN=AC-Raiz-Empresa, O=Empresa, C=BR
+        Validity
+            Not Before: Sep  9 21:53:58 2026 GMT
+            Not After : Sep  9 21:53:58 2027 GMT
+        Subject: CN=servidor.local, O=Empresa, C=BR
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+        X509v3 extensions:
+            X509v3 Subject Alternative Name:
+                DNS:servidor.local, DNS:localhost, IP Address:127.0.0.1, IP Address:172.30.234.55
+```
+
+Mapeando cada campo para o padrão X.509:
+
+| Campo X.509 | No nosso certificado | O que significa |
+|-------------|----------------------|-----------------|
+| **Version** | `3 (0x2)` | Versão 3 — a que adiciona as extensões (SAN, Key Usage etc.) |
+| **Serial Number** | `54:a2:6f:14:...` | Identificador único dado pela CA |
+| **Signature Algorithm** | `sha256WithRSAEncryption` | Como a CA assinou este certificado |
+| **Issuer** | `CN=AC-Raiz-Empresa, O=Empresa, C=BR` | **Quem emitiu** (a nossa CA) |
+| **Validity** | `2026-09-09 → 2027-09-09` | Prazo de validade (`notBefore`/`notAfter`) |
+| **Subject** | `CN=servidor.local, O=Empresa, C=BR` | **De quem é** o certificado |
+| **Public Key** | RSA 2048 bits | A chave pública do servidor |
+| **Extensions (v3)** | `SAN: DNS:servidor.local, IP:172.30.234.55...` | Nomes/IPs válidos, usos permitidos |
+| **Assinatura da CA** | (final do arquivo) | O "carimbo" da CA que garante autenticidade |
+
+#### Por que o padrão importa?
+
+1. **Interoperabilidade** — como o formato é padrão, o `openssl verify`, o navegador e o nginx (Workshop 08) entendem o mesmo arquivo `.crt` sem conversão.
+2. **Cadeia de confiança** — a validação só funciona porque o certificado do servidor e o da CA seguem o mesmo padrão: o validador sabe exatamente onde procurar o *issuer*, a *assinatura* e a *chave pública*.
+3. **A versão 3** é a que permite o **SAN** — sem ela, não seria possível colocar o `IP:172.30.234.55` no certificado e o navegador rejeitaria o site.
+
+> [!NOTE]
+> **Curiosidade:** o **PGP/GPG** (Workshop 05) usa um modelo diferente — não há CA hierárquica nem formato X.509; é a "teia de confiança" (*web of trust*), em que as pessoas assinam as chaves umas das outras. O X.509 é o modelo usado no **TLS/HTTPS** e na **ICP-Brasil** — hierárquico, com CAs emitindo certificados para entidades.
 
 > [!IMPORTANT]
 > **SAN é obrigatório nos navegadores modernos.** Desde 2017 (Chrome 58+), o campo `commonName` (CN) **não é mais usado** para validar o nome do site — apenas o **SAN** é considerado. Um certificado sem SAN correto gera erro de hostname mesmo com CN correto.
@@ -729,6 +785,39 @@ echo "RELATORIO CONFIDENCIAL: vulnerabilidade em servidor de pagamentos" | \
 
 🤔 **Pense um pouco:** se um atacante capturasse esse tráfego, o que ele conseguiria ler? *(Nada do conteúdo — apenas que houve uma conexão na porta 4443 entre dois endereços. Confidencialidade do canal garantida pelo TLS.)*
 
+**Comandos — Passo 3: o MESMO relatório, agora SEM criptografia (netcat):**
+
+Para provar o contraste, envie a **mesma mensagem** por um canal sem TLS. O `netcat` (`nc`) é um "canivete suíço" de rede que envia bytes em claro — sem handshake, sem certificado, sem criptografia.
+
+> [!NOTE]
+> Se o `nc` não estiver instalado: `sudo apt install netcat-openbsd`.
+
+```bash
+# Terminal 1: "servidor" sem criptografia escutando na porta 4444
+nc -l -p 4444
+
+# Terminal 2: capture o tráfego da porta 4444
+sudo tcpdump -i lo -s 0 'tcp port 4444' -A
+
+# Terminal 3: envie o mesmo relatório confidencial, agora em claro
+echo "RELATORIO CONFIDENCIAL: vulnerabilidade em servidor de pagamentos" | nc localhost 4444
+```
+
+**Resultado esperado no tcpdump:**
+
+```text
+14:25:01.123456 IP localhost.45680 > localhost.4444: Flags [P.], seq 1:75, ack 1
+E..g..@.@..............\x11.P...P...P...G.....
+RELATORIO CONFIDENCIAL: vulnerabilidade em servidor de pagamentos
+```
+
+**Análise — compare os Passos 2 e 3:**
+
+- **Passo 2 (TLS, porta 4443):** o tcpdump mostrou apenas bytes aparentemente aleatórios — o relatório **não apareceu**.
+- **Passo 3 (netcat, porta 4444):** a **mesma mensagem** aparece **inteira em texto puro** no tcpdump. Qualquer pessoa que capture o tráfego lê o relatório sem nenhum esforço.
+
+🤔 **Pense um pouco:** mesma mensagem, dois canais. O que mudou entre o Passo 2 e o Passo 3? *(A criptografia do canal. No Passo 2 o TLS cifrou o relatório antes de enviar; no Passo 3 o netcat enviou os bytes em claro. O tcpdump prova: sem TLS, o dado é coletável — é exatamente isso que um atacante faria.)*
+
 ---
 
 ### Etapa 9: Auditoria com testssl.sh (opcional)
@@ -787,6 +876,164 @@ cd ~/testssl.sh
 > **Se o `s_server` não estiver mais rodando**, reinicie-o (Etapa 7, Passo 1) antes de rodar o `testssl.sh`. O `testssl.sh` também funciona contra servidores remotos: `./testssl.sh https://www.exemplo.com.br`.
 
 🤔 **Pense um pouco:** por que um auditor rodaria o `testssl.sh` contra um servidor de produção? *(Para detectar protocolos antigos, cifras fracas e vulnerabilidades conhecidas antes que um atacante as explore — é uma checagem preventiva de hardening.)*
+
+---
+
+### Etapa 10: Certificados públicos reais — extraindo e conferindo cadeias
+
+**Objetivo:** aplicar tudo o que vimos (X.509, cadeia de confiança, SAN, validade) em **certificados reais da internet** — baixar a cadeia de um site, separar cada certificado, inspecionar os campos e conferir a cadeia contra o cofre de CAs confiáveis do sistema.
+
+**Conceito:** quando você acessa `https://google.com`, o servidor envia **sua cadeia de certificados**: o certificado do site (folha), a CA intermediária que o assinou e, às vezes, uma raiz extra. O navegador valida essa cadeia contra as CAs que estão no **cofre do sistema** (`/etc/ssl/certs` no Linux). Vamos fazer exatamente isso com as mesmas ferramentas do laboratório.
+
+**Comandos — Passo 1: baixe a cadeia completa de um site real:**
+
+```bash
+mkdir -p ~/lab-cert-publicos && cd ~/lab-cert-publicos
+
+echo | openssl s_client -connect google.com:443 -servername google.com -showcerts 2>/dev/null \
+  | sed -n '/BEGIN CERT/,/END CERT/p' > cadeia.pem
+
+grep -c "BEGIN CERTIFICATE" cadeia.pem   # quantos certificados vieram?
+```
+
+**Explicação dos comandos:**
+
+- `-showcerts`: mostra **todos** os certificados da cadeia (sem ele, só o do site).
+- `sed -n '/BEGIN CERT/,/END CERT/p'`: extrai apenas os blocos `-----BEGIN CERTIFICATE-----` ... `-----END CERTIFICATE-----` (descarta o handshake).
+- `grep -c`: conta quantos certificados a cadeia tem.
+
+**Resultado esperado (validado em 2026-09):**
+
+```text
+3
+```
+
+**Comandos — Passo 2: separe os certificados da cadeia:**
+
+```bash
+awk 'BEGIN{n=0} /BEGIN CERT/{n++} {print > "cert-" n ".pem"}' cadeia.pem
+ls -la cert-*.pem
+```
+
+Cada arquivo `cert-N.pem` é um certificado da cadeia, na ordem em que o servidor enviou: `cert-1` é o do site, `cert-2` a intermediária, `cert-3` a raiz (quando enviada).
+
+**Comandos — Passo 3: inspecione cada certificado:**
+
+```bash
+for i in 1 2 3; do
+  echo "--- cert-$i ---"
+  openssl x509 -in cert-$i.pem -noout -subject -issuer -dates
+done
+```
+
+**Resultado esperado (google.com, validado em 2026-09):**
+
+```text
+--- cert-1 ---
+subject=CN=*.google.com
+issuer=C=US, O=Google Trust Services, CN=WR2
+notBefore=Aug 10 08:37:35 2026 GMT
+notAfter=Nov  2 08:37:34 2026 GMT
+--- cert-2 ---
+subject=C=US, O=Google Trust Services, CN=WR2
+issuer=C=US, O=Google Trust Services LLC, CN=GTS Root R1
+notBefore=Dec 13 09:00:00 2023 GMT
+notAfter=Feb 20 14:00:00 2029 GMT
+--- cert-3 ---
+subject=C=US, O=Google Trust Services LLC, CN=GTS Root R1
+issuer=C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA
+notBefore=Jun 19 00:00:42 2020 GMT
+notAfter=Jan 28 00:00:42 2028 GMT
+```
+
+**Análise — repare nos padrões:**
+
+- **cert-1 (folha):** `CN=*.google.com` — validade de **~90 dias** (padrão atual da indústria). O `issuer` é a intermediária WR2.
+- **cert-2 (intermediária):** o `subject` da intermediária é o `issuer` da folha — **a cadeia se encaixa**.
+- **cert-3 (raiz):** o `subject` da raiz é o `issuer` da intermediária. Mas repare: a raiz `GTS Root R1` foi assinada pela `GlobalSign Root CA` — é uma raiz **cross-assinada** (emitida por outra raiz para compatibilidade).
+
+**Comandos — Passo 4: confira a cadeia contra o cofre do sistema:**
+
+```bash
+# Jeito canônico: folha + intermediária como cadeia não confiável (-untrusted),
+# e o cofre do sistema como âncoras confiáveis (-CApath)
+openssl verify -CApath /etc/ssl/certs -untrusted cert-2.pem cert-1.pem
+```
+
+**Resultado esperado:**
+
+```text
+cert-1.pem: OK
+```
+
+**Análise:** o `openssl verify` construiu a cadeia `cert-1 → cert-2 → GTS Root R1` e encontrou a `GTS Root R1` no cofre do sistema (`/etc/ssl/certs/GTS_Root_R1.pem`). **Confiança validada.**
+
+**Comandos — Passo 5: o caso da raiz "extra" (cross-assinada):**
+
+```bash
+# Verificando a cadeia INTEIRA (com o cert-3 incluído)
+openssl verify -CApath /etc/ssl/certs cadeia.pem
+
+# E a raiz isolada
+openssl verify -CApath /etc/ssl/certs cert-3.pem
+```
+
+**Resultado esperado:**
+
+```text
+CN=*.google.com
+error 20 at 0 depth lookup: unable to get local issuer certificate
+error cadeia.pem: verification failed
+...
+error cert-3.pem: verification failed
+```
+
+🤔 **Pense um pouco:** por que a cadeia inteira falha se o navegador acessa o google.com sem problemas? *(Porque o `openssl verify` valida **todos** os certificados do arquivo — e o cert-3 foi assinado pela `GlobalSign Root CA`, que **não está no cofre** do Ubuntu. Mas isso não importa: o navegador confia **diretamente** na `GTS Root R1` (que está no cofre) e nem precisa do cert-3. O servidor envia 3 certificados, mas só 2 são necessários — o terceiro é um extra de compatibilidade.)*
+
+**Comandos — Passo 6: varie os alvos e compare:**
+
+```bash
+# github.com — cadeia com raiz ECC (Sectigo)
+echo | openssl s_client -connect github.com:443 -servername github.com -showcerts 2>/dev/null \
+  | grep -E "s:|i:"
+
+# www.senai.br — o site está num CDN (Azure); o certificado é do provedor, não do site
+echo | openssl s_client -connect www.senai.br:443 -servername www.senai.br -showcerts 2>/dev/null \
+  | grep -E "s:|i:"
+```
+
+**Resultado esperado (validado em 2026-09):**
+
+```text
+# github.com
+ 0 s:CN=github.com
+   i:C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication CA DV E36
+ 1 s:... E36
+   i:C=GB, O=Sectigo Limited, CN=Sectigo Public Server Authentication Root E46
+ 2 s:... Root E46
+   i:C=US, ... O=The USERTRUST Network, CN=USERTrust ECC Certification Authority
+
+# www.senai.br
+ 0 s:C=US, ST=WA, L=Redmond, O=Microsoft Corporation, CN=*.web.core.windows.net
+   i:C=US, O=Microsoft Corporation, CN=Microsoft TLS G2 RSA CA OCSP 10
+ 1 s:... Microsoft TLS RSA Root G2
+   i:C=US, O=DigiCert Inc, CN=DigiCert Global Root G2
+```
+
+**Análise — o que cada caso ensina:**
+
+- **google.com:** cadeia clássica RSA — folha → intermediária (WR2) → raiz (GTS Root R1, no cofre).
+- **github.com:** raiz **ECC** (`Sectigo Public Server Authentication Root E46`) — mostra que nem toda cadeia usa RSA.
+- **www.senai.br:** o certificado é `*.web.core.windows.net` da **Microsoft** — o site está hospedado no Azure (CDN/cloud). O certificado é do **provedor de infraestrutura**, não do dono do site. Isso é comum em sites que usam CDN ou cloud hosting.
+
+**Comandos — Passo 7: confira no navegador:**
+
+Abra `https://google.com` no navegador, clique no **cadeado** → "Conexão segura" → "O certificado é válido" (ou similar) e compare a cadeia exibida com a que extraímos via OpenSSL: o navegador mostra a mesma folha, a mesma intermediária e a raiz confiável.
+
+> [!NOTE]
+> **A raiz final nem sempre viaja.** O servidor envia folha + intermediária; a raiz (GlobalSign, DigiCert, Sectigo...) normalmente **não é enviada** — ela já está no cofre do cliente. É por isso que o cofre do sistema precisa estar atualizado: sem a raiz certa, a cadeia não fecha.
+
+🤔 **Pense um pouco:** o que aconteceria se a `GTS Root R1` fosse removida do cofre do sistema? *(Todos os sites cuja cadeia termina nessa raiz passariam a falhar com `error 20` — exatamente o que vimos no Passo 5 com a GlobalSign. É por isso que atualizações de certificados raiz (`ca-certificates`) são críticas.)*
 
 ---
 
