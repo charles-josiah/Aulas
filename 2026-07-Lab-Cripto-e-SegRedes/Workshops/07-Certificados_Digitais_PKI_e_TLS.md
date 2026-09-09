@@ -1207,6 +1207,8 @@ sudo certbot --nginx -d www.exemplo.com.br
 | `Verify return code: 10 (certificate has expired)` | Certificado fora da validade — verificar com `openssl x509 -in cert.crt -noout -dates` e reemitir |
 | `Verify return code: 62 (hostname mismatch)` | O nome acessado não está no SAN do certificado — verificar com `openssl x509 -in cert.crt -noout -checkhost <nome>` e reemitir com o SAN correto |
 | `s_server`/`s_client` não conecta | Confirmar que o servidor está rodando **antes** do cliente conectar; conferir a porta livre com `ss -tulpn \| grep 4443` |
+| `s_client` com `grep` **não retorna nada** (saída vazia) | O handshake TLS falhou e a mensagem de erro foi descartada pelo `2>/dev/null`. Repita o comando **sem** o `2>/dev/null` para ver a causa real — as mais comuns são: nada escutando na porta (`ss -tln \| grep 4443`), o `s_server` não conseguiu ler a chave privada (`Permission denied` — chave de outro usuário com `chmod 600`), ou o servidor já encerrou após atender uma conexão |
+| `s_server` falha com `Permission denied` na chave | A chave privada pertence a outro usuário (ex.: `root`) com `chmod 600`. Rodar o `s_server` como o dono da chave, ou gerar um laboratório próprio em um diretório com permissão de escrita (ex.: `/tmp/meu-lab/`) |
 | `s_client` fica "travado" | O `s_server` pode ter fechado; reiniciar o servidor e usar `timeout 5` no cliente |
 | Certificado autoassinado gera aviso no navegador | Esperado — autoassinado não é confiável para terceiros; usar certificado emitido por CA (Etapa 5) |
 | `-copy_extensions copy` não copia o SAN | Em versões antigas do OpenSSL, usar `-extfile` com um arquivo de configuração contendo o SAN |
