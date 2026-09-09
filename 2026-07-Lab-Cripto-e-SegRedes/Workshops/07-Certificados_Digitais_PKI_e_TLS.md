@@ -297,6 +297,41 @@ Um certificado emitido por uma CA não é verificado isoladamente — o cliente 
 
 O cliente (navegador, `s_client`, sistema operacional) mantém um **cofre de CAs confiáveis** (trust store). Se a cadeia terminar em uma CA que está nesse cofre, a confiança é estabelecida. Se não, o cliente avisa: "certificado não confiável".
 
+#### E quando há uma CA intermediária?
+
+Em PKIs reais, a cadeia quase nunca tem só dois níveis. Entre a raiz e o certificado do site existe uma **CA intermediária** — uma CA que não é a raiz, mas que foi autorizada por ela a emitir certificados:
+
+```
+┌─────────────────────────────────┐
+│ Certificado do servidor (folha) │  ← emitido pela intermediária
+│ issuer = AC-Intermediaria       │
+└───────────────┬─────────────────┘
+                │ "quem te assinou?"
+                ▼
+┌─────────────────────────────────┐
+│ Certificado da CA intermediária │  ← emitido pela raiz
+│ issuer = AC-Raiz                │
+└───────────────┬─────────────────┘
+                │ "quem te assinou?"
+                ▼
+┌─────────────────────────────────┐
+│ Certificado da AC-Raiz          │  ← autoassinado (raiz de confiança)
+│ issuer = AC-Raiz                │
+│ (está no "cofre" do cliente)    │
+└─────────────────────────────────┘
+```
+
+**Por que as CAs usam certificados intermediários?**
+
+1. **A raiz fica protegida (offline).** A chave privada da raiz é o bem mais valioso da PKI — ela fica guardada em cofre físico, desconectada da rede, e é usada raríssimas vezes (só para assinar as intermediárias). São as intermediárias que assinam os certificados do dia a dia.
+2. **Limitação de dano.** Se uma intermediária for comprometida, a CA a revoga (CRL/OCSP) e emite outra — **sem precisar trocar a raiz** nem reemitir todos os certificados do mundo. Se a própria raiz fosse usada para tudo, um vazamento dela destruiria toda a confiança da PKI.
+3. **Emissão em escala.** Uma raiz pode assinar várias intermediárias, cada uma dedicada a um produto, região ou tipo de certificado (DV, OV, EV) — organizando a emissão de milhões de certificados.
+4. **Separação de responsabilidades.** Políticas diferentes (validação de identidade, prazo de validade) podem ser aplicadas por intermediárias diferentes, sob o mesmo guarda-chuva da raiz.
+
+**Por que o servidor envia a intermediária, mas não a raiz?**
+
+Quando você acessa um site, o servidor envia **folha + intermediária(s)** — mas a raiz normalmente **não viaja**: ela já está no cofre do cliente. É por isso que o cofre do sistema precisa estar atualizado: sem a raiz certa, a cadeia não fecha. (Na Etapa 10, veremos isso na prática: o google.com envia 3 certificados — folha, intermediária WR2 e uma raiz extra cross-assinada — e o navegador usa só os 2 primeiros, porque a GTS Root R1 já está no cofre.)
+
 ### 2.5 Certificado autoassinado × certificado emitido por CA
 
 | Aspecto | Autoassinado | Emitido por CA |
