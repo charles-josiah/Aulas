@@ -121,5 +121,19 @@ Tópicos abordados:
 
 ---
 
+## Testes com Certificados Reais da Internet (guia rápido)
+
+Acesse o [guia de comandos](09-Testes_Certificados_Reais_Internet.md).
+
+Tópicos abordados:
+- Baixar a cadeia completa de um site real (`s_client -showcerts`)
+- Separar e inspecionar cada certificado da cadeia
+- Conferir a cadeia contra o cofre de CAs do sistema (`openssl verify -CApath`)
+- O caso da raiz cross-assinada (error 20 que "não importa")
+- Comparação entre google.com, github.com e www.senai.br
+- Cola rápida dos códigos de erro do `openssl verify`
+
+---
+
 📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/README.md.svg)
 
