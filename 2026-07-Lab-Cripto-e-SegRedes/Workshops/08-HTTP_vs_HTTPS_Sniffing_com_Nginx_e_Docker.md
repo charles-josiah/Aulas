@@ -542,3 +542,10 @@ A lição central: **criptografia de transporte (TLS/HTTPS) protege os dados em 
 - Configure o nginx para **redirecionar** a porta 80 para a 443 (`return 301 https://$host$request_uri;`) e observe que o HTTP passa a servir apenas o redirecionamento;
 - Teste o mesmo laboratório com `testssl.sh` (do Workshop 07) para auditar a configuração TLS do nginx;
 - Explore o que mais o sniffer vê no HTTPS: o SNI, o tamanho dos pacotes e o certificado enviado no handshake.
+
+---
+
+<p align="right">
+  <sub></sub><br>
+  <img src="https://hits.sh/github.com/charles-josiah/Aulas/blob/master/2026-07-Lab-Cripto-e-SegRedes/Workshops/08-HTTP_vs_HTTPS_Sniffing_com_Nginx_e_Docker.md.svg?label=leituras&color=eeeeee&labelColor=f5f5f5" alt="contador de leituras">
+</p>
