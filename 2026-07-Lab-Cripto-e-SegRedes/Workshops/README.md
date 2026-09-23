@@ -135,5 +135,20 @@ Tópicos abordados:
 
 ---
 
+## Workshop: Detecção e Resposta a Incidentes com Suricata e Wazuh
+
+Acesse o [workshop completo](10-Deteccao_Resposta_Incidentes_Suricata_Wazuh.md) e os [arquivos do laboratório](10-Deteccao_Resposta_Incidentes_Suricata_Wazuh/).
+
+Tópicos abordados:
+- NIDS com Suricata 7.0 em Docker: regras customizadas (HTTP, MySQL, MQTT, scan) e ajuste de HOME_NET
+- SIEM/HIDS com Wazuh: agente, manager, indexer e dashboard em Docker
+- Injeção de ataques reais (nmap, credencial HTTP em claro, exfiltração MySQL, spoofing MQTT, força bruta SSH)
+- Correlação de alertas e mapeamento MITRE ATT&CK (T1595, T1040, T1048, T1110)
+- Active response: bloqueio automático de IP com `firewall-drop` (iptables) e desbloqueio por timeout
+- NIDS × HIDS: o que cada sensor enxerga e por que os dois se complementam
+- Desafio final com solução comentada (gabarito cifrado com envelope híbrido RSA + AES)
+
+---
+
 📊 **Visualizações:** ![hits](https://hits.sh/github.com/charles-josiah/Aulas/2026-07-Lab-Cripto-e-SegRedes/Workshops/README.md.svg)
 
