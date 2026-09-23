@@ -58,11 +58,13 @@ layout: default
   - [Etapa 1.3: Wazuh em Docker no srvdocker01](#etapa-13-wazuh-em-docker-no-srvdocker01)
     - [O que é o Wazuh e para que serve](#o-que-é-o-wazuh-e-para-que-serve)
   - [Etapa 1.4: Agente Wazuh no srvdocker01](#etapa-14-agente-wazuh-no-srvdocker01)
+    - [Integração opcional: alertas do Suricata no Wazuh (agente no kali)](#integração-opcional-alertas-do-suricata-no-wazuh-agente-no-kali)
 - [5. Laboratório Guiado (Etapas 2–10)](#5-laboratório-guiado-etapas-210)
   - [Etapa 2: Prova de vida — primeiro alerta (nmap)](#etapa-2-prova-de-vida--primeiro-alerta-nmap)
   - [Etapa 3: Regra customizada — HTTP em claro (WS01/08)](#etapa-3-regra-customizada--http-em-claro-ws0108)
   - [Etapa 4: Regra customizada — MQTT CONNECT (WS04)](#etapa-4-regra-customizada--mqtt-connect-ws04)
   - [Etapa 5: Wazuh — primeiro alerta de log (SSH/FTP)](#etapa-5-wazuh--primeiro-alerta-de-log-sshftp)
+    - [Exemplo com Hydra (senha aleatória de 4 dígitos)](#exemplo-com-hydra-senha-aleatória-de-4-dígitos)
   - [Etapa 6: Correlação — replay do ataque MySQL (WS03)](#etapa-6-correlação--replay-do-ataque-mysql-ws03)
   - [Etapa 7: O que sobra depois do TLS (WS08, porta 443)](#etapa-7-o-que-sobra-depois-do-tls-ws08-porta-443)
   - [Etapa 8: Active response — bloqueio automático](#etapa-8-active-response--bloqueio-automático)
@@ -477,6 +479,48 @@ sudo systemctl start wazuh-agent
 
 **Validação:** `docker compose exec wazuh-manager /var/ossec/bin/manage_agents -l` lista o agente registrado; `sudo systemctl status wazuh-agent` mostra `active (running)`.
 
+#### Integração opcional: alertas do Suricata no Wazuh (agente no kali)
+
+**Objetivo:** fazer os alertas do Suricata (`eve.json`) aparecerem no dashboard do Wazuh — o NIDS e o HIDS/SIEM passam a ser vistos no mesmo painel. **Validado de ponta a ponta em 23/09/2026.**
+
+**Como funciona:** instala-se um segundo agente Wazuh no `kali` (o mesmo procedimento da Etapa 1.4, com nome `kali`) e adiciona-se um `<localfile>` apontando para o `eve.json` do Suricata. O agente lê o arquivo, envia os eventos ao manager e o Wazuh os correlaciona com a regra `86601` (grupo `suricata`).
+
+**Comandos (no `kali`):**
+
+```bash
+# 1. Instalar o agente — ATENÇÃO: fixar a versão = a do manager (4.14.7).
+#    O apt instala a 4.14.8 por padrão; a compatibilidade exige agente <= manager:
+sudo apt-get install -y gnupg apt-transport-https
+curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | sudo gpg --no-default-keyring \
+  --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && \
+  sudo chmod 644 /usr/share/keyrings/wazuh.gpg
+echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | \
+  sudo tee /etc/apt/sources.list.d/wazuh.list
+sudo apt-get update
+sudo apt-get install -y wazuh-agent=4.14.7-1   # downgrade se o apt trouxer 4.14.8
+
+# 2. Apontar para o manager (mesmo sed validado da Etapa 1.4)
+sudo sed -i 's|<address>MANAGER_IP</address>|<address>172.30.234.55</address>|' /var/ossec/etc/ossec.conf
+
+# 3. Adicionar o localfile do eve.json (antes de </ossec_config>)
+sudo sed -i 's|</ossec_config>|  <localfile>\n    <log_format>json</log_format>\n    <location>/home/kali/suricata/logs/eve.json</location>\n  </localfile>\n</ossec_config>|' /var/ossec/etc/ossec.conf
+
+# 4. Registrar no manager e iniciar
+sudo /var/ossec/bin/agent-auth -m 172.30.234.55 -A kali
+sudo systemctl daemon-reload && sudo systemctl enable wazuh-agent && sudo systemctl start wazuh-agent
+```
+
+**Resultado esperado (validado em 23/09/2026):** agente `kali` **Active** no manager (ID 002) e, após um ataque (ex.: `nmap -sS -p 1-1000 172.30.234.55`), o alerta do Suricata aparece no `alerts.json` do manager com a assinatura original:
+
+```
+{"rule":{"id":"86601","description":"Suricata: Alert - SCAN NMAP SYN - WS10",...},
+ "agent":{"id":"002","name":"kali","ip":"172.30.234.56"},
+ "data":{"alert":{"signature_id":"1000004","signature":"SCAN NMAP SYN - WS10",...}},
+ "location":"/home/kali/suricata/logs/eve.json"}
+```
+
+**Nota pedagógica:** com a integração, o dashboard passa a mostrar **os dois lados** — o que passou na rede (Suricata, via agente `kali`) e o que aconteceu na máquina (Wazuh, via agente `srvdocker01`). Sem ela, cada ferramenta mostra só o seu papel (Etapas 2–7 no `eve.json`, Etapas 5/8 no Wazuh).
+
 ---
 
 ## 5. Laboratório Guiado (Etapas 2–10)
@@ -649,6 +693,37 @@ for i in $(seq 1 30); do
     user1@172.30.234.55 2>/dev/null
 done
 ```
+
+#### Exemplo com Hydra (senha aleatória de 4 dígitos)
+
+**O que é o Hydra:** ferramenta clássica de força bruta (THC-Hydra, já vem instalada no Kali) que testa combinações de usuário/senha contra serviços de rede (SSH, FTP, HTTP, MySQL, etc.). Aqui usamos o modo `-x` (geração de senhas) para demonstrar o mesmo ataque com uma ferramenta de atacante real — o Wazuh detecta igual.
+
+**Comandos (no `kali`):**
+
+```bash
+# Força bruta SSH com Hydra — senha aleatória de 4 dígitos (0000-9999)
+# -l user1        : usuário alvo
+# -x 4:4:1        : gerar senhas de 4 caracteres, charset numérico (0-9)
+#                  (o "1" é atalho do Hydra para o range 0-9; 10000 combinações)
+# -t 4            : 4 tentativas em paralelo
+# -w 3            : timeout de conexão (s)
+# -f              : parar no primeiro sucesso (aqui nunca haverá — senha correta não está no range)
+# -I              : ignorar arquivo de restore de sessão anterior
+hydra -I -l user1 -x 4:4:1 -t 4 -w 3 -f ssh://172.30.234.55
+```
+
+**Resultado esperado (validado em 23/09/2026):** o Hydra gera falhas reais no `auth.log` (37× `Failed password` no teste real) e o Wazuh dispara a mesma sequência do loop acima — `5760` (falha individual) → `5551` (força bruta, lvl 10) → `651` (bloqueio firewall-drop) → `652` (desbloqueio após 300s):
+
+```
+# Wazuh (alerts.json) — sequência gerada pelo Hydra:
+2026-09-23T22:31:54 | rule 5551 | lvl 10 | PAM: Multiple failed logins in a small period of time. | src 172.30.234.56
+2026-09-23T22:31:54 | rule 651  | lvl 3  | Host Blocked by firewall-drop Active Response | src 172.30.234.56
+... (após 300s) ...
+2026-09-23T22:36:54 | rule 652  | lvl 3  | Host Unblocked by firewall-drop Active Response | src 172.30.234.56
+```
+
+> [!NOTE]
+> **Hydra × PerSourcePenalties (validado em 23/09/2026):** o OpenSSH 9.8+ do servidor derruba conexões após ~7 falhas (`drop connection ... penalty`). Com `-t 4` o Hydra recebe `Connection reset by peer` e para de avançar — mas as falhas **já geradas** (37 no teste real) bastam para o 5551 disparar. Se quiser ver o Hydra "trabalhando" por mais tempo, use `-t 1 -w 10` (serial, mais lento). O loop `sshpass` acima continua sendo o método mais confiável para o laboratório; o Hydra aqui é para demonstrar a ferramenta de atacante real.
 
 **Resultado esperado (validado em 23/09/2026):** no `auth.log` do srvdocker01, 10× `Failed password for user1 from 172.30.234.56`; no Wazuh, a sequência de alertas:
 
