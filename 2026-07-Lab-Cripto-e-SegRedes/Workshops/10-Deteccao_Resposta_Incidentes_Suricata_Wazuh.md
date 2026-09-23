@@ -54,6 +54,7 @@ layout: default
 - [4. Preparação do Laboratório (Etapa 1)](#4-preparação-do-laboratório-etapa-1)
   - [Etapa 1.1: Verificar o ambiente dos WS01–04/08](#etapa-11-verificar-o-ambiente-dos-ws010408)
   - [Etapa 1.2: Suricata em Docker no kali](#etapa-12-suricata-em-docker-no-kali)
+    - [O que é o Suricata e para que serve](#o-que-é-o-suricata-e-para-que-serve)
   - [Etapa 1.3: Wazuh em Docker no srvdocker01](#etapa-13-wazuh-em-docker-no-srvdocker01)
   - [Etapa 1.4: Agente Wazuh no srvdocker01](#etapa-14-agente-wazuh-no-srvdocker01)
 - [5. Laboratório Guiado (Etapas 2–10)](#5-laboratório-guiado-etapas-210)
@@ -253,6 +254,10 @@ laboratorio-servidor         0.0.0.0:5000->5000/tcp
 **Validação:** subir o que faltar com `docker compose up -d` em cada pasta dos WS01–04/08.
 
 ### Etapa 1.2: Suricata em Docker no kali
+
+#### O que é o Suricata e para que serve
+
+O **Suricata** é um sistema de detecção de intrusão de rede (NIDS) open source, mantido pela OISF (Open Information Security Foundation). Ele **inspeciona o tráfego em tempo real** na interface de rede, comparando cada pacote contra milhares de regras de assinatura (ET Open + regras locais). **Para que serve:** detectar atividade suspeita — scans de porta, força bruta, exploração de vulnerabilidades, exfiltração de dados — e gerar alertas em JSON (`eve.json`) sem precisar de um humano olhando o pcap ao vivo, como nos WS01–04. **Como é usado:** o container roda com `--net=host` e sniffa a `eth0` do kali; cada alerta registra timestamp, IPs de origem/destino, portas e o SID da regra que disparou — é isso que vamos acompanhar nas Etapas 2–6 e correlacionar com o Wazuh.
 
 **Objetivo:** subir o NIDS no `kali` usando a imagem `jasonish/suricata` com `--net=host` (sniffa a `eth0` do host — a mesma interface do tcpdump dos WS01–04).
 
