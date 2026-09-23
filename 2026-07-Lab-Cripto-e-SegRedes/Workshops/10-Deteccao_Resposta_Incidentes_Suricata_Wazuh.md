@@ -82,7 +82,7 @@ layout: default
 
 ### Contextualização
 
-Nos Workshops 01–04 fomos o **atacante**: farejamos HTTP, FTP, MySQL e MQTT em texto claro. Nos Workshops 05–09 viramos **defensores com criptografia**: GPG, AES/RSA híbrido, PKI própria, TLS. Mas cifrar o canal não significa que alguém está de olho nele. Este workshop fecha a UC nos colocando no papel que falta: **quem detecta e responde quando (ou apesar de) tudo isso falha**.
+Nos Workshops 01–04 fomos o **atacante**: sniffamos HTTP, FTP, MySQL e MQTT em texto claro. Nos Workshops 05–09 viramos **defensores com criptografia**: GPG, AES/RSA híbrido, PKI própria, TLS. Mas cifrar o canal não significa que alguém está de olho nele. Este workshop fecha a UC nos colocando no papel que falta: **quem detecta e responde quando (ou apesar de) tudo isso falha**.
 
 A diferença central que este workshop quer fixar: nos WS01–04 você **sentou e olhou** os pacotes com tcpdump/tshark (alguém tinha que estar assistindo ao vivo). Aqui, o Suricata e o Wazuh **olham sozinhos, 24/7, e avisam** — você injeta o ataque e vê o alerta nascer sem precisar ficar olhando o pcap.
 
