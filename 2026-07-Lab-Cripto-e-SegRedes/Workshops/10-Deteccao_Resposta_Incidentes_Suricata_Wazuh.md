@@ -502,8 +502,23 @@ sudo apt-get install -y wazuh-agent=4.14.7-1   # downgrade se o apt trouxer 4.14
 # 2. Apontar para o manager (mesmo sed validado da Etapa 1.4)
 sudo sed -i 's|<address>MANAGER_IP</address>|<address>172.30.234.55</address>|' /var/ossec/etc/ossec.conf
 
-# 3. Adicionar o localfile do eve.json (antes de </ossec_config>)
-sudo sed -i 's|</ossec_config>|  <localfile>\n    <log_format>json</log_format>\n    <location>/home/kali/suricata/logs/eve.json</location>\n  </localfile>\n</ossec_config>|' /var/ossec/etc/ossec.conf
+# 3. Adicionar o localfile do eve.json — ATENÇÃO (validado em 23/09/2026):
+#    o ossec.conf do Wazuh tem DUAS seções <ossec_config>; um sed simples em
+#    "</ossec_config>" insere o bloco nas DUAS → o logcollector avisa
+#    "Log file ... is duplicated" e o envio fica instável. Usar python,
+#    substituindo apenas a PRIMEIRA ocorrência:
+sudo python3 - <<'EOF'
+p = "/var/ossec/etc/ossec.conf"
+s = open(p).read()
+block = """  <localfile>
+    <log_format>json</log_format>
+    <location>/home/kali/suricata/logs/eve.json</location>
+  </localfile>
+"""
+if "eve.json" not in s:
+    s = s.replace("</ossec_config>", block + "</ossec_config>", 1)
+    open(p, "w").write(s)
+EOF
 
 # 4. Registrar no manager e iniciar
 sudo /var/ossec/bin/agent-auth -m 172.30.234.55 -A kali
