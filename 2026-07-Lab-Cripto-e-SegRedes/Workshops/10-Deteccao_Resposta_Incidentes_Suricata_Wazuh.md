@@ -56,6 +56,7 @@ layout: default
   - [Etapa 1.2: Suricata em Docker no kali](#etapa-12-suricata-em-docker-no-kali)
     - [O que é o Suricata e para que serve](#o-que-é-o-suricata-e-para-que-serve)
   - [Etapa 1.3: Wazuh em Docker no srvdocker01](#etapa-13-wazuh-em-docker-no-srvdocker01)
+    - [O que é o Wazuh e para que serve](#o-que-é-o-wazuh-e-para-que-serve)
   - [Etapa 1.4: Agente Wazuh no srvdocker01](#etapa-14-agente-wazuh-no-srvdocker01)
 - [5. Laboratório Guiado (Etapas 2–10)](#5-laboratório-guiado-etapas-210)
   - [Etapa 2: Prova de vida — primeiro alerta (nmap)](#etapa-2-prova-de-vida--primeiro-alerta-nmap)
@@ -365,6 +366,10 @@ E o `ruleset-stats` respondendo:
 **Validação:** `docker ps` mostra o container `suricata` Up; `ls ~/suricata/logs/` mostra `eve.json`.
 
 ### Etapa 1.3: Wazuh em Docker no srvdocker01
+
+#### O que é o Wazuh e para que serve
+
+O **Wazuh** é uma plataforma open source de segurança que combina **HIDS** (detecção de intrusão no host) com **SIEM** (correlação e análise de logs). Ele funciona em duas partes: o **agente**, instalado na máquina monitorada (srvdocker01), coleta logs (`auth.log`, nginx, MySQL), arquivos e integridade do sistema; o **manager**, que roda em Docker, recebe esses dados, aplica regras de correlação e gera alertas. **Para que serve:** detectar o que aconteceu **dentro da máquina** — força bruta no SSH/FTP, alteração de arquivos, comandos suspeitos — enquanto o Suricata olha o que passa **na rede** (os dois se complementam). **Como é usado:** o agente envia os eventos ao manager, que os indexa e exibe no dashboard web (porta 8443); cada alerta registra timestamp, regra (ex.: 5551), nível de severidade e o log original — é o que vamos ver nas Etapas 5 e 8.
 
 **Objetivo:** subir o SIEM (manager + indexer + dashboard) no `srvdocker01` com o deploy oficial single-node.
 
