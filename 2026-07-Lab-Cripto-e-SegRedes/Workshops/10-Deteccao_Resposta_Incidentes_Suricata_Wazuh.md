@@ -634,6 +634,64 @@ curl -sk -u aluno:Senha@123 https://servidor.local/
 
 **Resultado esperado (validado em 23/09/2026):** **nenhum** alerta de conteúdo (o payload está cifrado). Guarde isso para a Etapa 7.
 
+#### Exemplo com Hydra (quebra de senha HTTP — Basic Auth do WS08)
+
+**Objetivo:** demonstrar que o Hydra também quebra a senha do **site HTTP do WS08** (porta 80, basic auth do nginx) — e que o Suricata consegue detectar o `Authorization: Basic` em claro.
+
+**Conceito:** o site do WS08 protege `/secreto/documento-secreto.txt` com **HTTP Basic Auth** (nginx). A credencial viaja no header `Authorization: Basic <base64>` — diferente do login do WS01, que manda `password=` no corpo do POST. Por isso a regra `sid:1000001` (que procura `password=` no `http_client_body`) **não** detecta o Hydra; é preciso uma regra que olhe o header.
+
+**Comandos (no `kali`):**
+
+```bash
+# 1. Wordlist pequena com a senha real no meio (simula a wordlist do atacante)
+printf "admin\n123456\npassword\nsenha\nSenha@123\naluno123\nqwerty\n" > /tmp/wordlist_http.txt
+
+# 2. Quebrar o basic auth com o módulo http-get
+hydra -I -l aluno -P /tmp/wordlist_http.txt -t 4 -w 5 -f \
+  http-get://172.30.234.55/secreto/documento-secreto.txt
+```
+
+**Resultado esperado (validado em 23/09/2026):**
+
+```
+[80][http-get] host: 172.30.234.55   misc: /secreto/documento-secreto.txt   login: aluno   password: Senha@123
+1 of 1 target successfully completed, 1 valid password found
+```
+
+**Explicação dos comandos:**
+
+- `-l aluno`: usuário do basic auth (o mesmo do WS08).
+- `-P wordlist`: arquivo com as senhas candidatas. **Atenção:** a senha real (`Senha@123`) tem letras e símbolo — o modo `-x 4:4:1` (só dígitos) da Etapa 5 **nunca** a acharia; para HTTP o atacante usa wordlist.
+- `-t 4 -w 5`: 4 tarefas paralelas, 5s de timeout por tentativa.
+- `-f`: para ao achar a primeira senha válida.
+- `http-get://...`: módulo do Hydra para HTTP Basic Auth (envia `GET` com header `Authorization: Basic`).
+
+**Regra para detectar o Basic Auth (adicionar ao `local.rules`):**
+
+```bash
+cat >> ~/suricata/rules/local.rules << 'EOF'
+
+alert http any any -> any any (msg:"BASIC AUTH EM CLARO - WS08"; \
+  flow:to_server,established; \
+  http.header; content:"Authorization: Basic"; \
+  classtype:web-application-attack; sid:1000005; rev:1;)
+EOF
+docker exec suricata suricatasc -c reload-rules
+```
+
+**Atenção (validado em 23/09/2026):** no Suricata 7.x o `http.header` é **sticky buffer** — vem **antes** do `content` (escrever `content:"..."; http.header;` gera erro de parse `setup buffer http_header but didn't add matches to it` e derruba o carregamento do `local.rules` inteiro). Depois de editar, valide com `docker exec suricata suricata -T -c /etc/suricata/suricata.yaml -S /var/lib/suricata/rules/local.rules`.
+
+**Resultado esperado (validado em 23/09/2026):** alerta `BASIC AUTH EM CLARO - WS08` no `eve.json` para cada tentativa do Hydra:
+
+```json
+{"timestamp":"2026-09-23T22:59:12.900249+0000","event_type":"alert","src_ip":"172.30.234.56","dest_ip":"172.30.234.55","dest_port":80,"alert":{"signature_id":1000005,"signature":"BASIC AUTH EM CLARO - WS08"}}
+```
+
+**No Wazuh (com a integração da Etapa 1.4):** o alerta chega como `Suricata: Alert - BASIC AUTH EM CLARO - WS08` (regra `86601`, grupo `suricata`, agente `kali`).
+
+> [!NOTE]
+> O `eve.json` tem **bufferização de escrita** — os alertas podem demorar alguns segundos para aparecer no arquivo. Se acabou de rodar o Hydra e não viu nada, aguarde ~10s e consulte de novo. E cuidado com o `jq`: `select(.event_type=="alert" and .alert.signature|test("BASIC"))` **não funciona** (precedência do `and`/`|`); use `select(.event_type=="alert" and (.alert.signature|test("BASIC")))`.
+
 ### Etapa 4: Regra customizada — MQTT CONNECT (WS04)
 
 **Objetivo:** escrever a segunda regra própria — detectar o CONNECT do MQTT em claro (WS04), que carrega usuário/senha no pacote.
