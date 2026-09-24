@@ -198,16 +198,21 @@ Ciclo curto (baseado no [NIST SP 800-61](https://csrc.nist.gov/pubs/sp/800/61/r2
 │  │  │ WS03 MySQL (3306)     │  │        │  │ sniffa eth0       │  │ │
 │  │  │ WS04 MQTT (1883)      │  │        │  │ → eve.json        │  │ │
 │  │  │ WS08 nginx (80/443)   │  │        │  └───────────────────┘  │ │
-│  │  └───────────────────────┘  │        │                         │ │
-│  │  ┌───────────────────────┐  │        │  Ferramentas de ataque: │ │
-│  │  │ Wazuh manager (Docker)│  │        │  nmap, hydra, curl,     │ │
-│  │  │ + indexer + dashboard │  │        │  mosquitto_pub, mysql   │ │
-│  │  └───────────────────────┘  │        │                         │ │
-│  │  ┌───────────────────────┐  │        │  ATAQUE ──────────────► │ │
-│  │  │ Wazuh agente (host)   │  │        │  (tráfego passa pela    │ │
-│  │  │ auth.log, logs docker │  │        │   eth0 do kali →        │ │
-│  │  └───────────────────────┘  │        │   Suricata vê)          │ │
-│  └─────────────────────────────┘        └─────────────────────────┘ │
+│  │  └───────────────────────┘  │        │  ┌───────────────────┐  │ │
+│  │  ┌───────────────────────┐  │        │  │ Wazuh agente(host)│  │ │
+│  │  │ Wazuh manager (Docker)│  │        │  │ lê eve.json (nº 2)│  │ │
+│  │  │ + indexer + dashboard │  │        │  │ ────────────────► │  │ │
+│  │  └───────────────────────┘  │        │  │  manager (1514)   │  │ │
+│  │  ┌───────────────────────┐  │        │  └───────────────────┘  │ │
+│  │  │ Wazuh agente (host)   │  │        │  Ferramentas de ataque: │ │
+│  │  │ auth.log, logs docker │  │        │  nmap, hydra, curl,     │ │
+│  │  └───────────────────────┘  │        │  mosquitto_pub, mysql   │ │
+│  └─────────────────────────────┘        │                         │ │
+│                                         │  ATAQUE ──────────────► │ │
+│                                         │  (tráfego passa pela    │ │
+│                                         │   eth0 do kali →        │ │
+│                                         │   Suricata vê)          │ │
+│                                         └─────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
